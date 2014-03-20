@@ -11,7 +11,7 @@
     tools:context=".MenuActivity" >
 
     <Button
-        android:id="@+id/usernameInput"
+        android:id="@+id/selectUser"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
