@@ -2,7 +2,9 @@ package com.example.bomberman;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
 import android.view.Menu;
+import android.view.View;
 
 public class MenuActivity extends Activity {
 
@@ -18,5 +20,20 @@ public class MenuActivity extends Activity {
 		getMenuInflater().inflate(R.menu.menu, menu);
 		return true;
 	}
+	
+    public void chooseUserMenu(View v) {
+        //Intent intent = new Intent(CreateNoteActivity.this, MainActivity.class);
+        //startActivity(intent);
+    }
+    
+    public void newGameMenu(View v) {
+        //Intent intent = new Intent(CreateNoteActivity.this, MainActivity.class);
+        //startActivity(intent);
+    }
+    
+    public void joinGameMenu(View v) {
+        //Intent intent = new Intent(CreateNoteActivity.this, MainActivity.class);
+        //startActivity(intent);
+    }
 
 }
