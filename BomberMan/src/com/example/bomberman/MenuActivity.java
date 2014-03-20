@@ -21,7 +21,7 @@ public class MenuActivity extends Activity {
 		return true;
 	}
 	
-    public void chooseUserMenu(View v) {
+    public void selectUserMenu(View v) {
         //Intent intent = new Intent(CreateNoteActivity.this, MainActivity.class);
         //startActivity(intent);
     }
