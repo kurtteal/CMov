@@ -6,6 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@drawable/bm"
    	android:orientation="vertical"
     tools:context=".MenuActivity" >
 
@@ -13,10 +14,10 @@
         android:id="@+id/usernameInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
         android:layout_marginBottom="20dp"
-        android:text="Select User" 
-        android:onClick="selectUserMenu"/>
+        android:layout_marginTop="100dp"
+        android:onClick="selectUserMenu"
+        android:text="Select User" />
 
     <Button
         android:id="@+id/newGame"
