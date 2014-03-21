@@ -14,6 +14,8 @@ public class MenuActivity extends Activity {
 	ArrayList<String> users; //list of usernames
 	TextView activeUser;
 	
+	// COMENTARIO DO MADEIRA
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
