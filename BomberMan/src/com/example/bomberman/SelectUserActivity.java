@@ -20,6 +20,7 @@ public class SelectUserActivity extends Activity {
 	MyAdapter adapter;
 	EditText input;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
