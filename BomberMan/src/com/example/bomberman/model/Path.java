@@ -9,19 +9,19 @@ import android.graphics.Rect;
 import com.example.bomberman.R;
 
 /**
- * This is a test droid that is dragged, dropped, moved, smashed against
- * the wall and done other terrible things with.
- * Wait till it gets a weapon!
+ * This is a test droid that is dragged, dropped, moved, smashed against the
+ * wall and done other terrible things with. Wait till it gets a weapon!
  * 
  * @author impaler
- *
+ * 
  */
 public class Path {
 
 	private Bitmap bitmap; // the actual bitmap (or the animation sequence)
 	private int x; // the X coordinate (top left of the image)
 	private int y; // the Y coordinate (top left of the image)
-	private boolean blocked;
+
+	private PathState state = PathState.FREE;
 
 	private Rect sourceRect; // the rectangle to be drawn from the animation
 								// bitmap
@@ -31,9 +31,21 @@ public class Path {
 								// rectangle
 	private int spriteHeight; // the height of the sprite
 
-	public Path(Resources resources, int x, int y) {
-		this.bitmap = BitmapFactory.decodeResource(resources,
+	public Path(Resources resources, int x, int y, PathState state) {
+		if(state == PathState.FREE)
+			this.bitmap = BitmapFactory.decodeResource(resources,
 				R.drawable.walking_right);
+		else if(state == PathState.BLOCKED)
+			this.bitmap = BitmapFactory.decodeResource(resources,
+				R.drawable.walking_right);
+		else if(state == PathState.ONFIRE)
+			this.bitmap = BitmapFactory.decodeResource(resources,
+				R.drawable.walking_right);
+		else if(state == PathState.BOMB)
+			this.bitmap = BitmapFactory.decodeResource(resources,
+				R.drawable.walking_right);
+		else this.bitmap = null;
+		
 		this.x = x;
 		this.y = y;
 		spriteWidth = bitmap.getWidth() / frameNr;
@@ -66,17 +78,17 @@ public class Path {
 	public void setY(int y) {
 		this.y = y;
 	}
-	
-	public boolean isBlocked() {
-		return blocked;
+
+	public PathState getState() {
+		return state;
 	}
 
-	public void setBlocked(boolean blocked) {
-		this.blocked = blocked;
+	public void setState(PathState state) {
+		this.state = state;
 	}
 
 	public void update(long gameTime) {
-		// Path don't need to update their state.
+		// TODO
 	}
 
 	// the draw method which draws the corresponding frame
@@ -87,5 +99,5 @@ public class Path {
 		// pega no bitmap, corta pelo sourceRect e coloca em destRect
 		canvas.drawBitmap(this.bitmap, sourceRect, destRect, null);
 	}
-	
+
 }
