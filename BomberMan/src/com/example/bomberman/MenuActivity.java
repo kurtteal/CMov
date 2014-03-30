@@ -47,8 +47,8 @@ public class MenuActivity extends Activity {
 		}
 	}
 
-	public void startGame(View v) {
-		Intent intent = new Intent(MenuActivity.this, GameActivity.class);
+	public void selectLevel(View v) {
+		Intent intent = new Intent(MenuActivity.this, SelectMapActivity.class);
 		startActivity(intent);
 	}
 

@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="19" />
 
     <application
         android:allowBackup="true"
@@ -29,6 +29,10 @@
         <activity
             android:name="com.example.bomberman.GameActivity"
             android:label="@string/title_activity_game" >
+        </activity>
+        <activity
+            android:name="com.example.bomberman.SelectMapActivity"
+            android:label="@string/title_activity_select_map" >
         </activity>
     </application>
 
