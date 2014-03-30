@@ -15,6 +15,7 @@
         <item>Easy</item>
         <item>Normal</item>
         <item>Hard</item>
+        <item>World Class</item>
     </string-array>
 
 </resources>
