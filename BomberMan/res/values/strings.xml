@@ -11,6 +11,8 @@
     <string name="title_activity_select_user">SelectUserActivity</string>
     <string name="title_activity_game">GameActivity</string>
     
+    <string name="dummy_de_teste">LoL</string>
+    
     <string-array name="levels_array">
         <item>Easy</item>
         <item>Normal</item>
