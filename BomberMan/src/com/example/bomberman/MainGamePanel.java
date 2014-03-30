@@ -1,10 +1,7 @@
 package com.example.bomberman;
 
-import com.example.bomberman.model.Droid;
-import com.example.bomberman.model.components.Speed;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -12,6 +9,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import com.example.bomberman.model.Bomberman;
+import com.example.bomberman.model.components.Speed;
 
 /**
  * @author impaler
@@ -24,11 +24,11 @@ public class MainGamePanel extends SurfaceView implements
 	private static final String TAG = MainGamePanel.class.getSimpleName();
 	
 	private GameThread thread;
-	private Droid droid; //modelo q s mexe
+	private Bomberman droid; //modelo q s mexe
 
 	private void commonInit(){
 		// create droid and load bitmap : <bitmap, xInitial, yInitial>
-		droid = new Droid(getResources(), 50, 50);
+		droid = new Bomberman(getResources(), 50, 50);
 		// create the game loop thread
 		thread = new GameThread(getHolder(), this);
 		// make the GamePanel focusable so it can handle events

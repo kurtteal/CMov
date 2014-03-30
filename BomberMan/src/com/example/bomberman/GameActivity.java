@@ -3,8 +3,6 @@ package com.example.bomberman;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
 
 public class GameActivity extends Activity {
     /** Called when the activity is first created. */
