@@ -26,7 +26,7 @@
         android:layout_height="0dp"
         android:layout_marginBottom="20dp"
         android:layout_weight="1"
-        android:onClick="startGame"
+        android:onClick="selectLevel"
         android:text="@string/newgame_button" />
 
     <Button
