@@ -26,7 +26,7 @@
         android:layout_height="0dp"
         android:layout_marginBottom="20dp"
         android:layout_weight="1"
-        android:onClick="startNewGame"
+        android:onClick="startGame"
         android:text="@string/newgame_button" />
 
     <Button
@@ -35,7 +35,7 @@
         android:layout_height="0dp"
         android:layout_marginBottom="20dp"
         android:layout_weight="1"
-        android:onClick="joinGameMenu"
+        android:onClick="joinGame"
         android:text="@string/joingame_button" />
 
     <Button

@@ -53,16 +53,23 @@ public class MenuActivity extends Activity {
 		startActivityForResult(intent, 1);
 	}
 
-	public void newGameMenu(View v) {
+	public void startGame(View v) {
 		// Intent intent = new Intent(CreateNoteActivity.this,
 		// MainActivity.class);
 		// startActivity(intent);
 	}
 
-	public void joinGameMenu(View v) {
+	public void joinGame(View v) {
 		// Intent intent = new Intent(CreateNoteActivity.this,
 		// MainActivity.class);
 		// startActivity(intent);
 	}
 
+	public void openSettings(View v) {
+		// Intent intent = new Intent(CreateNoteActivity.this,
+		// MainActivity.class);
+		// startActivity(intent);
+	}
+
+	
 }
