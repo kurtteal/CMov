@@ -47,16 +47,9 @@ public class MenuActivity extends Activity {
 		}
 	}
 
-	public void selectUserMenu(View v) {
-		Intent intent = new Intent(MenuActivity.this, SelectUserActivity.class);
-		intent.putExtra("users", users);
-		startActivityForResult(intent, 1);
-	}
-
 	public void startGame(View v) {
-		// Intent intent = new Intent(CreateNoteActivity.this,
-		// MainActivity.class);
-		// startActivity(intent);
+		Intent intent = new Intent(MenuActivity.this, GameActivity.class);
+		startActivity(intent);
 	}
 
 	public void joinGame(View v) {
@@ -66,9 +59,9 @@ public class MenuActivity extends Activity {
 	}
 
 	public void openSettings(View v) {
-		// Intent intent = new Intent(CreateNoteActivity.this,
-		// MainActivity.class);
-		// startActivity(intent);
+		Intent intent = new Intent(MenuActivity.this, SelectUserActivity.class);
+		intent.putExtra("users", users);
+		startActivityForResult(intent, 1);
 	}
 
 	

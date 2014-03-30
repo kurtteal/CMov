@@ -9,5 +9,6 @@
 	<string name="settings_button">Settings</string>
     
     <string name="title_activity_select_user">SelectUserActivity</string>
+    <string name="title_activity_game">GameActivity</string>
 
 </resources>

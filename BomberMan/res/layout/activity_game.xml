@@ -1,0 +1,142 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".GameActivity" >
+    
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="NAME:\ndummy"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="SCORE:\n69"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="TIME LEFT:\n0:47"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="PLAYERS:\n6"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
+    <com.example.bomberman.MainGamePanel
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="0.35"/>
+    
+    <LinearLayout
+        android:id="@+id/controls"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="0.9"
+        android:orientation="horizontal" >
+        
+        <LinearLayout
+            android:id="@+id/bottomBar1"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:layout_weight="1"
+            android:orientation="vertical" >
+            
+            <Button
+                android:id="@+id/pause"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:onClick="pauseClick"
+                android:text="Pause"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/quit"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:onClick="pauseClick"
+                android:text="Quit"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+        <RelativeLayout 
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent"
+		    android:layout_weight="0.4"
+		    android:paddingLeft="16dp"
+		    android:paddingRight="16dp" >
+            
+            <Button
+                android:id="@+id/up"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+		    	android:layout_marginLeft="40dp"
+                android:text="U" />
+
+            <Button
+                android:id="@+id/left"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="20dp"
+                android:text="L" />
+            
+            <Button
+                android:id="@+id/right"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="80dp"
+                android:text="R" />
+
+            <Button
+                android:id="@+id/down"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginLeft="40dp"
+                android:text="D" />
+            
+            <Button
+                android:id="@+id/bomb"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="120dp"
+                android:text="Bomb" />
+		    
+		</RelativeLayout>
+
+    </LinearLayout>
+	
+</LinearLayout>

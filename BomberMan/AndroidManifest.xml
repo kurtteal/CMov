@@ -26,6 +26,10 @@
             android:name="com.example.bomberman.SelectUserActivity"
             android:label="@string/title_activity_select_user" >
         </activity>
+        <activity
+            android:name="com.example.bomberman.GameActivity"
+            android:label="@string/title_activity_game" >
+        </activity>
     </application>
 
 </manifest>
