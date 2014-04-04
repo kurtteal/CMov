@@ -1,16 +1,21 @@
 package com.example.bomberman;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+
+import com.example.bomberman.util.GameMatrix;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 public class SelectMapActivity extends Activity {
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -35,7 +40,15 @@ public class SelectMapActivity extends Activity {
 	}
 
 	public void startGame(View v) {
+		GameMatrix matrix = new GameMatrix();
+        AssetManager am = getAssets();
+        try {
+			InputStream is = am.open("map1");
+			matrix.fillMatrix(is);
+		} catch (IOException e) { e.printStackTrace(); }
+		
 		Intent intent = new Intent(SelectMapActivity.this, GameActivity.class);
+		intent.putExtra("matrix", matrix); //get number from select_map layout (the one selected)
 		startActivity(intent);
 	}
 

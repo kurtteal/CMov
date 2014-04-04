@@ -1,6 +1,11 @@
 package com.example.bomberman;
 
+import java.io.InputStream;
+
+import com.example.bomberman.util.GameMatrix;
+
 import android.app.Activity;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -8,6 +13,7 @@ public class GameActivity extends Activity {
     /** Called when the activity is first created. */
 	
 	private static final String TAG = GameActivity.class.getSimpleName();
+	protected GameMatrix matrix;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -18,6 +24,9 @@ public class GameActivity extends Activity {
         //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         // set our MainGamePanel as the View
         //setContentView(new MainGamePanel(this));
+
+        matrix = (GameMatrix)getIntent().getSerializableExtra("matrix");
+
         setContentView(R.layout.activity_game);
         Log.d(TAG, "View added");
     }

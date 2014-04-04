@@ -1,7 +1,11 @@
 package com.example.bomberman;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -12,6 +16,7 @@ import android.view.SurfaceView;
 
 import com.example.bomberman.model.Bomberman;
 import com.example.bomberman.model.components.Speed;
+import com.example.bomberman.util.GameMatrix;
 
 /**
  * @author impaler
@@ -26,31 +31,34 @@ public class MainGamePanel extends SurfaceView implements
 	private GameThread thread;
 	private Bomberman droid; //modelo q s mexe
 
-	private void commonInit(){
+	private void commonInit(Context context){
 		// create droid and load bitmap : <bitmap, xInitial, yInitial>
 		droid = new Bomberman(getResources(), 50, 50);
 		// create the game loop thread
 		thread = new GameThread(getHolder(), this);
 		// make the GamePanel focusable so it can handle events
 		setFocusable(true);
+		
+    	GameMatrix matrix = ((GameActivity)context).matrix;      
+		Log.d("CONTEXT", matrix.getLine(1)); //ja funca
 	}
 	
 	public MainGamePanel(Context context) {
 		super(context);
 		// adding the callback (this) to the surface holder to intercept events
 		getHolder().addCallback(this);
-		commonInit();
+		commonInit(context);
 	}
     public MainGamePanel(Context context, AttributeSet attrs) {
         super(context, attrs);
         getHolder().addCallback(this);
-		commonInit();
+		commonInit(context);
     }
 
     public MainGamePanel(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         getHolder().addCallback(this);
-		commonInit();
+		commonInit(context);
     }
 
 	@Override
