@@ -6,8 +6,6 @@ package com.example.bomberman.model.components;
  * and the directions on those. An object with the ability
  * to move will contain this class and the move method will
  * update its position according to the speed. 
- *   
- * @author impaler
  *
  */
 public class Speed {
@@ -16,55 +14,62 @@ public class Speed {
 	public static final int DIRECTION_LEFT	= -1;
 	public static final int DIRECTION_UP	= -1;
 	public static final int DIRECTION_DOWN	= 1;
+	public static final int STILL = 0;
 	
-	private float xv;	// velocity value on the X axis
-	private float yv;	// velocity value on the Y axis
+	private final int velocity = 3;
 	
-	private int xDirection = DIRECTION_RIGHT;
-	private int yDirection = DIRECTION_DOWN;
-	
-	public Speed() {
-		this.xv = 3;
-		this.yv = 3;
-	}
+	private int xDirection;
+	private int yDirection;
 
-	public Speed(float xv, float yv) {
-		this.xv = xv;
-		this.yv = yv;
+	public Speed(){
+		goRight();
 	}
-
-	public float getXv() {
-		return xv;
-	}
-	public void setXv(float xv) {
-		this.xv = xv;
-	}
-	public float getYv() {
-		return yv;
-	}
-	public void setYv(float yv) {
-		this.yv = yv;
+	
+	public float getVelocity() {
+		return velocity;
 	}
 
 	public int getxDirection() {
 		return xDirection;
 	}
-	public void setxDirection(int xDirection) {
-		this.xDirection = xDirection;
-	}
 	public int getyDirection() {
 		return yDirection;
 	}
-	public void setyDirection(int yDirection) {
-		this.yDirection = yDirection;
+	
+	public void goUp() {
+		xDirection = STILL;
+		yDirection = DIRECTION_UP;
+	}
+	public void goDown() {
+		xDirection = STILL;
+		yDirection = DIRECTION_DOWN;
+	}
+	public void goRight() {
+		xDirection = DIRECTION_RIGHT;
+		yDirection = STILL;
+	}
+	public void goLeft() {
+		xDirection = DIRECTION_LEFT;
+		yDirection = STILL;
+	}
+	public void stayStill(){
+		xDirection = STILL;
+		yDirection = STILL;
+	}
+	
+	//returns true if the bomberman is moving
+	public boolean isNotZero(){
+		if(xDirection != STILL || yDirection != STILL)
+			return true;
+		return false;
 	}
 
-	// changes the direction on the X axis
+	// changes the direction on the X axis (called when theres a colision)
 	public void toggleXDirection() {
 		xDirection = xDirection * -1;
 	}
 
-	// changes the direction on the Y axis
+	// changes the direction on the Y axis (called when theres a colision)
 	public void toggleYDirection() {
 		yDirection = yDirection * -1;
 	}

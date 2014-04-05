@@ -40,6 +40,7 @@ public class SelectMapActivity extends Activity {
 	}
 
 	public void startGame(View v) {
+		//TODO: ir buscar o mapa correcto conforme o selecionado pelo user
 		GameMatrix matrix = new GameMatrix();
         AssetManager am = getAssets();
         try {

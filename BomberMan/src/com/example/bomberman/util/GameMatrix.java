@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public class GameMatrix implements Serializable {
 
-	private char matrix[][];
+	public char matrix[][];
 	int sizeX;
 	int sizeY;
 	  

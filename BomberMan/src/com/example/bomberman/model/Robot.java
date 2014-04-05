@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
+import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.R;
 import com.example.bomberman.model.components.Speed;
 
@@ -17,13 +18,16 @@ import com.example.bomberman.model.components.Speed;
  * @author impaler
  *
  */
-public class Robot {
+public class Robot implements IDrawable{
 
+	private MainGamePanel panel;
+	public int iArena;
+	public int jArena; //this player's coordinates in the arena matrix
+	
 	private Bitmap bitmapRight;	// the actual bitmap (or the animation sequence)
 	private Bitmap bitmapLeft;
 	private int x;			// the X coordinate (top left of the image)
 	private int y;			// the Y coordinate (top left of the image)
-	private boolean touched;	// if droid is touched/picked up
 	private Speed speed;	// the speed with its directions
 	
 	private static final String TAG = Robot.class.getSimpleName();
@@ -37,7 +41,10 @@ public class Robot {
 	private int spriteWidth; // the width of the sprite to calculate the cut out rectangle
 	private int spriteHeight;   // the height of the sprite
 	
-	public Robot (Resources resources, int x, int y) {
+	public Robot (Resources resources, int x, int y, MainGamePanel panel, int i, int j) {
+		iArena = i;
+		jArena = j;
+		this.panel = panel;
 		this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.walking_right);
 		this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.walking_left);
 		this.x = x;
@@ -56,14 +63,13 @@ public class Robot {
 	//for collision checks
 	public int getHeight(){
 		return spriteHeight;
-	}
+	}	
+	// for collision checks
+	public int getRightBorder() { return x+getWidth(); }
+	public int getLeftBorder() { return x; }
+	public int getUpBorder() { return y; }
+	public int getDownBorder() { return y+getHeight(); }
 	
-//	public Bitmap getBitmap() {
-//		return bitmap;
-//	}
-//	public void setBitmap(Bitmap bitmap) {
-//		this.bitmap = bitmap;
-//	}
 	public int getX() {
 		return x;
 	}
@@ -75,14 +81,6 @@ public class Robot {
 	}
 	public void setY(int y) {
 		this.y = y;
-	}
-
-	public boolean isTouched() {
-		return touched;
-	}
-
-	public void setTouched(boolean touched) {
-		this.touched = touched;
 	}
 	
 	public Speed getSpeed() {
@@ -97,24 +95,45 @@ public class Robot {
 	 * Method which updates the droid's internal state every tick
 	 */
 	public void update(long gameTime) {
-		if (!touched) {
-			//New positions
-			x += (speed.getXv() * speed.getxDirection()); 
-			y += (speed.getYv() * speed.getyDirection());
-			
-			//New frame
-			if (gameTime > frameTicker + framePeriod) {
-				frameTicker = gameTime;
-				// increment the frame
-				currentFrame++;
-				if (currentFrame >= frameNr) {
-					currentFrame = 0;
-				}
-			}
-			// define the rectangle to cut out sprite
-			this.sourceRect.left = currentFrame * spriteWidth;
-			this.sourceRect.right = this.sourceRect.left + spriteWidth;
+		// check collision with right wall if heading right
+		if (speed.getxDirection() == Speed.DIRECTION_RIGHT
+				&& getX() + getWidth() >= panel.getWidth()) {
+			speed.toggleXDirection();
 		}
+		// check collision with left wall if heading left
+		if (speed.getxDirection() == Speed.DIRECTION_LEFT
+				&& getX() <= 0) {
+			speed.toggleXDirection();
+		}
+		// check collision with bottom wall if heading down
+		if (speed.getyDirection() == Speed.DIRECTION_DOWN
+				&& getY() + getHeight() >= panel.getHeight()) {
+			speed.toggleYDirection();
+		}
+		// check collision with top wall if heading up
+		if (speed.getyDirection() == Speed.DIRECTION_UP
+				&& getY() <= 0) {
+			speed.toggleYDirection();
+		}
+		
+
+		//New positions
+		x += (speed.getVelocity() * speed.getxDirection()); 
+		y += (speed.getVelocity() * speed.getyDirection());
+		
+		//New frame
+		if (gameTime > frameTicker + framePeriod) {
+			frameTicker = gameTime;
+			// increment the frame
+			currentFrame++;
+			if (currentFrame >= frameNr) {
+				currentFrame = 0;
+			}
+		}
+		// define the rectangle to cut out sprite
+		this.sourceRect.left = currentFrame * spriteWidth;
+		this.sourceRect.right = this.sourceRect.left + spriteWidth;
+		
 	}
 
 	// the draw method which draws the corresponding frame

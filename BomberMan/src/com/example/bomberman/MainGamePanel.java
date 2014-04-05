@@ -14,7 +14,11 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
+import com.example.bomberman.model.Path;
+import com.example.bomberman.model.PathState;
+import com.example.bomberman.model.Wall;
 import com.example.bomberman.model.components.Speed;
 import com.example.bomberman.util.GameMatrix;
 
@@ -29,18 +33,20 @@ public class MainGamePanel extends SurfaceView implements
 	private static final String TAG = MainGamePanel.class.getSimpleName();
 	
 	private GameThread thread;
-	private Bomberman droid; //modelo q s mexe
+	//private Bomberman bomberman; //modelo q s mexe
+	private Arena arena;
 
 	private void commonInit(Context context){
 		// create droid and load bitmap : <bitmap, xInitial, yInitial>
-		droid = new Bomberman(getResources(), 50, 50);
+		//bomberman = new Bomberman(getResources(), 50, 50);
+    	GameMatrix matrix = ((GameActivity)context).matrix;      
+		Log.d("CONTEXT", matrix.getLine(1)); //ja funca
+		arena = new Arena(getResources(), matrix, this);
+		
 		// create the game loop thread
 		thread = new GameThread(getHolder(), this);
 		// make the GamePanel focusable so it can handle events
 		setFocusable(true);
-		
-    	GameMatrix matrix = ((GameActivity)context).matrix;      
-		Log.d("CONTEXT", matrix.getLine(1)); //ja funca
 	}
 	
 	public MainGamePanel(Context context) {
@@ -104,52 +110,26 @@ public class MainGamePanel extends SurfaceView implements
 			} else {
 				Log.d(TAG, "Coords: x=" + event.getX() + ",y=" + event.getY());
 			}
-		} if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			// the gestures
-			if (droid.isTouched()) {
-				// the droid was picked up and is being dragged
-				droid.setX((int)event.getX());
-				droid.setY((int)event.getY());
-			}
-		} if (event.getAction() == MotionEvent.ACTION_UP) {
-			// touch was released
-			if (droid.isTouched()) {
-				droid.setTouched(false);
-			}
-		}
+		} 
 		return true;
 	}
 
+	public void update() {
+		
+		// Update new positions and animations
+		arena.update(System.currentTimeMillis());
+//		bomberman.update(System.currentTimeMillis(), this);
+	}
+	
+	//Aqui eh qdo sao desenhados, a ordem interessa, os ultimos ficam "por cima"
 	protected void render(Canvas canvas) {
 		// fills the canvas with black
 		canvas.drawColor(Color.BLACK);
-		droid.draw(canvas);
+		arena.draw(canvas);
+//		bomberman.draw(canvas);
 	}
 	
-	public void update() {
-		// check collision with right wall if heading right
-		if (droid.getSpeed().getxDirection() == Speed.DIRECTION_RIGHT
-				&& droid.getX() + droid.getWidth() >= getWidth()) {
-			droid.getSpeed().toggleXDirection();
-		}
-		// check collision with left wall if heading left
-		if (droid.getSpeed().getxDirection() == Speed.DIRECTION_LEFT
-				&& droid.getX() <= 0) {
-			droid.getSpeed().toggleXDirection();
-		}
-		// check collision with bottom wall if heading down
-		if (droid.getSpeed().getyDirection() == Speed.DIRECTION_DOWN
-				&& droid.getY() + droid.getHeight() >= getHeight()) {
-			droid.getSpeed().toggleYDirection();
-		}
-		// check collision with top wall if heading up
-		if (droid.getSpeed().getyDirection() == Speed.DIRECTION_UP
-				&& droid.getY() <= 0) {
-			droid.getSpeed().toggleYDirection();
-		}
-		// Update the lone droid
-		droid.update(System.currentTimeMillis());
-	}
+
 
 
 }
