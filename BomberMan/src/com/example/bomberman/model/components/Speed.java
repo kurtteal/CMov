@@ -1,5 +1,7 @@
 package com.example.bomberman.model.components;
 
+import java.util.Random;
+
 /**
  * The Speed class keeps track of the bearing of an object
  * in the 2D plane. It holds the speed values on both axis 
@@ -72,6 +74,21 @@ public class Speed {
 	// changes the direction on the Y axis (called when theres a colision)
 	public void toggleYDirection() {
 		yDirection = yDirection * -1;
+	}
+	
+	//AI dos robots (lol)
+	public void randomDirection(){
+		Random r = new Random();
+		int i = r.nextInt(2);
+		int j = r.nextInt(2);
+		if(i == 0){
+			if(j == 0) goUp();
+			else goDown();
+		}
+		else{
+			if(j == 0) goLeft();
+			else goRight();
+		}
 	}
 
 }

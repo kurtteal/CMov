@@ -1,5 +1,7 @@
 package com.example.bomberman.model;
 
+import com.example.bomberman.util.GameMatrix;
+
 import android.graphics.Canvas;
 
 // for collision checks, and arena drawing
@@ -11,6 +13,6 @@ public interface IDrawable {
 	public int getUpBorder();
 	public int getDownBorder();
 	
-	public void update(long gameTime);
+	public void update(long gameTime, GameMatrix gm);
 	public void draw(Canvas canvas);
 }

@@ -11,13 +11,13 @@ import android.graphics.Canvas;
 
 public class Arena {
 
-	private IDrawable[][] arena;
+	private IDrawable[][] arena; //Matrix dos objectos para desenhar
+	private GameMatrix gm; //matrix com chars, para verificacao de colisoes
 	
 	//os players/robots tem de ser os ultimos a ser desenhado
 	//e o chao tem q ser desenhado por baixo deles, antes de estes serem desenhados
 	private List<Bomberman> players;
 	private List<Robot> robots;
-	private GameMatrix gm;
 	
 	public Arena (Resources resources, GameMatrix gameMatrix, MainGamePanel panel) {
 		players = new ArrayList<Bomberman>();
@@ -38,24 +38,24 @@ public class Arena {
 					previousRightBorder = arena[i][j-1].getRightBorder();
 				switch(gm.matrix[i][j]){
 					case 'W':
-						arena[i][j] = new Wall(resources, previousRightBorder, previousBottomBorder);
+						arena[i][j] = new Wall(resources, previousRightBorder, previousBottomBorder, i, j);
 						break;
 					case '-':
-						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.FLOOR);
+						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.FLOOR, i, j);
 						break;
 					case 'O':
-						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.OBSTACLE);
+						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.OBSTACLE, i, j);
 						break;
 					case 'B':
-						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.BOMB);
+						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.BOMB, i, j);
 						break;
 					case 'R':
-						robots.add(new Robot(resources, previousRightBorder, previousBottomBorder, panel, i, j));
-						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.FLOOR);
+						robots.add(new Robot(resources, previousRightBorder, previousBottomBorder, panel, i, j, gm.matrix[i][j]));
+						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.FLOOR, i, j);
 						break;
 					default:
-						players.add(new Bomberman(resources, previousRightBorder, previousBottomBorder, panel, i, j));
-						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.FLOOR);
+						players.add(new Bomberman(resources, previousRightBorder, previousBottomBorder, panel, i, j, gm.matrix[i][j]));
+						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.FLOOR, i, j);
 						break;
 				}
 			}
@@ -75,13 +75,16 @@ public class Arena {
 
 		for(i=0; i< sizeX; i++){
 			for(j=0; j< sizeY; j++){
-				arena[i][j].update(gameTime);
+				//actualiza os objectos que precisam de se actualizar
+				//em termos de posicao e frames, e actualiza a matriz
+				//de estados 'gm'
+				arena[i][j].update(gameTime, gm); 
 			}
 		}
 		for(Robot robot: robots)
-			robot.update(gameTime);
+			robot.update(gameTime, gm); //actualizam-se comparando-se com a matriz
 		for(Bomberman player: players)
-			player.update(gameTime);
+			player.update(gameTime, gm);
 	}
 	
 	public void draw(Canvas canvas){

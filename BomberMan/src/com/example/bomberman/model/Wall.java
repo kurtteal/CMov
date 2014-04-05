@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 
 import com.example.bomberman.R;
+import com.example.bomberman.util.GameMatrix;
 
 /**
  * This is a test droid that is dragged, dropped, moved, smashed against the
@@ -21,7 +22,8 @@ public class Wall implements IDrawable{
 	private int x; // the X coordinate (top left of the image)
 	private int y; // the Y coordinate (top left of the image)
 
-	public Wall(Resources resources, int x, int y) {
+	public Wall(Resources resources, int x, int y, int i, int j) {
+		//the wall will not use int i and int j, as it does not change the state of the gameMatrix
 		this.bitmap = BitmapFactory.decodeResource(resources,
 				R.drawable.wall);
 		this.x = x;
@@ -59,7 +61,7 @@ public class Wall implements IDrawable{
 		this.y = y;
 	}
 
-	public void update(long gameTime) {
+	public void update(long gameTime, GameMatrix gm) {
 		// Walls don't need to update their state.
 	}
 

@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 
 import com.example.bomberman.R;
+import com.example.bomberman.util.GameMatrix;
 
 /**
  * This is a test droid that is dragged, dropped, moved, smashed against the
@@ -16,6 +17,9 @@ import com.example.bomberman.R;
  * 
  */
 public class Path implements IDrawable{
+	
+	public int iArena;
+	public int jArena;
 
 	private Bitmap bitmap; // the actual bitmap (or the animation sequence)
 	private int x; // the X coordinate (top left of the image)
@@ -36,7 +40,9 @@ public class Path implements IDrawable{
 	
 	private PathState state;
 
-	public Path(Resources resources, int x, int y, PathState state) {
+	public Path(Resources resources, int x, int y, PathState state, int i, int j) {
+		iArena = i;
+		jArena = j; //Each component knows its coordinates on the gameMatrix
 		if(state == PathState.FLOOR){
 			bitmap = BitmapFactory.decodeResource(resources,
 				R.drawable.floor);
@@ -107,7 +113,7 @@ public class Path implements IDrawable{
 		
 	}
 
-	public void update(long gameTime) {
+	public void update(long gameTime, GameMatrix gm) {//TODO update the gamematrix
 		//New frame
 		if (gameTime > frameTicker + framePeriod) {
 			frameTicker = gameTime;
