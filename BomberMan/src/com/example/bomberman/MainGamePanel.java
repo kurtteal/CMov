@@ -20,7 +20,7 @@ import com.example.bomberman.model.Path;
 import com.example.bomberman.model.PathState;
 import com.example.bomberman.model.Wall;
 import com.example.bomberman.model.components.Speed;
-import com.example.bomberman.util.GameMatrix;
+import com.example.bomberman.util.GameConfigs;
 
 /**
  * @author impaler
@@ -35,19 +35,6 @@ public class MainGamePanel extends SurfaceView implements
 	private GameThread thread;
 	//private Bomberman bomberman; //modelo q s mexe
 	private Arena arena;
-
-	private void commonInit(Context context){
-		// create droid and load bitmap : <bitmap, xInitial, yInitial>
-		//bomberman = new Bomberman(getResources(), 50, 50);
-    	GameMatrix matrix = ((GameActivity)context).matrix;      
-		Log.d("CONTEXT", matrix.getLine(1)); //ja funca
-		arena = new Arena(getResources(), matrix, this);
-		
-		// create the game loop thread
-		thread = new GameThread(getHolder(), this);
-		// make the GamePanel focusable so it can handle events
-		setFocusable(true);
-	}
 	
 	public MainGamePanel(Context context) {
 		super(context);
@@ -67,6 +54,23 @@ public class MainGamePanel extends SurfaceView implements
 		commonInit(context);
     }
 
+	private void commonInit(Context context){
+		// create droid and load bitmap : <bitmap, xInitial, yInitial>
+		//bomberman = new Bomberman(getResources(), 50, 50);
+    	GameConfigs matrix = ((GameActivity)context).matrix;      
+		Log.d("CONTEXT", matrix.getLine(1)); //ja funca
+		arena = new Arena(getResources(), matrix, this);
+		
+		// create the game loop thread
+		thread = new GameThread(getHolder(), this);
+		// make the GamePanel focusable so it can handle events
+		setFocusable(true);
+	}
+	
+	public Arena getArena(){
+		return arena;
+	}
+    
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {

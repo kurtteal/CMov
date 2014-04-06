@@ -4,17 +4,33 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
-import com.example.bomberman.util.GameMatrix;
+import com.example.bomberman.util.GameConfigs;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-public class SelectMapActivity extends Activity {
+public class SelectMapActivity extends Activity implements OnItemSelectedListener {
+	
+	private String selection;
+    public void onItemSelected(AdapterView<?> parent, View view, 
+            int pos, long id) {
+    	CharSequence mSelected = (CharSequence) parent.getItemAtPosition(pos);
+		selection = mSelected.toString();
+		//Log.i("XXXId:", selection);
+    }
+
+	public void onNothingSelected(AdapterView parent) {
+		Log.i("SelMapView", "Nothing is selected");
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +45,8 @@ public class SelectMapActivity extends Activity {
 		spin_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		// Apply the adapter to the spinner
 		spinner.setAdapter(spin_adapter);
+		spinner.setOnItemSelectedListener(this);
+	
 	}
 
 	@Override
@@ -40,12 +58,29 @@ public class SelectMapActivity extends Activity {
 	}
 
 	public void startGame(View v) {
-		//TODO: ir buscar o mapa correcto conforme o selecionado pelo user
-		GameMatrix matrix = new GameMatrix();
+		//ir buscar o mapa correcto conforme o selecionado pelo user
+		int selected = Integer.parseInt(selection.substring(4));
+		//Log.i("SELECTED:", selection.substring(4));
+		String mapSelected;
+		switch(selected){
+			case 1:
+				mapSelected = new String("map1");
+				break;
+			case 2:
+				mapSelected = new String("map2");
+				break;
+			case 3:
+				mapSelected = new String("map3");
+				break;
+			default:
+				mapSelected = new String("map1");
+				
+		}
+		GameConfigs matrix = new GameConfigs();
         AssetManager am = getAssets();
         try {
-			InputStream is = am.open("map1");
-			matrix.fillMatrix(is);
+			InputStream is = am.open(mapSelected);
+			matrix.loadConfigs(is);
 		} catch (IOException e) { e.printStackTrace(); }
 		
 		Intent intent = new Intent(SelectMapActivity.this, GameActivity.class);

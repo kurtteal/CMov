@@ -3,6 +3,7 @@ package com.example.bomberman.model;
 import java.util.Random;
 
 import android.content.res.Resources;
+import android.util.Log;
 
 import com.example.bomberman.MainGamePanel;
 
@@ -20,22 +21,24 @@ public class Robot extends Bomberman{
 		super();
 	}
 	
-	public Robot (Resources resources, int x, int y, MainGamePanel panel, char myself) {
+	public Robot (Resources resources, int x, int y, MainGamePanel panel, char myself, int speed) {
 		super(resources, x, y ,panel, myself);
-		speed.goUp();
+		this.speed.setVelocity(speed);
+		this.speed.goUp();
 	}
 	
 	//O robot resolve colisoes, escolhendo uma direccao qqer aleatoria
 	@Override
 	public void solveCollision(char[][] matrix){
 		int[] array = getPositionInMatrix();
+		Log.i("ARRAY:", array[0]+","+array[1]);
 		int i = array[0];
 		int j = array[1];
 		//check surroundings
-		char above = matrix[i-1][j];
-		char below = matrix[i+1][j];
-		char toTheLeft = matrix[i][j-1];
-		char toTheRight = matrix[i][j+1];
+		char above = matrix[j-1][i];
+		char below = matrix[j+1][i];
+		char toTheLeft = matrix[j][i-1];
+		char toTheRight = matrix[j][i+1];
 		
 		//Log.d("ROBOT", "U,D,L,R = "+above+","+below+","+toTheLeft+","+toTheRight);
 		

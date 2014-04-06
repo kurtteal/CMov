@@ -6,12 +6,22 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 
-public class GameMatrix implements Serializable {
+public class GameConfigs implements Serializable {
 
 	public char matrix[][];
-	int sizeX;
-	int sizeY;
+	private int sizeX;
+	private int sizeY;
+
+	public String levelName;
+	public int gameDuration;
+	public int explosionTimeout;
+	public int explosionDuration;
+	public int explosionRange;
+	public int robotSpeed;
+	public int ptsPerRobot; //	Points per robot killed
+	public int ptsPerPlayer; // Points per opponent killed
 	  
+	
 	public int getSizeX(){
 		return sizeX;
 	}
@@ -19,13 +29,8 @@ public class GameMatrix implements Serializable {
 	public int getSizeY(){
 		return sizeY;
 	}
-		
-	//Called from the GameThread
-	public void drawMap(){
-		//TODO
-	}
 	
-	public void fillMatrix(InputStream is) throws IOException{
+	public void loadConfigs(InputStream is) throws IOException{
 
 		BufferedReader input = null;
 
@@ -53,6 +58,40 @@ public class GameMatrix implements Serializable {
 					matrix[i][j] = charArray[j]; //get element from file
 			}
 		}
+		//Obtem os outros dados
+		String[] array;
+		line = input.readLine();
+		array = line.split("/");
+		levelName = array[0];
+		
+		line = input.readLine();
+		array = line.split("/");
+		gameDuration = Integer.parseInt(array[0]);
+
+		line = input.readLine();
+		array = line.split("/");
+		explosionTimeout = Integer.parseInt(array[0]);
+		
+		line = input.readLine();
+		array = line.split("/");
+		explosionDuration = Integer.parseInt(array[0]);
+		
+		line = input.readLine();
+		array = line.split("/");
+		explosionRange = Integer.parseInt(array[0]);
+
+		line = input.readLine();
+		array = line.split("/");
+		robotSpeed = Integer.parseInt(array[0]);
+		
+		line = input.readLine();
+		array = line.split("/");
+		ptsPerRobot = Integer.parseInt(array[0]);
+		
+		line = input.readLine();
+		array = line.split("/");
+		ptsPerPlayer = Integer.parseInt(array[0]);
+		
 		input.close();
 	}
 	

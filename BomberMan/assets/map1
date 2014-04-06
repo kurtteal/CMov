@@ -2,21 +2,21 @@
 WWWWWWWWWWWWWWWWWWW
 W----------1-O----W
 WWOW-W-W-W-W-W-W-WW
-W-O---------------W
+W-O------------B--W
 WWOWOW-W-W-W-WOW-WW
-W--O---B---2O-----W
+W--O----B--2O-----W
 WWOW-W-W-W-W-W-W-WW
 W-OOOO-----------OW
-WWOWOWOWOW-W-W-W-WW
+WWOWOWOWOW-W-W-WBWW
 W--OOOO-----OOO-O-W
 WW-W-WOWOW-WOWOW-WW
 WOR----OOO--OOO---W
 WWWWWWWWWWWWWWWWWWW
-Level Name
-Game duration
-Explosion timeout
-Explosion duration
-Explosion range
-Robot speed
-Points per robot killed
-Points per opponent killed
+Crucible/Level Name
+2/Game duration (min)
+14/Explosion timeout (s)
+7/Explosion duration
+2/Explosion range
+3/Robot speed
+12/Points per robot killed
+15/Points per opponent killed

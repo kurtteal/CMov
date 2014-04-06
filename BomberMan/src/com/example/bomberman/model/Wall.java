@@ -7,7 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 
 import com.example.bomberman.R;
-import com.example.bomberman.util.GameMatrix;
+import com.example.bomberman.util.GameConfigs;
 
 /**
  * This is a test droid that is dragged, dropped, moved, smashed against the
@@ -29,6 +29,8 @@ public class Wall implements IDrawable{
 		this.x = x;
 		this.y = y;
 	}
+	
+	public void setState(PathState state, char[][] matrix) {}
 
 	// for collision checks
 	public int getWidth() {
@@ -61,7 +63,7 @@ public class Wall implements IDrawable{
 		this.y = y;
 	}
 
-	public void update(long gameTime, GameMatrix gm) {
+	public void update(long gameTime, GameConfigs gm) {
 		// Walls don't need to update their state.
 	}
 

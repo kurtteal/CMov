@@ -1,6 +1,6 @@
 package com.example.bomberman.model;
 
-import com.example.bomberman.util.GameMatrix;
+import com.example.bomberman.util.GameConfigs;
 
 import android.graphics.Canvas;
 
@@ -13,6 +13,8 @@ public interface IDrawable {
 	public int getUpBorder();
 	public int getDownBorder();
 	
-	public void update(long gameTime, GameMatrix gm);
+	public void update(long gameTime, GameConfigs gm);
 	public void draw(Canvas canvas);
+	
+	public void setState(PathState state, char[][] matrix);
 }
