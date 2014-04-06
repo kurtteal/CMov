@@ -75,6 +75,11 @@ public class Speed {
 	public void toggleYDirection() {
 		yDirection = yDirection * -1;
 	}
+	public void toggleCurrentDirection(){
+		if(xDirection != STILL) toggleXDirection();
+		else if(yDirection != STILL) toggleYDirection();
+	}
+	
 	
 	//AI dos robots (lol)
 	public void randomDirection(){

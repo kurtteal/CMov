@@ -14,7 +14,7 @@ public class Arena {
 	private IDrawable[][] arena; //Matrix dos objectos para desenhar
 	private GameMatrix gm; //matrix com chars, para verificacao de colisoes
 	
-	//os players/robots tem de ser os ultimos a ser desenhado
+	//os players/robots tem de ser os ultimos a ser desenhados
 	//e o chao tem q ser desenhado por baixo deles, antes de estes serem desenhados
 	private List<Bomberman> players;
 	private List<Robot> robots;
@@ -50,11 +50,11 @@ public class Arena {
 						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.BOMB, i, j);
 						break;
 					case 'R':
-						robots.add(new Robot(resources, previousRightBorder, previousBottomBorder, panel, i, j, gm.matrix[i][j]));
+						robots.add(new Robot(resources, previousRightBorder, previousBottomBorder, panel, gm.matrix[i][j]));
 						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.FLOOR, i, j);
 						break;
 					default:
-						players.add(new Bomberman(resources, previousRightBorder, previousBottomBorder, panel, i, j, gm.matrix[i][j]));
+						players.add(new Bomberman(resources, previousRightBorder, previousBottomBorder, panel, gm.matrix[i][j]));
 						arena[i][j] = new Path(resources, previousRightBorder, previousBottomBorder, PathState.FLOOR, i, j);
 						break;
 				}
@@ -77,7 +77,7 @@ public class Arena {
 			for(j=0; j< sizeY; j++){
 				//actualiza os objectos que precisam de se actualizar
 				//em termos de posicao e frames, e actualiza a matriz
-				//de estados 'gm'
+				//de estados 'gm' importante para as bombas
 				arena[i][j].update(gameTime, gm); 
 			}
 		}
