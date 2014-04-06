@@ -17,15 +17,65 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class SelectMapActivity extends Activity implements OnItemSelectedListener {
 	
-	private String selection;
+	private GameConfigs matrix;
+	
     public void onItemSelected(AdapterView<?> parent, View view, 
             int pos, long id) {
     	CharSequence mSelected = (CharSequence) parent.getItemAtPosition(pos);
-		selection = mSelected.toString();
+		String selection = mSelected.toString();
 		//Log.i("XXXId:", selection);
+		//ir buscar o mapa correcto conforme o selecionado pelo user
+		int selected = Integer.parseInt(selection.substring(4));
+		//Log.i("SELECTED:", selection.substring(4));
+		String mapSelected;
+		switch(selected){
+			case 1:
+				mapSelected = new String("map1");
+				break;
+			case 2:
+				mapSelected = new String("map2");
+				break;
+			case 3:
+				mapSelected = new String("map3");
+				break;
+			default:
+				mapSelected = new String("map1");
+				
+		}
+		matrix = new GameConfigs();
+        AssetManager am = getAssets();
+        try {
+			InputStream is = am.open(mapSelected);
+			matrix.loadConfigs(is); //loads up the matrix from the map file
+		} catch (IOException e) { e.printStackTrace(); }
+        TextView t;
+        t = (TextView)findViewById(R.id.level_name);
+        t.setText("Level name: "+matrix.levelName);
+        
+        t = (TextView)findViewById(R.id.game_duration);
+        t.setText("Game duration: "+matrix.gameDuration);
+        
+        t = (TextView)findViewById(R.id.explosion_timeout);
+        t.setText("Explosion timeout: "+matrix.explosionTimeout);
+        
+        t = (TextView)findViewById(R.id.explosion_duration);
+        t.setText("Explosion duration: "+matrix.explosionDuration);
+        
+        t = (TextView)findViewById(R.id.explosion_range);
+        t.setText("Explosion range: "+matrix.explosionRange);
+        
+        t = (TextView)findViewById(R.id.robot_speed);
+        t.setText("Robot speed: "+matrix.robotSpeed);
+        
+        t = (TextView)findViewById(R.id.pts_per_robot);
+        t.setText("Points per robot: "+matrix.ptsPerRobot);
+        
+        t = (TextView)findViewById(R.id.pts_per_opponent);
+        t.setText("Ponts per opponent: "+matrix.ptsPerPlayer);
     }
 
 	public void onNothingSelected(AdapterView parent) {
@@ -57,32 +107,7 @@ public class SelectMapActivity extends Activity implements OnItemSelectedListene
 		return true;
 	}
 
-	public void startGame(View v) {
-		//ir buscar o mapa correcto conforme o selecionado pelo user
-		int selected = Integer.parseInt(selection.substring(4));
-		//Log.i("SELECTED:", selection.substring(4));
-		String mapSelected;
-		switch(selected){
-			case 1:
-				mapSelected = new String("map1");
-				break;
-			case 2:
-				mapSelected = new String("map2");
-				break;
-			case 3:
-				mapSelected = new String("map3");
-				break;
-			default:
-				mapSelected = new String("map1");
-				
-		}
-		GameConfigs matrix = new GameConfigs();
-        AssetManager am = getAssets();
-        try {
-			InputStream is = am.open(mapSelected);
-			matrix.loadConfigs(is);
-		} catch (IOException e) { e.printStackTrace(); }
-		
+	public void startGame(View v) {		
 		Intent intent = new Intent(SelectMapActivity.this, GameActivity.class);
 		intent.putExtra("matrix", matrix); //get number from select_map layout (the one selected)
 		startActivity(intent);
