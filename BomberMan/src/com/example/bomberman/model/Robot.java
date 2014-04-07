@@ -92,7 +92,7 @@ public class Robot extends Bomberman{
 	
 	//New positions (pixels) for robots
 	@Override
-	protected void updatePosition(char[][] matrix){
+	protected void updatePixelPosition(char[][] matrix){
 		//Se estiver num cruzamento, decide aleatoriamente a nova direccao
 		if( y%getHeight() == 0 && Math.abs(x - getPositionInMatrix()[0]*getWidth()) < 3 ){ //horizontal
 			x = getPositionInMatrix()[0]*getWidth();

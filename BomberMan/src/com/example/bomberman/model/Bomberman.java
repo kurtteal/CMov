@@ -220,7 +220,7 @@ public class Bomberman {
 	
 	//Se chegou aqui é porque ja fez deteccao de colisoes
 	//Converte coordenadas de pixeis, em coords da matriz logica, nao para colisao,
-	//mas para obter a posiçao actual
+	//mas para obter a posiçao actual na matriz de estados
 	protected int[] getPositionInMatrix(){
 		int[] resultado = new int[2];
 
@@ -232,10 +232,10 @@ public class Bomberman {
 		return resultado;
 	}
 	
-	//if player is close to targetX or Y he moves automatically there
-	//to avoid going past the target and having to come back due to spare
+	//If player is close to targetX or Y he moves automatically there
+	//to avoid going past the target and having to come back due to sparse
 	//updates
-	protected void updatePosition(char[][] matrix){
+	protected void updatePixelPosition(char[][] matrix){
 		if( myself!='R'){ //New positions (pixels) for players
 			if(targetX != 0 && Math.abs(targetX - x) < 3){
 				x = targetX;
@@ -256,13 +256,13 @@ public class Bomberman {
 	
 	//Verifica a sua posicao na matrix logica
 	private void checkPositionChange(char[][] matrix){
-		//Get old coordinate positions
+		//Get old coordinate positions from pixel positions
 		int[] oldPositions = getPositionInMatrix();
 		
-
-		updatePosition(matrix);
+		//Update pixel positions
+		updatePixelPosition(matrix);
 		
-		//Calculate new positions (coordenates)
+		//Calculate new coordinate positions from pixel positions
 		int[] newPositions = getPositionInMatrix();
 		//Se mudou de coords, significa que abandonou o bloco antigo
 		if(oldPositions[0] != newPositions[0] || oldPositions[1] != newPositions[1] ){
