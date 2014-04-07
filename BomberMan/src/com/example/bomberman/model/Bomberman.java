@@ -232,14 +232,10 @@ public class Bomberman {
 		return resultado;
 	}
 	
-	//Verifica a sua posicao na matrix logica
-	private void checkPositionChange(char[][] matrix){
-		//Get old coordinate positions
-		int[] oldPositions = getPositionInMatrix();
-		
-		//if player is close to targetX or Y he moves automatically there
-		//to avoid going past the target and having to come back due to spare
-		//updates
+	//if player is close to targetX or Y he moves automatically there
+	//to avoid going past the target and having to come back due to spare
+	//updates
+	protected void updatePosition(char[][] matrix){
 		if( myself!='R'){ //New positions (pixels) for players
 			if(targetX != 0 && Math.abs(targetX - x) < 3){
 				x = targetX;
@@ -256,10 +252,15 @@ public class Bomberman {
 				y += (speed.getVelocity() * speed.getyDirection());
 			}
 		}
-		else{ //New positions (pixels) for robots
-			x += (speed.getVelocity() * speed.getxDirection()); 
-			y += (speed.getVelocity() * speed.getyDirection());
-		}	
+	}
+	
+	//Verifica a sua posicao na matrix logica
+	private void checkPositionChange(char[][] matrix){
+		//Get old coordinate positions
+		int[] oldPositions = getPositionInMatrix();
+		
+
+		updatePosition(matrix);
 		
 		//Calculate new positions (coordenates)
 		int[] newPositions = getPositionInMatrix();

@@ -30,6 +30,13 @@ public class Robot extends Bomberman{
 	//O robot resolve colisoes, escolhendo uma direccao qqer aleatoria
 	@Override
 	public void solveCollision(char[][] matrix){
+		decideNewPath(matrix);
+	}
+	
+	//Recebe a matriz de estados, olha para as posicoes ah sua volta
+	//e ve dessas quais as que tem caminho livre, depois decide aleatoriamente
+	//entre os caminhos livres
+	private void decideNewPath(char[][] matrix){
 		int[] array = getPositionInMatrix();
 		Log.i("ARRAY:", array[0]+","+array[1]);
 		int i = array[0];
@@ -45,19 +52,19 @@ public class Robot extends Bomberman{
 		int numPossible = 0;
 		char[] possiblePaths = new char[4];
 		//fill the possible paths array
-		if(pathFree(above)){
+		if(pathIsFree(above)){
 			possiblePaths[numPossible] = 'U';
 			numPossible++;
 		}
-		if(pathFree(below)){
+		if(pathIsFree(below)){
 			possiblePaths[numPossible] = 'D';
 			numPossible++;
 		}
-		if(pathFree(toTheLeft)){
+		if(pathIsFree(toTheLeft)){
 			possiblePaths[numPossible] = 'L';
 			numPossible++;
 		}
-		if(pathFree(toTheRight)){
+		if(pathIsFree(toTheRight)){
 			possiblePaths[numPossible] = 'R';
 			numPossible++;
 		}
@@ -83,7 +90,23 @@ public class Robot extends Bomberman{
 		}
 	}
 	
-	private boolean pathFree(char block){
+	//New positions (pixels) for robots
+	@Override
+	protected void updatePosition(char[][] matrix){
+		//Se estiver num cruzamento, decide aleatoriamente a nova direccao
+		if( y%getHeight() == 0 && Math.abs(x - getPositionInMatrix()[0]*getWidth()) < 3 ){ //horizontal
+			x = getPositionInMatrix()[0]*getWidth();
+			decideNewPath(matrix);
+		} else if( x%getWidth() == 0 && Math.abs(y - getPositionInMatrix()[1]*getHeight()) < 3 ){ //horizontal
+			y = getPositionInMatrix()[1]*getHeight();
+			decideNewPath(matrix);
+		}
+		x += (speed.getVelocity() * speed.getxDirection()); 
+		y += (speed.getVelocity() * speed.getyDirection());
+			
+	}
+	
+	private boolean pathIsFree(char block){
 		if(block != 'O' && block != 'W' && block != 'B') return true;
 		else return false;
 	}
