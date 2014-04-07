@@ -24,11 +24,11 @@ public class MainGamePanel extends SurfaceView implements
 	private static final String TAG = MainGamePanel.class.getSimpleName();
 	
 	private GameThread thread;
-	private Bomberman droid; //modelo q s mexe
+	private Bomberman bman; //modelo q s mexe
 
 	private void commonInit(){
 		// create droid and load bitmap : <bitmap, xInitial, yInitial>
-		droid = new Bomberman(getResources(), 50, 50);
+		bman = new Bomberman(getResources(), 50, 50);
 		// create the game loop thread
 		thread = new GameThread(getHolder(), this);
 		// make the GamePanel focusable so it can handle events
@@ -98,15 +98,15 @@ public class MainGamePanel extends SurfaceView implements
 			}
 		} if (event.getAction() == MotionEvent.ACTION_MOVE) {
 			// the gestures
-			if (droid.isTouched()) {
+			if (bman.isTouched()) {
 				// the droid was picked up and is being dragged
-				droid.setX((int)event.getX());
-				droid.setY((int)event.getY());
+				bman.setX((int)event.getX());
+				bman.setY((int)event.getY());
 			}
 		} if (event.getAction() == MotionEvent.ACTION_UP) {
 			// touch was released
-			if (droid.isTouched()) {
-				droid.setTouched(false);
+			if (bman.isTouched()) {
+				bman.setTouched(false);
 			}
 		}
 		return true;
@@ -115,32 +115,32 @@ public class MainGamePanel extends SurfaceView implements
 	protected void render(Canvas canvas) {
 		// fills the canvas with black
 		canvas.drawColor(Color.BLACK);
-		droid.draw(canvas);
+		bman.draw(canvas);
 	}
 	
 	public void update() {
 		// check collision with right wall if heading right
-		if (droid.getSpeed().getxDirection() == Speed.DIRECTION_RIGHT
-				&& droid.getX() + droid.getWidth() >= getWidth()) {
-			droid.getSpeed().toggleXDirection();
+		if (bman.getSpeed().getxDirection() == Speed.DIRECTION_RIGHT
+				&& bman.getX() + bman.getWidth() >= getWidth()) {
+			bman.getSpeed().toggleXDirection();
 		}
 		// check collision with left wall if heading left
-		if (droid.getSpeed().getxDirection() == Speed.DIRECTION_LEFT
-				&& droid.getX() <= 0) {
-			droid.getSpeed().toggleXDirection();
+		if (bman.getSpeed().getxDirection() == Speed.DIRECTION_LEFT
+				&& bman.getX() <= 0) {
+			bman.getSpeed().toggleXDirection();
 		}
 		// check collision with bottom wall if heading down
-		if (droid.getSpeed().getyDirection() == Speed.DIRECTION_DOWN
-				&& droid.getY() + droid.getHeight() >= getHeight()) {
-			droid.getSpeed().toggleYDirection();
+		if (bman.getSpeed().getyDirection() == Speed.DIRECTION_DOWN
+				&& bman.getY() + bman.getHeight() >= getHeight()) {
+			bman.getSpeed().toggleYDirection();
 		}
 		// check collision with top wall if heading up
-		if (droid.getSpeed().getyDirection() == Speed.DIRECTION_UP
-				&& droid.getY() <= 0) {
-			droid.getSpeed().toggleYDirection();
+		if (bman.getSpeed().getyDirection() == Speed.DIRECTION_UP
+				&& bman.getY() <= 0) {
+			bman.getSpeed().toggleYDirection();
 		}
 		// Update the lone droid
-		droid.update(System.currentTimeMillis());
+		bman.update(System.currentTimeMillis());
 	}
 
 
