@@ -1,7 +1,11 @@
 package com.example.bomberman;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -10,8 +14,13 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
+import com.example.bomberman.model.Path;
+import com.example.bomberman.model.PathState;
+import com.example.bomberman.model.Wall;
 import com.example.bomberman.model.components.Speed;
+import com.example.bomberman.util.GameConfigs;
 
 /**
  * @author impaler
@@ -24,35 +33,44 @@ public class MainGamePanel extends SurfaceView implements
 	private static final String TAG = MainGamePanel.class.getSimpleName();
 	
 	private GameThread thread;
-	private Bomberman bman; //modelo q s mexe
+	//private Bomberman bomberman; //modelo q s mexe
+	private Arena arena;
+	
+	public MainGamePanel(Context context) {
+		super(context);
+		// adding the callback (this) to the surface holder to intercept events
+		getHolder().addCallback(this);
+		commonInit(context);
+	}
+    public MainGamePanel(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        getHolder().addCallback(this);
+		commonInit(context);
+    }
 
-	private void commonInit(){
+    public MainGamePanel(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        getHolder().addCallback(this);
+		commonInit(context);
+    }
+
+	private void commonInit(Context context){
 		// create droid and load bitmap : <bitmap, xInitial, yInitial>
-		bman = new Bomberman(getResources(), 50, 50);
+
+		//bomberman = new Bomberman(getResources(), 50, 50);
+    	GameConfigs matrix = ((GameActivity)context).matrix;      
+		Log.d("CONTEXT", matrix.getLine(1)); //ja funca
+		arena = new Arena(getResources(), matrix, this);
 		// create the game loop thread
 		thread = new GameThread(getHolder(), this);
 		// make the GamePanel focusable so it can handle events
 		setFocusable(true);
 	}
 	
-	public MainGamePanel(Context context) {
-		super(context);
-		// adding the callback (this) to the surface holder to intercept events
-		getHolder().addCallback(this);
-		commonInit();
+	public Arena getArena(){
+		return arena;
 	}
-    public MainGamePanel(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        getHolder().addCallback(this);
-		commonInit();
-    }
-
-    public MainGamePanel(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        getHolder().addCallback(this);
-		commonInit();
-    }
-
+    
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
@@ -96,52 +114,24 @@ public class MainGamePanel extends SurfaceView implements
 			} else {
 				Log.d(TAG, "Coords: x=" + event.getX() + ",y=" + event.getY());
 			}
-		} if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			// the gestures
-			if (bman.isTouched()) {
-				// the droid was picked up and is being dragged
-				bman.setX((int)event.getX());
-				bman.setY((int)event.getY());
-			}
-		} if (event.getAction() == MotionEvent.ACTION_UP) {
-			// touch was released
-			if (bman.isTouched()) {
-				bman.setTouched(false);
-			}
-		}
+		} 
 		return true;
 	}
 
+	public void update() {
+		
+		// Update new positions and animations
+		arena.update(System.currentTimeMillis());
+//		bomberman.update(System.currentTimeMillis(), this);
+	}
+	
+	//Aqui eh qdo sao desenhados, a ordem interessa, os ultimos ficam "por cima"
 	protected void render(Canvas canvas) {
 		// fills the canvas with black
 		canvas.drawColor(Color.BLACK);
-		bman.draw(canvas);
+		arena.draw(canvas);
+//		bomberman.draw(canvas);
 	}
 	
-	public void update() {
-		// check collision with right wall if heading right
-		if (bman.getSpeed().getxDirection() == Speed.DIRECTION_RIGHT
-				&& bman.getX() + bman.getWidth() >= getWidth()) {
-			bman.getSpeed().toggleXDirection();
-		}
-		// check collision with left wall if heading left
-		if (bman.getSpeed().getxDirection() == Speed.DIRECTION_LEFT
-				&& bman.getX() <= 0) {
-			bman.getSpeed().toggleXDirection();
-		}
-		// check collision with bottom wall if heading down
-		if (bman.getSpeed().getyDirection() == Speed.DIRECTION_DOWN
-				&& bman.getY() + bman.getHeight() >= getHeight()) {
-			bman.getSpeed().toggleYDirection();
-		}
-		// check collision with top wall if heading up
-		if (bman.getSpeed().getyDirection() == Speed.DIRECTION_UP
-				&& bman.getY() <= 0) {
-			bman.getSpeed().toggleYDirection();
-		}
-		// Update the lone droid
-		bman.update(System.currentTimeMillis());
-	}
-
 
 }

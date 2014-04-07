@@ -17,9 +17,9 @@
     <string name="title_activity_game">GameActivity</string>
     
     <string-array name="levels_array">
-        <item>Easy</item>
-        <item>Normal</item>
-        <item>Hard</item>
+        <item>Map 1</item>
+        <item>Map 2</item>
+        <item>Map 3</item>
     </string-array>
 
 </resources>

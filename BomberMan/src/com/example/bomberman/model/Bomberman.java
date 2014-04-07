@@ -6,8 +6,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
+import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.R;
 import com.example.bomberman.model.components.Speed;
+import com.example.bomberman.util.GameConfigs;
 
 /**
  * This is a test droid that is dragged, dropped, moved, smashed against
@@ -17,38 +19,50 @@ import com.example.bomberman.model.components.Speed;
  * @author impaler
  *
  */
-public class Bomberman {
-
-	private Bitmap bitmapRight;	// the actual bitmap (or the animation sequence)
-	private Bitmap bitmapLeft;
-	private int x;			// the X coordinate (top left of the image)
-	private int y;			// the Y coordinate (top left of the image)
-	private boolean touched;	// if droid is touched/picked up
-	private Speed speed;	// the speed with its directions
+public class Bomberman { 
 	
-	private static final String TAG = Bomberman.class.getSimpleName();
-	private Rect sourceRect; // the rectangle to be drawn from the animation bitmap
-	private int frameNr = 5; // number of frames in animation
-	private int currentFrame; // the current frame
-	private long frameTicker; // the time of the last frame update
-
-	private int fps = 5; //da animacao, n eh do jogo
-	private int framePeriod = 1000 / fps; // milliseconds between each frame (1000/fps)
-	private int spriteWidth; // the width of the sprite to calculate the cut out rectangle
-	private int spriteHeight;   // the height of the sprite
+	MainGamePanel panel;
+	protected int initialX;
+	protected int initialY; //these will be the base for collision calculations
+	protected char myself; //serve para nao chocar com a sua propria posicao inicial
 	
-	public Bomberman (Resources resources, int x, int y) {
+	protected Bitmap bitmapRight;	// the actual bitmap (or the animation sequence)
+	protected Bitmap bitmapLeft;
+	protected int x;			// the X coordinate (top left of the image)
+	protected int y;			// the Y coordinate (top left of the image)
+	protected Speed speed;	// the speed with its directions
+	
+	protected static final String TAG = Bomberman.class.getSimpleName();
+	protected Rect sourceRect; // the rectangle to be drawn from the animation bitmap
+	protected int frameNr = 5; // number of frames in animation
+	protected int currentFrame; // the current frame
+	protected long frameTicker; // the time of the last frame update
+
+	protected int fps = 5; //da animacao, n eh do jogo
+	protected int framePeriod = 1000 / fps; // milliseconds between each frame (1000/fps)
+	protected int spriteWidth; // the width of the sprite to calculate the cut out rectangle
+	protected int spriteHeight;   // the height of the sprite
+	
+	public Bomberman (Resources resources, int x, int y, MainGamePanel panel, char myself) {
+		this.myself = myself;
+		this.panel = panel;
 		this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.walking_right);
 		this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.walking_left);
+		initialX = x; //possivelmente para a expansao do mapa pelo ecra inteiro
+		initialY = y;
 		this.x = x;
 		this.y = y;
 		this.speed = new Speed();
+		//speed.stayStill();
 		currentFrame = 0;
 		spriteWidth = bitmapRight.getWidth() / frameNr;
 		spriteHeight = bitmapRight.getHeight();
 		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);
 		frameTicker = 0l;
 	}
+	
+	public Bomberman(){} //is needed so that Robot can extend this class
+	
 	//for collision checks
 	public int getWidth(){
 		return spriteWidth;
@@ -57,13 +71,12 @@ public class Bomberman {
 	public int getHeight(){
 		return spriteHeight;
 	}
+	// for collision checks
+	public int getRightBorder() { return x+getWidth(); }
+	public int getLeftBorder() { return x; }
+	public int getUpBorder() { return y; }
+	public int getDownBorder() { return y+getHeight(); }
 	
-//	public Bitmap getBitmap() {
-//		return bitmap;
-//	}
-//	public void setBitmap(Bitmap bitmap) {
-//		this.bitmap = bitmap;
-//	}
 	public int getX() {
 		return x;
 	}
@@ -76,14 +89,6 @@ public class Bomberman {
 	public void setY(int y) {
 		this.y = y;
 	}
-
-	public boolean isTouched() {
-		return touched;
-	}
-
-	public void setTouched(boolean touched) {
-		this.touched = touched;
-	}
 	
 	public Speed getSpeed() {
 		return speed;
@@ -92,17 +97,141 @@ public class Bomberman {
 	public void setSpeed(Speed speed) {
 		this.speed = speed;
 	}
+	
+	public boolean isMoving(){
+		return speed.isNotZero();
+	}
+	
+	public char getId(){
+		return myself;
+	}
 
-	/**
-	 * Method which updates the droid's internal state every tick
-	 */
-	public void update(long gameTime) {
-		if (!touched) {
-			//New positions
-			x += (speed.getXv() * speed.getxDirection()); 
-			y += (speed.getYv() * speed.getyDirection());
+	public void die(){
+		//Avisar a arena que este elemento está fora de jogo
+		panel.getArena().elementHasDied(this);
+	}
+	
+	//transforms pixel coordinates into matrix entries for the logic matrix
+	//decisao sobre mapeamento depende da direccao em que me estou a mover
+	public void checkCollision(char[][] matrix){
+
+		boolean collision = false;
+		int i,j;
+		int width = getWidth();
+		int height = getHeight();
+		//Log.d("COORDS", "x,y = "+x+","+y+", width,height ="+width+","+height);
+		
+		//A maneira como se detecta e de como se corrige uma colisao depende
+		//da direccao em que o boneco viaja. Nao ha colisoes entre players, ou
+		//entre players e robots (ha deps a condiçao de morte se estiver perto do robot)
+		if(speed.getxDirection() == Speed.DIRECTION_RIGHT){ 
+			i=x/width;
+			if(x%width != 0) i++;
+			j=y/height;
+			//Log.d("UPDATE", "i,j = "+i+","+j+", matrix[i,j] ="+gm.matrix[i][j]);
+			//teste de colisao
+			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B'){
+				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
+				x = (x/width)*width; //divisao inteira!! nao se anulam as operacoes!!
+				y = j*height;
+				collision = true;
+			}
+		}
+		else if(speed.getxDirection() == Speed.DIRECTION_LEFT){ 
+			i=x/width;
+			j=y/height;
+			//teste de colisao
+			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B'){
+				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
+				x = (i+1)*width; 
+				y = j*height;
+				collision = true;
+			}
+		}
+		else if(speed.getyDirection() == Speed.DIRECTION_DOWN){ 
+			i=x/width;
+			j=y/height;
+			if(y%height != 0) j++;
+			//teste de colisao
+			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B'){
+				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
+				x = (i)*width; 
+				y = (y/height)*height;
+				collision = true;
+			}
+		}
+		else if(speed.getyDirection() == Speed.DIRECTION_UP){
+			i=x/width;
+			j=y/height;
+			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B'){
+				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
+				x = (i)*width; 
+				y = (j+1)*height;
+				collision = true;
+			}
+		}	
+		if(collision)
+			solveCollision(matrix); //robots solve it differently (they override this)
+	}
+	
+	//Os players simplesmente mudam de direccao
+	public void solveCollision(char[][] matrix){
+		speed.toggleCurrentDirection();
+		//speed.stayStill();
+	}
+	
+	//Se chegou aqui é porque ja fez deteccao de colisoes
+	//Converte coordenadas de pixeis, em coords da matriz logica, nao para colisao,
+	//mas para obter a posiçao actual
+	protected int[] getPositionInMatrix(){
+		int[] resultado = new int[2];
+
+		resultado[0]=x/getWidth();
+		if(x%getWidth() >= getWidth()/2) resultado[0]++;
+		resultado[1]=y/getHeight();
+		if(y%getHeight() >= getHeight()/2) resultado[1]++;
 			
-			//New frame
+		return resultado;
+	}
+	
+	private void checkPositionChange(char[][] matrix){
+		//Get old coordinate positions
+		int[] oldPositions = getPositionInMatrix();
+		
+		//New positions (pixels)
+		x += (speed.getVelocity() * speed.getxDirection()); 
+		y += (speed.getVelocity() * speed.getyDirection());
+		//Calculate new positions (coordenates)
+		int[] newPositions = getPositionInMatrix();
+		//Se mudou de coords, significa que abandonou o bloco antigo
+		if(oldPositions[0] != newPositions[0] || oldPositions[1] != newPositions[1] ){
+			matrix[oldPositions[1]][oldPositions[0]] = '-'; //antigo bloco agora eh chao
+			//se a nova posicao eh 1 explosao, morre
+			if(matrix[newPositions[1]][newPositions[0]] == 'E'){
+				die();
+			}
+			else{ //o novo bloco agora contem o proprio
+				matrix[newPositions[1]][newPositions[0]] = myself; 
+			}
+		}
+	}
+	
+	/**
+	 * Method which updates the bomberman's internal state every tick
+	 */
+	public void update(long gameTime, GameConfigs gm) {
+		
+		if (isMoving()) {
+			// check collision and resolve the colision
+			checkCollision(gm.matrix);
+				
+			// update the gm matrix with 'floor' if left and 'myself' if arrived at new block
+			checkPositionChange(gm.matrix);
+			
+//			x += (speed.getVelocity() * speed.getxDirection()); 
+//			y += (speed.getVelocity() * speed.getyDirection());
+			
+			//Prepare new frame
 			if (gameTime > frameTicker + framePeriod) {
 				frameTicker = gameTime;
 				// increment the frame
@@ -112,8 +241,15 @@ public class Bomberman {
 				}
 			}
 			// define the rectangle to cut out sprite
-			this.sourceRect.left = currentFrame * spriteWidth;
-			this.sourceRect.right = this.sourceRect.left + spriteWidth;
+			sourceRect.left = currentFrame * spriteWidth;
+			sourceRect.right = sourceRect.left + spriteWidth;
+		}
+		else{ //se esta parado, ver se alguma explosao nova o atinge
+			int[] currentPos = getPositionInMatrix();
+			int x = currentPos[0];
+			int y = currentPos[1];
+			if(gm.matrix[y][x]=='E')
+				die();
 		}
 	}
 
@@ -122,12 +258,8 @@ public class Bomberman {
 		// where to draw the sprite
 		Rect destRect = new Rect(getX(), getY(), getX() + spriteWidth, getY() + spriteHeight);
 		// pega no bitmap, corta pelo sourceRect e coloca em destRect
-		Bitmap bitmap = speed.getxDirection() == speed.DIRECTION_RIGHT ? bitmapRight : bitmapLeft;
+		Bitmap bitmap = speed.getxDirection() == Speed.DIRECTION_RIGHT ? bitmapRight : bitmapLeft;
 		canvas.drawBitmap(bitmap, sourceRect, destRect, null);
-//		canvas.drawBitmap(bitmap, 20, 150, null);
-//		Paint paint = new Paint();
-//		paint.setARGB(50, 0, 255, 0);
-//		canvas.drawRect(20 + (currentFrame * destRect.width()), 150, 20 + (currentFrame * destRect.width()) + destRect.width(), 150 + destRect.height(),  paint);
 	}
 	
 //	public void draw(Canvas canvas) {

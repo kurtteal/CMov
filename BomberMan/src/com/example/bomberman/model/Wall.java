@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 
 import com.example.bomberman.R;
+import com.example.bomberman.util.GameConfigs;
 
 /**
  * This is a test droid that is dragged, dropped, moved, smashed against the
@@ -15,39 +16,36 @@ import com.example.bomberman.R;
  * @author impaler
  * 
  */
-public class Wall {
+public class Wall implements IDrawable{
 
 	private Bitmap bitmap; // the actual bitmap (or the animation sequence)
 	private int x; // the X coordinate (top left of the image)
 	private int y; // the Y coordinate (top left of the image)
 
-	private Rect sourceRect; // the rectangle to be drawn from the animation
-								// bitmap
-	private int frameNr = 5; // number of frames in animation
-
-	private int spriteWidth; // the width of the sprite to calculate the cut out
-								// rectangle
-	private int spriteHeight; // the height of the sprite
-
-	public Wall(Resources resources, int x, int y) {
+	public Wall(Resources resources, int x, int y, int i, int j) {
+		//the wall will not use int i and int j, as it does not change the state of the gameMatrix
 		this.bitmap = BitmapFactory.decodeResource(resources,
-				R.drawable.walking_right);
+				R.drawable.wall);
 		this.x = x;
 		this.y = y;
-		spriteWidth = bitmap.getWidth() / frameNr;
-		spriteHeight = bitmap.getHeight();
-		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);
 	}
+	
+	public void setState(PathState state, char[][] matrix) {}
 
 	// for collision checks
 	public int getWidth() {
-		return spriteWidth;
+		return bitmap.getWidth();
 	}
 
 	// for collision checks
 	public int getHeight() {
-		return spriteHeight;
+		return bitmap.getHeight();
 	}
+	// for collision checks
+	public int getRightBorder() { return x+getWidth(); }
+	public int getLeftBorder() { return x; }
+	public int getUpBorder() { return y; }
+	public int getDownBorder() { return y+getHeight(); }
 
 	public int getX() {
 		return x;
@@ -65,17 +63,14 @@ public class Wall {
 		this.y = y;
 	}
 
-	public void update(long gameTime) {
+	public void update(long gameTime, GameConfigs gm) {
 		// Walls don't need to update their state.
 	}
 
-	// the draw method which draws the corresponding frame
+	// the draw method which draws the corresponding frame	
 	public void draw(Canvas canvas) {
-		// where to draw the sprite
-		Rect destRect = new Rect(getX(), getY(), getX() + spriteWidth, getY()
-				+ spriteHeight);
-		// pega no bitmap, corta pelo sourceRect e coloca em destRect
-		canvas.drawBitmap(this.bitmap, sourceRect, destRect, null);
+		canvas.drawBitmap(bitmap, x, y,null);
 	}
+
 
 }

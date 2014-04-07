@@ -38,8 +38,7 @@ public class GameThread extends Thread {
 		Log.d(TAG, "Starting game loop");
 		while (running) {
 			canvas = null;
-			// try locking the canvas for exclusive pixel editing
-			// in the surface
+			// try locking the canvas for exclusive pixel editing in the surface
 			try {
 				canvas = this.surfaceHolder.lockCanvas();
 				synchronized (surfaceHolder) {
@@ -50,12 +49,11 @@ public class GameThread extends Thread {
 					this.gamePanel.render(canvas);				
 				}
 			} finally {
-				// in case of an exception the surface is not left in 
-				// an inconsistent state
-				if (canvas != null) {
-					surfaceHolder.unlockCanvasAndPost(canvas);
-				}
-			}	// end finally
+				// in case of an exception the surface is not left in an inconsistent state
+				if (canvas != null) 
+					surfaceHolder.unlockCanvasAndPost(canvas);	
+			}
+			
 		}
 	}
 	
