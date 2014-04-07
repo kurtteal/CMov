@@ -24,7 +24,7 @@ public class Speed {
 	private int yDirection;
 
 	public Speed(){
-		goRight();
+		stayStill();
 	}
 	
 	public int getVelocity() {
