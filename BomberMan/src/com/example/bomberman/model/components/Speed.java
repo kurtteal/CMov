@@ -41,6 +41,13 @@ public class Speed {
 		return yDirection;
 	}
 	
+	public void setXStationary(){
+		xDirection = STILL;
+	}
+	public void setYStationary(){
+		yDirection = STILL;
+	}
+	
 	public void goUp() {
 		xDirection = STILL;
 		yDirection = DIRECTION_UP;

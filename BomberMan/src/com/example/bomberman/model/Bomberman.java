@@ -63,7 +63,7 @@ public class Bomberman {
 		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);
 		frameTicker = 0l;
 		this.speed = new Speed();
-		if(myself != 'R') oneSquareDown();
+		if(myself != 'R'){ oneSquareDown(); oneSquareLeft();}
 	}
 	
 	public Bomberman(){} //is needed so that Robot can extend this class
@@ -110,21 +110,31 @@ public class Bomberman {
 	//PLAYER BEHAVIOUR
 	//Move one square to the left
 	public void oneSquareLeft(){ 
-		speed.goLeft(); 
-		targetX = getPositionInMatrix()[0]*getWidth() - getWidth(); 
-		//Log.d("GOLEFT", "targetX,x,newPos = "+targetX+","+x+getPositionInMatrix()[0]*getWidth());
+		if(!isMoving()){
+			speed.goLeft(); 
+			targetX = getPositionInMatrix()[0]*getWidth() - getWidth(); 
+		}
 	}
-	public void oneSquareRight(){ 
-		speed.goRight(); 
-		targetX = getPositionInMatrix()[0]*getWidth() + getWidth(); 
+
+	public void oneSquareRight() {
+		if (!isMoving()) {
+			speed.goRight();
+			targetX = getPositionInMatrix()[0] * getWidth() + getWidth();
+		}
 	}
-	public void oneSquareUp(){ 
-		speed.goUp(); 
-		targetY = getPositionInMatrix()[1]*getWidth() - getHeight(); 
+
+	public void oneSquareUp() {
+		if (!isMoving()) {
+			speed.goUp();
+			targetY = getPositionInMatrix()[1] * getHeight() - getHeight();
+		}
 	}
 	public void oneSquareDown(){ 
-		speed.goDown(); 
-		targetY = getPositionInMatrix()[1]*getWidth() + getHeight(); 
+		if (!isMoving()) {
+			speed.goDown();
+			targetY = getPositionInMatrix()[1] * getHeight() + getHeight();
+			//Log.d("GODOWN", "targetY,y,newPos = " + targetY + "," + y + getPositionInMatrix()[1] * getHeight());
+		}
 	}
 	
 	public char getId(){
@@ -155,8 +165,7 @@ public class Bomberman {
 			j=y/height;
 			//Log.d("UPDATE", "i,j = "+i+","+j+", matrix[i,j] ="+gm.matrix[i][j]);
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B' 
-					|| myself!='R' && targetX < x && targetX != 0){
+			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
 				x = (x/width)*width; //divisao inteira!! nao se anulam as operacoes!!
 				y = j*height;
@@ -167,8 +176,7 @@ public class Bomberman {
 			i=x/width;
 			j=y/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B'
-					|| myself!='R' && targetX > x){
+			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
 				x = (i+1)*width; 
 				y = j*height;
@@ -180,8 +188,7 @@ public class Bomberman {
 			j=y/height;
 			if(y%height != 0) j++;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B'
-					|| myself!='R' && targetY < y && targetY != 0){
+			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
 				x = (i)*width; 
 				y = (y/height)*height;
@@ -192,8 +199,7 @@ public class Bomberman {
 			i=x/width;
 			j=y/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B'
-					|| myself!='R' && targetY > y){
+			if(matrix[j][i]== 'O' || matrix[j][i]== 'W' || matrix[j][i]== 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
 				x = (i)*width; 
 				y = (j+1)*height;
@@ -231,9 +237,29 @@ public class Bomberman {
 		//Get old coordinate positions
 		int[] oldPositions = getPositionInMatrix();
 		
-		//New positions (pixels)
-		x += (speed.getVelocity() * speed.getxDirection()); 
-		y += (speed.getVelocity() * speed.getyDirection());
+		//if player is close to targetX or Y he moves automatically there
+		//to avoid going past the target and having to come back due to spare
+		//updates
+		if( myself!='R'){ //New positions (pixels) for players
+			if(targetX != 0 && Math.abs(targetX - x) < 3){
+				x = targetX;
+				targetX = 0;
+				speed.setXStationary();
+			}
+			else if(targetY != 0 && Math.abs(targetY - y) < 3){
+				y = targetY; 
+				targetY = 0;
+				speed.setYStationary();
+			}
+			else{
+				x += (speed.getVelocity() * speed.getxDirection()); 
+				y += (speed.getVelocity() * speed.getyDirection());
+			}
+		}
+		else{ //New positions (pixels) for robots
+			x += (speed.getVelocity() * speed.getxDirection()); 
+			y += (speed.getVelocity() * speed.getyDirection());
+		}	
 		
 		//Calculate new positions (coordenates)
 		int[] newPositions = getPositionInMatrix();
@@ -248,6 +274,7 @@ public class Bomberman {
 				matrix[newPositions[1]][newPositions[0]] = myself; 
 			}
 		}
+		
 	}
 	
 	/**
