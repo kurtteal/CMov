@@ -24,6 +24,7 @@ public class Robot extends Bomberman{
 	
 	public Robot (Resources resources, int x, int y, int xMargin, int yMargin, MainGamePanel panel, char myself, int speed, int numColumns, int numLines) {
 		super(resources, x, y, xMargin, yMargin, panel, myself, numColumns, numLines);
+		this.movementMargin = speed; //the faster it goes, the more margin it needs
 		this.speed.setVelocity(speed);
 		this.speed.goUp(); //initial behaviour for robots
 	}
@@ -95,10 +96,10 @@ public class Robot extends Bomberman{
 	@Override
 	protected void updatePixelPosition(){
 		//Se estiver num cruzamento, decide aleatoriamente a nova direccao
-		if( (y-yMapMargin)%getHeight() == 0 && Math.abs((x-xMapMargin) - getPositionInMatrix()[0]*getWidth()) < 3 ){ //horizontal
+		if( (y-yMapMargin)%getHeight() == 0 && Math.abs((x-xMapMargin) - getPositionInMatrix()[0]*getWidth()) < movementMargin ){ //horizontal
 			x = xMapMargin + getPositionInMatrix()[0]*getWidth();
 			decideNewPath();
-		} else if( (x-xMapMargin)%getWidth() == 0 && Math.abs((y-yMapMargin) - getPositionInMatrix()[1]*getHeight()) < 3 ){ //horizontal
+		} else if( (x-xMapMargin)%getWidth() == 0 && Math.abs((y-yMapMargin) - getPositionInMatrix()[1]*getHeight()) < movementMargin ){ //horizontal
 			y = yMapMargin + getPositionInMatrix()[1]*getHeight();
 			decideNewPath();
 		}

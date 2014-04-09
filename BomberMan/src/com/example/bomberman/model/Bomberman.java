@@ -27,6 +27,7 @@ public class Bomberman {
 	protected char myself; //serve para nao chocar com a sua propria posicao inicial
 	private int numColumns;
 	private int numLines;
+	protected int movementMargin = 3;
 	
 	protected Bitmap bitmapRight;	// the actual bitmap (or the animation sequence)
 	protected Bitmap bitmapLeft;
@@ -253,12 +254,12 @@ public class Bomberman {
 	//updates
 	protected void updatePixelPosition(){
 		if( myself!='R'){ //New positions (pixels) for players
-			if(targetX != 0 && Math.abs(targetX - x) < 3){
+			if(targetX != 0 && Math.abs(targetX - x) < movementMargin){
 				x = targetX;
 				targetX = 0;
 				speed.setXStationary();
 			}
-			else if(targetY != 0 && Math.abs(targetY - y) < 3){
+			else if(targetY != 0 && Math.abs(targetY - y) < movementMargin){
 				y = targetY; 
 				targetY = 0;
 				speed.setYStationary();
