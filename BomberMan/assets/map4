@@ -1,0 +1,22 @@
+13,17
+WWWWWWWWWWWWWWWWW
+W---------------W
+WW-W-W-W-W-W-W-WW
+W---------------W
+WW-W-W-W-W-W-W-WW
+W---------------W
+WW-W-W-W-W-W-W-WW
+W---------------W
+WWBWBWBWBWBW-W-WW
+WO-O-O-O-O-O----W
+WW-W-W-W-W-W-W-WW
+WO1O2ORORORO----W
+WWWWWWWWWWWWWWWWW
+Teste do tamanho do mapa
+2/Game duration (min)
+14/Explosion timeout (s) <-AQUI HA PROBLEMA CONCURRENT MODIFICATION ACCESS!!!! eh preciso proteger a matriz
+1/Explosion duration
+5/Explosion range
+6/Robot speed
+12/Points per robot killed
+15/Points per opponent killed

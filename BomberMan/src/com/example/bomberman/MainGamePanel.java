@@ -55,11 +55,9 @@ public class MainGamePanel extends SurfaceView implements
     }
 
 	private void commonInit(Context context){
-		// create droid and load bitmap : <bitmap, xInitial, yInitial>
 
-		//bomberman = new Bomberman(getResources(), 50, 50);
     	GameConfigs matrix = ((GameActivity)context).matrix;      
-		Log.d("CONTEXT", matrix.getLine(1)); //ja funca
+		//Log.d("CONTEXT", matrix.getLine(1)); //ja funca
 		arena = new Arena(getResources(), matrix, this);
 		// create the game loop thread
 		thread = new GameThread(getHolder(), this);

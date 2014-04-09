@@ -95,6 +95,20 @@ public class GameConfigs implements Serializable {
 		input.close();
 	}
 	
+	//Protecçao contra acessos concorrentes
+	public char readPosition(int i, int j){
+		synchronized(matrix){
+			return matrix[i][j];
+		}
+	}
+	
+	//Protecçao contra acessos concorrentes
+	public void writePosition(int i, int j, char value){
+		synchronized(matrix){
+			matrix[i][j] = value;
+		}
+	}
+	
 	//Debug
 	public void showMatrixOnConsole(){
 		int i,j;

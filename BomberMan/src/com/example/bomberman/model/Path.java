@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
+import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.R;
 import com.example.bomberman.util.GameConfigs;
 
@@ -18,17 +19,31 @@ import com.example.bomberman.util.GameConfigs;
  */
 public class Path implements IDrawable{
 	
+	private GameConfigs gc;
 	public int iArena;
 	public int jArena;
-	private IDrawable[][] arena; //for the explosions to update the other nearby objects
-
+	private IDrawable[][] pixelMatrix; //for the explosions to update the other nearby objects
+	private MainGamePanel panel;
+	private int numColumns;
+	private int numLines;
+	
 	private Bitmap bitmap; // the actual bitmap (or the animation sequence)
+	private Bitmap floorBitmap;
+	private Bitmap obstacleBitmap;
+	private Bitmap bombBitmap;
+	private Bitmap explosionBitmap;
+	
+	private int floorFrameNr = 1;
+	private int obstacleFrameNr = 1;
+	private int bombFrameNr = 2;
+	private int explosionFrameNr = 4;
+	
 	private int x; // the X coordinate (top left of the image)
 	private int y; // the Y coordinate (top left of the image)
 
 	private Rect sourceRect; // the rectangle to be drawn from the animation
 								// bitmap
-	private int frameNr = 5; // number of frames in animation
+	private int frameNr; // number of frames in animation
 
 	private int currentFrame; // the current frame
 	private long frameTicker; // the time of the last frame update
@@ -40,40 +55,50 @@ public class Path implements IDrawable{
 	private int spriteHeight; // the height of the sprite
 	
 	private PathState state;
-	private Resources resources;
 	private long bombInitialTime;
 	private long explosionInitialTime;
 	private int bombTime; //14 vem do ficheiro map escolhido (esta nos assets)
 	private int explosionTime; // 7
 	private int explosionRange; // range 2 
 	
+	private boolean firstUpdate = true; //These 2 attributes exist only because the bitmaps cant be
+	private PathState initialState;		//expanded in the constructor, so its done on the first update instead
 	//TODO bombas e explosoes precisam de ter o id (myself) do owner para atribuicao de pts
 
-	public Path(Resources resources, int x, int y, PathState state, int i, int j, Arena arenaHolder) {
+	public Path(Resources resources, int x, int y, PathState state, int i, int j, int numColumns, int numLines, MainGamePanel panel) {
 		iArena = i;
 		jArena = j; //Each component knows its coordinates on the gameMatrix
-		this.arena = arenaHolder.arena;
-		this.resources = resources;
-		setState(state, null); //na configuracao inicial nao ha actualizacoes ah matrix, so leitura
-			
+		this.pixelMatrix = panel.getArena().pixelMatrix;
+		this.initialState = state;
+		this.panel = panel;
+		this.gc = panel.getArena().gc;
+		this.numColumns = numColumns;
+		this.numLines = numLines;
+		floorBitmap = BitmapFactory.decodeResource(resources, R.drawable.floor);
+		obstacleBitmap = BitmapFactory.decodeResource(resources, R.drawable.obstacle);
+		bombBitmap = BitmapFactory.decodeResource(resources, R.drawable.bomb);
+		explosionBitmap = BitmapFactory.decodeResource(resources, R.drawable.explosion);
+		
 		this.x = x;
 		this.y = y;
 		
-		bombTime = arenaHolder.gc.explosionTimeout;
-		explosionTime = arenaHolder.gc.explosionDuration;
-		this.explosionRange = arenaHolder.gc.explosionRange;
+		bombTime = panel.getArena().gc.explosionTimeout;
+		explosionTime = panel.getArena().gc.explosionDuration;
+		this.explosionRange = panel.getArena().gc.explosionRange;
 
 		frameTicker = 0l;
 	}
 
 	// for collision checks
 	public int getWidth() {
-		return spriteWidth;
+		//return spriteWidth;
+		return panel.getWidth()/numColumns;
 	}
 
 	// for collision checks
 	public int getHeight() {
-		return spriteHeight;
+		//return spriteHeight;
+		return panel.getHeight()/numLines;
 	}
 	// for collision checks
 	public int getRightBorder() { return x+getWidth(); }
@@ -102,85 +127,100 @@ public class Path implements IDrawable{
 	}
 
 	//Muda o estado. 
-	public void setState(PathState state, char[][] matrix) {
+	public void setState(PathState state) {
 		this.state = state;
 		if(state == PathState.FLOOR){
-			bitmap = BitmapFactory.decodeResource(resources,
-				R.drawable.floor);
-			frameNr = 1;
-			if(matrix != null)
-				matrix[iArena][jArena] = '-';
+			bitmap = floorBitmap;
+			frameNr = floorFrameNr;
+			gc.writePosition(iArena, jArena, '-');
 		}
 		else if(state == PathState.OBSTACLE){
-			bitmap = BitmapFactory.decodeResource(resources,
-					R.drawable.obstacle);
-			frameNr = 1;
+			bitmap = obstacleBitmap;
+			frameNr = obstacleFrameNr;
 		}
 		else if(state == PathState.EXPLOSION){
-			bitmap = BitmapFactory.decodeResource(resources,
-					R.drawable.explosion);
-			frameNr = 4;
+			bitmap = explosionBitmap;
+			frameNr = explosionFrameNr;
 			explosionInitialTime = System.currentTimeMillis();
-			if(matrix != null){ 
-				matrix[iArena][jArena] = 'E';
-			}
+			gc.writePosition(iArena, jArena, 'E');
 		}
 		else if(state == PathState.BOMB){
-			bitmap = BitmapFactory.decodeResource(resources,
-					R.drawable.bomb);
-			frameNr = 2;
+			bitmap = bombBitmap;
+			frameNr = bombFrameNr;
 			bombInitialTime = System.currentTimeMillis();
-			if(matrix != null)
-				matrix[iArena][jArena] = 'B';
+			gc.writePosition(iArena, jArena, 'B');
 		}
-		spriteWidth = bitmap.getWidth() / frameNr;
-		spriteHeight = bitmap.getHeight();
-		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);		
+	
 		currentFrame = 0;
+	}
+	
+	private void expandBitmaps(){
+		//expansao do bitmap		
+		floorBitmap = Bitmap.createScaledBitmap(floorBitmap, floorFrameNr*panel.getWidth()/numColumns, panel.getHeight()/numLines, false);
+		obstacleBitmap = Bitmap.createScaledBitmap(obstacleBitmap, obstacleFrameNr*panel.getWidth()/numColumns, panel.getHeight()/numLines, false);
+		bombBitmap = Bitmap.createScaledBitmap(bombBitmap, bombFrameNr*panel.getWidth()/numColumns, panel.getHeight()/numLines, false);
+		explosionBitmap = Bitmap.createScaledBitmap(explosionBitmap, explosionFrameNr*panel.getWidth()/numColumns, panel.getHeight()/numLines, false);
+		spriteWidth = getWidth();
+		spriteHeight = getHeight();
+		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);
+		
+		//na configuracao inicial
+		setState(initialState); 
 	}
 
 	//Nos casos especiais em que muda de um estado para outro, pode precisar de
 	//actualizar a matriz de estados.
-	public void update(long gameTime, GameConfigs gm) {
+	public void update(long gameTime, GameConfigs gc) {
+				
+		if(firstUpdate){
+			expandBitmaps();
+			firstUpdate = false;
+		}
+		
 		if(state == PathState.EXPLOSION || state == PathState.BOMB){
+			
 			//if bomb check if its time to explode
 			if(state == PathState.BOMB){
 				if(gameTime > bombInitialTime + bombTime*1000){
-					setState(PathState.EXPLOSION, gm.matrix);
+					setState(PathState.EXPLOSION);
 					//indica para cada 1 das direcçoes se nessa direcao ja houve 1 bloqueio
 					//para nao passar por cima das walls
 					boolean[] directionsNotBlocked = {true, true, true, true};
 					//Faz o setState tb nos blocos ao lado, se nao forem wall
 					for(int i=1; i<= explosionRange; i++){
 						if(directionsNotBlocked[0]){
-							if(gm.matrix[iArena+i][jArena]=='O' || gm.matrix[iArena+i][jArena]=='W') 
+							char block = gc.readPosition(iArena+i, jArena);
+							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[0]=false;
-							if(gm.matrix[iArena+i][jArena]!='W')
-								arena[iArena+i][jArena].setState(PathState.EXPLOSION, gm.matrix);
+							if(block != 'W')
+								panel.getArena().writeState(iArena+i, jArena, PathState.EXPLOSION);
 						}
 						if(directionsNotBlocked[1]){
-							if(gm.matrix[iArena-i][jArena]=='O' || gm.matrix[iArena-i][jArena]=='W')
+							char block = gc.readPosition(iArena-i, jArena);
+							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[1]=false;
-							if(gm.matrix[iArena-i][jArena]!='W')
-								arena[iArena-i][jArena].setState(PathState.EXPLOSION, gm.matrix);
+							if(block != 'W')
+								panel.getArena().writeState(iArena-i, jArena, PathState.EXPLOSION);
 						}
 						if(directionsNotBlocked[2]){
-							if(gm.matrix[iArena][jArena+i]=='O' || gm.matrix[iArena][jArena+i]=='W')
+							char block = gc.readPosition(iArena, jArena+i);
+							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[2]=false;
-							if(gm.matrix[iArena][jArena+i]!='W')
-								arena[iArena][jArena+i].setState(PathState.EXPLOSION, gm.matrix);
+							if(block != 'W')
+								panel.getArena().writeState(iArena, jArena+i, PathState.EXPLOSION);
 						}
 						if(directionsNotBlocked[3]){
-							if(gm.matrix[iArena][jArena-i]=='O' || gm.matrix[iArena][jArena-i]=='W') 
+							char block = gc.readPosition(iArena, jArena-i);
+							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[3]=false;
-							if(gm.matrix[iArena][jArena-i]!='W')
-								arena[iArena][jArena-i].setState(PathState.EXPLOSION, gm.matrix);
+							if(block != 'W')
+								panel.getArena().writeState(iArena, jArena-i, PathState.EXPLOSION);
 						}				
 					}
 				}
 			}else { //se for explosao, ve se ja eh tempo de terminar a explosao
 				if(gameTime > explosionInitialTime + explosionTime*1000){
-					setState(PathState.FLOOR, gm.matrix);
+					setState(PathState.FLOOR);
 				}
 			}
 			

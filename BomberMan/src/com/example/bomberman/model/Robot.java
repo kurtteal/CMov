@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.util.Log;
 
 import com.example.bomberman.MainGamePanel;
+import com.example.bomberman.util.GameConfigs;
 
 /**
  * This is a test droid that is dragged, dropped, moved, smashed against
@@ -21,31 +22,31 @@ public class Robot extends Bomberman{
 		super();
 	}
 	
-	public Robot (Resources resources, int x, int y, MainGamePanel panel, char myself, int speed) {
-		super(resources, x, y ,panel, myself);
+	public Robot (Resources resources, int x, int y, int xMargin, int yMargin, MainGamePanel panel, char myself, int speed, int numColumns, int numLines) {
+		super(resources, x, y, xMargin, yMargin, panel, myself, numColumns, numLines);
 		this.speed.setVelocity(speed);
-		this.speed.goUp();
+		this.speed.goUp(); //initial behaviour for robots
 	}
 	
 	//O robot resolve colisoes, escolhendo uma direccao qqer aleatoria
 	@Override
-	public void solveCollision(char[][] matrix){
-		decideNewPath(matrix);
+	public void solveCollision(){
+		decideNewPath();
 	}
 	
 	//Recebe a matriz de estados, olha para as posicoes ah sua volta
 	//e ve dessas quais as que tem caminho livre, depois decide aleatoriamente
 	//entre os caminhos livres
-	private void decideNewPath(char[][] matrix){
+	private void decideNewPath(){
 		int[] array = getPositionInMatrix();
 		Log.i("ARRAY:", array[0]+","+array[1]);
 		int i = array[0];
 		int j = array[1];
 		//check surroundings
-		char above = matrix[j-1][i];
-		char below = matrix[j+1][i];
-		char toTheLeft = matrix[j][i-1];
-		char toTheRight = matrix[j][i+1];
+		char above = gc.readPosition(j-1, i);
+		char below = gc.readPosition(j+1, i);
+		char toTheLeft = gc.readPosition(j, i-1);
+		char toTheRight = gc.readPosition(j, i+1);
 		
 		//Log.d("ROBOT", "U,D,L,R = "+above+","+below+","+toTheLeft+","+toTheRight);
 		
@@ -92,14 +93,14 @@ public class Robot extends Bomberman{
 	
 	//New positions (pixels) for robots
 	@Override
-	protected void updatePixelPosition(char[][] matrix){
+	protected void updatePixelPosition(){
 		//Se estiver num cruzamento, decide aleatoriamente a nova direccao
 		if( y%getHeight() == 0 && Math.abs(x - getPositionInMatrix()[0]*getWidth()) < 3 ){ //horizontal
 			x = getPositionInMatrix()[0]*getWidth();
-			decideNewPath(matrix);
+			decideNewPath();
 		} else if( x%getWidth() == 0 && Math.abs(y - getPositionInMatrix()[1]*getHeight()) < 3 ){ //horizontal
 			y = getPositionInMatrix()[1]*getHeight();
-			decideNewPath(matrix);
+			decideNewPath();
 		}
 		x += (speed.getVelocity() * speed.getxDirection()); 
 		y += (speed.getVelocity() * speed.getyDirection());

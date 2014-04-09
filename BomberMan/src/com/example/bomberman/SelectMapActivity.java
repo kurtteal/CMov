@@ -42,6 +42,9 @@ public class SelectMapActivity extends Activity implements OnItemSelectedListene
 			case 3:
 				mapSelected = new String("map3");
 				break;
+			case 4:
+				mapSelected = new String("map4");
+				break;
 			default:
 				mapSelected = new String("map1");
 				
