@@ -95,11 +95,11 @@ public class Robot extends Bomberman{
 	@Override
 	protected void updatePixelPosition(){
 		//Se estiver num cruzamento, decide aleatoriamente a nova direccao
-		if( y%getHeight() == 0 && Math.abs(x - getPositionInMatrix()[0]*getWidth()) < 3 ){ //horizontal
-			x = getPositionInMatrix()[0]*getWidth();
+		if( (y-yMapMargin)%getHeight() == 0 && Math.abs((x-xMapMargin) - getPositionInMatrix()[0]*getWidth()) < 3 ){ //horizontal
+			x = xMapMargin + getPositionInMatrix()[0]*getWidth();
 			decideNewPath();
-		} else if( x%getWidth() == 0 && Math.abs(y - getPositionInMatrix()[1]*getHeight()) < 3 ){ //horizontal
-			y = getPositionInMatrix()[1]*getHeight();
+		} else if( (x-xMapMargin)%getWidth() == 0 && Math.abs((y-yMapMargin) - getPositionInMatrix()[1]*getHeight()) < 3 ){ //horizontal
+			y = yMapMargin + getPositionInMatrix()[1]*getHeight();
 			decideNewPath();
 		}
 		x += (speed.getVelocity() * speed.getxDirection()); 

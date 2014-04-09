@@ -32,8 +32,8 @@ public class Bomberman {
 	protected Bitmap bitmapLeft;
 	protected int x;			// the X coordinate (top left of the image)
 	protected int y;			// the Y coordinate (top left of the image)
-	private int xMapMargin;
-	private int yMapMargin;
+	protected int xMapMargin;
+	protected int yMapMargin;
 	protected Speed speed;	// the speed with its directions
 	
 	protected static final String TAG = Bomberman.class.getSimpleName();
@@ -123,27 +123,27 @@ public class Bomberman {
 	public void oneSquareLeft(){ 
 		if(!isMoving()){
 			speed.goLeft(); 
-			targetX = getPositionInMatrix()[0]*getWidth() - getWidth(); 
+			targetX = xMapMargin + getPositionInMatrix()[0]*getWidth() - getWidth(); 
 		}
 	}
 
 	public void oneSquareRight() {
 		if (!isMoving()) {
 			speed.goRight();
-			targetX = getPositionInMatrix()[0] * getWidth() + getWidth();
+			targetX = xMapMargin + getPositionInMatrix()[0] * getWidth() + getWidth();
 		}
 	}
 
 	public void oneSquareUp() {
 		if (!isMoving()) {
 			speed.goUp();
-			targetY = getPositionInMatrix()[1] * getHeight() - getHeight();
+			targetY = yMapMargin + getPositionInMatrix()[1] * getHeight() - getHeight();
 		}
 	}
 	public void oneSquareDown(){ 
 		if (!isMoving()) {
 			speed.goDown();
-			targetY = getPositionInMatrix()[1] * getHeight() + getHeight();
+			targetY = yMapMargin + getPositionInMatrix()[1] * getHeight() + getHeight();
 			//Log.d("GODOWN", "targetY,y,newPos = " + targetY + "," + y + getPositionInMatrix()[1] * getHeight());
 		}
 	}
@@ -171,53 +171,53 @@ public class Bomberman {
 		//da direccao em que o boneco viaja. Nao ha colisoes entre players, ou
 		//entre players e robots (ha deps a condiçao de morte se estiver perto do robot)
 		if(speed.getxDirection() == Speed.DIRECTION_RIGHT){ 
-			i=x/width;
-			if(x%width != 0) i++;
-			j=y/height;
+			i=(x-xMapMargin)/width;
+			if((x-xMapMargin)%width != 0) i++;
+			j=(y-yMapMargin)/height;
 			//Log.d("UPDATE", "i,j = "+i+","+j+", matrix[i,j] ="+gm.matrix[i][j]);
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
 			if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
-				x = (x/width)*width; //divisao inteira!! nao se anulam as operacoes!!
-				y = j*height;
+				x = xMapMargin + ((x-xMapMargin)/width)*width; //divisao inteira!! nao se anulam as operacoes!!
+				y = yMapMargin + j*height;
 				collision = true;
 			}
 		}
 		else if(speed.getxDirection() == Speed.DIRECTION_LEFT){ 
-			i=x/width;
-			j=y/height;
+			i=(x-xMapMargin)/width;
+			j=(y-yMapMargin)/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
 			if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
-				x = (i+1)*width; 
-				y = j*height;
+				x = xMapMargin + (i+1)*width; 
+				y = yMapMargin + j*height;
 				collision = true;
 			}
 		}
 		else if(speed.getyDirection() == Speed.DIRECTION_DOWN){ 
-			i=x/width;
-			j=y/height;
-			if(y%height != 0) j++;
+			i=(x-xMapMargin)/width;
+			j=(y-yMapMargin)/height;
+			if((y-yMapMargin)%height != 0) j++;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
 			if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
-				x = (i)*width; 
-				y = (y/height)*height;
+				x = xMapMargin + (i)*width; 
+				y = yMapMargin + ((y-yMapMargin)/height)*height;
 				collision = true;
 			}
 		}
 		else if(speed.getyDirection() == Speed.DIRECTION_UP){
-			i=x/width;
-			j=y/height;
+			i=(x-xMapMargin)/width;
+			j=(y-yMapMargin)/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
 			if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
-				x = (i)*width; 
-				y = (j+1)*height;
+				x = xMapMargin + (i)*width; 
+				y = yMapMargin + (j+1)*height;
 				collision = true;
 			}
 		}	
@@ -240,10 +240,10 @@ public class Bomberman {
 		int[] resultado = new int[2];
 
 		//Log.d("getPosMat", "x, x/getWidth() = " + x + x/getWidth());
-		resultado[0]=x/getWidth();
-		if(x%getWidth() >= getWidth()/2) resultado[0]++;
-		resultado[1]=y/getHeight();
-		if(y%getHeight() >= getHeight()/2) resultado[1]++;
+		resultado[0]=(x-xMapMargin)/getWidth();
+		if((x-xMapMargin)%getWidth() >= getWidth()/2) resultado[0]++;
+		resultado[1]=(y-yMapMargin)/getHeight();
+		if((y-yMapMargin)%getHeight() >= getHeight()/2) resultado[1]++;
 			
 		return resultado;
 	}
