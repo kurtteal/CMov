@@ -52,6 +52,7 @@ public class Bomberman {
 	protected int targetY; //the players will move square by square
 	
 	private boolean firstUpdate = true;
+	private char nextMove = ' '; //players podem guardar o prox move para tornar o jogo mais responsivo 
 	
 	public Bomberman (Resources resources, int x, int y, int xMargin, int yMargin, MainGamePanel panel, char myself, int numColumns, int numLines) {
 		this.myself = myself;
@@ -122,31 +123,40 @@ public class Bomberman {
 	//PLAYER BEHAVIOUR
 	//Move one square to the left
 	public void oneSquareLeft(){ 
-		if(!isMoving()){
+		if(!isMoving() || speed.getxDirection() == Speed.DIRECTION_RIGHT){
 			speed.goLeft(); 
 			targetX = xMapMargin + getPositionInMatrix()[0]*getWidth() - getWidth(); 
 		}
+			nextMove = 'L';
 	}
 
 	public void oneSquareRight() {
-		if (!isMoving()) {
+		if (!isMoving() || speed.getxDirection() == Speed.DIRECTION_LEFT) {
 			speed.goRight();
 			targetX = xMapMargin + getPositionInMatrix()[0] * getWidth() + getWidth();
 		}
+		else
+			nextMove = 'R';
 	}
 
 	public void oneSquareUp() {
-		if (!isMoving()) {
+		//se tiver parado ou a ir na direcao oposta muda de direcao
+		if (!isMoving() || speed.getyDirection() == Speed.DIRECTION_DOWN) {
 			speed.goUp();
 			targetY = yMapMargin + getPositionInMatrix()[1] * getHeight() - getHeight();
 		}
+		else
+			nextMove = 'U';
+		
 	}
 	public void oneSquareDown(){ 
-		if (!isMoving()) {
+		if (!isMoving() || speed.getyDirection() == Speed.DIRECTION_UP) {
 			speed.goDown();
 			targetY = yMapMargin + getPositionInMatrix()[1] * getHeight() + getHeight();
 			//Log.d("GODOWN", "targetY,y,newPos = " + targetY + "," + y + getPositionInMatrix()[1] * getHeight());
 		}
+		else
+			nextMove = 'D';
 	}
 	
 	public char getId(){
@@ -249,20 +259,43 @@ public class Bomberman {
 		return resultado;
 	}
 	
+	
+	private void checkIfNextMove(){
+		if(nextMove != ' '){
+			switch(nextMove){
+				case 'U':
+					oneSquareUp();
+					break;
+				case 'D':
+					oneSquareDown();
+					break;
+				case 'L':
+					oneSquareLeft();
+					break;
+				case 'R':
+					oneSquareRight();
+					break;
+			}
+			nextMove = ' ';
+		}
+	}
+	
 	//If player is close to targetX or Y he moves automatically there
 	//to avoid going past the target and having to come back due to sparse
 	//updates
 	protected void updatePixelPosition(){
 		if( myself!='R'){ //New positions (pixels) for players
-			if(targetX != 0 && Math.abs(targetX - x) < movementMargin){
+			if(targetX != 0 && Math.abs(targetX - x) < movementMargin){ //se chegou ao destino
 				x = targetX;
 				targetX = 0;
 				speed.setXStationary();
+				checkIfNextMove();
 			}
 			else if(targetY != 0 && Math.abs(targetY - y) < movementMargin){
 				y = targetY; 
 				targetY = 0;
 				speed.setYStationary();
+				checkIfNextMove();
 			}
 			else{
 				x += (speed.getVelocity() * speed.getxDirection()); 
