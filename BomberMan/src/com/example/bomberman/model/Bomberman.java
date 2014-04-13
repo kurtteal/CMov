@@ -74,7 +74,7 @@ public class Bomberman {
 		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);
 		frameTicker = 0l;
 		this.speed = new Speed();
-		if(myself != 'R'){ oneSquareDown(); oneSquareLeft();}
+		// DEBUG if(myself != 'R'){ oneSquareDown(); oneSquareLeft();}
 	}
 	
 	public Bomberman(){} //is needed so that Robot can extend this class
@@ -127,6 +127,7 @@ public class Bomberman {
 			speed.goLeft(); 
 			targetX = xMapMargin + getPositionInMatrix()[0]*getWidth() - getWidth(); 
 		}
+		else 
 			nextMove = 'L';
 	}
 
@@ -145,10 +146,10 @@ public class Bomberman {
 			speed.goUp();
 			targetY = yMapMargin + getPositionInMatrix()[1] * getHeight() - getHeight();
 		}
-		else
+		else	
 			nextMove = 'U';
-		
 	}
+	
 	public void oneSquareDown(){ 
 		if (!isMoving() || speed.getyDirection() == Speed.DIRECTION_UP) {
 			speed.goDown();
@@ -164,7 +165,7 @@ public class Bomberman {
 	}
 
 	public void die(){
-		//Avisar a arena que este elemento está fora de jogo
+		//Avisar a arena que este elemento estï¿½ fora de jogo
 		panel.getArena().elementHasDied(this);
 	}
 	
@@ -180,7 +181,7 @@ public class Bomberman {
 		
 		//A maneira como se detecta e de como se corrige uma colisao depende
 		//da direccao em que o boneco viaja. Nao ha colisoes entre players, ou
-		//entre players e robots (ha deps a condiçao de morte se estiver perto do robot)
+		//entre players e robots (ha deps a condiï¿½ao de morte se estiver perto do robot)
 		if(speed.getxDirection() == Speed.DIRECTION_RIGHT){ 
 			i=(x-xMapMargin)/width;
 			if((x-xMapMargin)%width != 0) i++;
@@ -244,9 +245,9 @@ public class Bomberman {
 		targetY = 0; 
 	}
 	
-	//Se chegou aqui é porque ja fez deteccao de colisoes
+	//Se chegou aqui ï¿½ porque ja fez deteccao de colisoes
 	//Converte coordenadas de pixeis, em coords da matriz logica, nao para colisao,
-	//mas para obter a posiçao actual na matriz de estados
+	//mas para obter a posiï¿½ao actual na matriz de estados
 	protected int[] getPositionInMatrix(){
 		int[] resultado = new int[2];
 

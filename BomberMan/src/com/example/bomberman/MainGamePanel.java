@@ -8,11 +8,15 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
@@ -40,17 +44,25 @@ public class MainGamePanel extends SurfaceView implements
 		super(context);
 		// adding the callback (this) to the surface holder to intercept events
 		getHolder().addCallback(this);
+		GameActivity activ = (GameActivity) context;
+		activ.setGamePanel(this);
 		commonInit(context);
+		
 	}
+	
     public MainGamePanel(Context context, AttributeSet attrs) {
         super(context, attrs);
         getHolder().addCallback(this);
+        GameActivity activ = (GameActivity) context;
+		activ.setGamePanel(this);
 		commonInit(context);
     }
 
     public MainGamePanel(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         getHolder().addCallback(this);
+        GameActivity activ = (GameActivity) context;
+		activ.setGamePanel(this);
 		commonInit(context);
     }
 

@@ -22,6 +22,7 @@ public class Arena {
 	// os players/robots tem de ser os ultimos a ser desenhados
 	// e o chao tem q ser desenhado por baixo deles, antes de estes serem
 	// desenhados
+	private Bomberman activePlayer;
 	private List<Bomberman> players;
 	private List<Robot> robots;
 	private Resources resources;
@@ -39,6 +40,10 @@ public class Arena {
 		this.panel = panel;
 		this.resources = resources;
 
+	}
+	
+	public Bomberman getActivePlayer(){
+		return activePlayer;
 	}
 
 	private void fillDrawableMatrix() {
@@ -93,9 +98,10 @@ public class Arena {
 							PathState.FLOOR, i, j, sizeY, sizeX, panel);
 					break;
 				default:
-					players.add(new Bomberman(resources, previousRightBorder,
+					activePlayer = new Bomberman(resources, previousRightBorder,
 							previousBottomBorder, gameRightMargin, gameBottomMargin, panel, gc.matrix[i][j],
-							sizeY, sizeX));
+							sizeY, sizeX);
+					players.add(activePlayer);
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
 							PathState.FLOOR, i, j, sizeY, sizeX, panel);
@@ -106,7 +112,7 @@ public class Arena {
 		}
 	}
 
-	// Protecçao contra acessos concorrentes
+	// Protecï¿½ao contra acessos concorrentes
 	// Escreve o novo estado no objecto Path localizado em i,j
 	public void writeState(int i, int j, PathState state) {
 		synchronized (pixelMatrix) {
