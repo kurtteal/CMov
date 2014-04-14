@@ -15,7 +15,7 @@ public class Arena {
 
 	private List<Bomberman> deadElements = new ArrayList<Bomberman>();
 
-	protected IDrawable[][] pixelMatrix; // Matrix dos objectos para desenhar
+	public IDrawable[][] pixelMatrix; // Matrix dos objectos para desenhar
 	protected GameConfigs gc; // matrix com chars, para verificacao de colisoes
 	public MainGamePanel panel;
 

@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
+import com.example.bomberman.model.PathState;
 import com.example.bomberman.util.GameConfigs;
 
 import android.app.Activity;
@@ -18,7 +19,7 @@ public class GameActivity extends Activity {
 	/** Called when the activity is first created. */
 
 	private static final String TAG = GameActivity.class.getSimpleName();
-	protected GameConfigs matrix;
+	protected GameConfigs gc;
 	private MainGamePanel gamePanel;
 
 	@Override
@@ -31,7 +32,7 @@ public class GameActivity extends Activity {
 		// set our MainGamePanel as the View
 		//setContentView(new MainGamePanel(this));
 
-		matrix = (GameConfigs)getIntent().getSerializableExtra("matrix");
+		gc = (GameConfigs)getIntent().getSerializableExtra("matrix");
 
 		setContentView(R.layout.activity_game);
 		Log.d(TAG, "View added");
@@ -77,6 +78,22 @@ public class GameActivity extends Activity {
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getActivePlayer();
 		bman.oneSquareRight();
+	}
+	
+	public void dropBomb(View v){
+		Arena arena = gamePanel.getArena();
+		Bomberman bman = arena.getActivePlayer();
+		int[] coords = bman.getPositionInMatrix();
+		int i = coords[0];
+		int j = coords[1];
+		gc.matrix[j][i] = 'B';
+		arena.pixelMatrix[j][i].setState(PathState.BOMB);
+	}
+	
+	public void quitGame(View v){
+		gamePanel.thread.setRunning(false);
+		
+		this.finish();
 	}
 	
 }

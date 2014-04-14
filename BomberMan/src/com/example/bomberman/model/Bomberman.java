@@ -248,7 +248,7 @@ public class Bomberman {
 	//Se chegou aqui � porque ja fez deteccao de colisoes
 	//Converte coordenadas de pixeis, em coords da matriz logica, nao para colisao,
 	//mas para obter a posi�ao actual na matriz de estados
-	protected int[] getPositionInMatrix(){
+	public int[] getPositionInMatrix(){
 		int[] resultado = new int[2];
 
 		//Log.d("getPosMat", "x, x/getWidth() = " + x + x/getWidth());

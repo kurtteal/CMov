@@ -36,7 +36,7 @@ public class MainGamePanel extends SurfaceView implements
 
 	private static final String TAG = MainGamePanel.class.getSimpleName();
 	
-	private GameThread thread;
+	public GameThread thread;
 	//private Bomberman bomberman; //modelo q s mexe
 	private Arena arena;
 	
@@ -68,9 +68,9 @@ public class MainGamePanel extends SurfaceView implements
 
 	private void commonInit(Context context){
 
-    	GameConfigs matrix = ((GameActivity)context).matrix;      
+    	GameConfigs gc = ((GameActivity)context).gc;      
 		//Log.d("CONTEXT", matrix.getLine(1)); //ja funca
-		arena = new Arena(getResources(), matrix, this);
+		arena = new Arena(getResources(), gc, this);
 		// create the game loop thread
 		thread = new GameThread(getHolder(), this);
 		// make the GamePanel focusable so it can handle events
@@ -111,22 +111,22 @@ public class MainGamePanel extends SurfaceView implements
 		Log.d(TAG, "Thread was shut down cleanly");
 	}
 	
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			// delegating event handling to the droid
-	//		droid.handleActionDown((int)event.getX(), (int)event.getY());
-			
-			// check if in the lower part of the screen we exit
-			if (event.getY() > getHeight() - 50) {
-				thread.setRunning(false);
-				((Activity)getContext()).finish();
-			} else {
-				Log.d(TAG, "Coords: x=" + event.getX() + ",y=" + event.getY());
-			}
-		} 
-		return true;
-	}
+//	@Override
+//	public boolean onTouchEvent(MotionEvent event) {
+//		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//			// delegating event handling to the droid
+//	//		droid.handleActionDown((int)event.getX(), (int)event.getY());
+//			
+//			// check if in the lower part of the screen we exit
+//			if (event.getY() > getHeight() - 50) {
+//				thread.setRunning(false);
+//				((Activity)getContext()).finish();
+//			} else {
+//				Log.d(TAG, "Coords: x=" + event.getX() + ",y=" + event.getY());
+//			}
+//		} 
+//		return true;
+//	}
 
 	public void update() {
 		
