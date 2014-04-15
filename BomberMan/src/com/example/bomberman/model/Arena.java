@@ -117,7 +117,7 @@ public class Arena {
 	}
 
 	public void plantBomb(int i, int j, char myself){
-		gc.writeLogicPosition(j, i,'B');
+		//gc.writeLogicPosition(j, i,'B'); write state ja faz isto
 		writeState(j, i, PathState.BOMB, myself);
 	}
 	

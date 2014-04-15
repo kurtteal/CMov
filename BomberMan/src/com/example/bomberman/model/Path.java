@@ -65,6 +65,7 @@ public class Path implements IDrawable{
 	
 	private boolean firstUpdate = true; //These 2 attributes exist only because the bitmaps cant be
 	private PathState initialState;		//expanded in the constructor, so its done on the first update instead
+	
 	//TODO bombas e explosoes precisam de ter o id (myself) do owner para atribuicao de pts
 
 	public Path(Resources resources, int x, int y, PathState state, int i, int j, int numColumns, int numLines, MainGamePanel panel) {
@@ -91,6 +92,10 @@ public class Path implements IDrawable{
 		frameTicker = 0l;
 	}
 
+	private void explodePrematurely(){
+		bombInitialTime = 0; //vai fazer com q no proximo tick (update), esta bomba va explodir
+	}
+	
 	// for collision checks
 	public int getWidth() {
 		//return spriteWidth;
@@ -195,31 +200,42 @@ public class Path implements IDrawable{
 							char block = gc.readPosition(iArena+i, jArena);
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[0]=false;
-							if(block != 'W')
+							if(block == 'B')
+								gc.writeLogicPosition(iArena+i, jArena, 'E');
+							else if(block != 'W')
 								panel.getArena().writeState(iArena+i, jArena, PathState.EXPLOSION, bombOwner);
 						}
 						if(directionsNotBlocked[1]){
 							char block = gc.readPosition(iArena-i, jArena);
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[1]=false;
-							if(block != 'W')
+							if(block == 'B')
+								gc.writeLogicPosition(iArena-i, jArena, 'E');
+							else if(block != 'W')
 								panel.getArena().writeState(iArena-i, jArena, PathState.EXPLOSION, bombOwner);
 						}
 						if(directionsNotBlocked[2]){
 							char block = gc.readPosition(iArena, jArena+i);
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[2]=false;
-							if(block != 'W')
+							if(block == 'B')
+								gc.writeLogicPosition(iArena, jArena + i, 'E');
+							else if(block != 'W')
 								panel.getArena().writeState(iArena, jArena+i, PathState.EXPLOSION, bombOwner);
 						}
 						if(directionsNotBlocked[3]){
 							char block = gc.readPosition(iArena, jArena-i);
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[3]=false;
-							if(block != 'W')
+							if(block == 'B')
+								gc.writeLogicPosition(iArena, jArena-i, 'E');
+							else if(block != 'W')
 								panel.getArena().writeState(iArena, jArena-i, PathState.EXPLOSION, bombOwner);
 						}				
 					}
+				}else{ //verifica se esta a ser tocado por uma explosao
+					if( gc.readPosition(iArena, jArena) == 'E' )
+						explodePrematurely();
 				}
 			}else { //se for explosao, ve se ja eh tempo de terminar a explosao
 				if(gameTime > explosionInitialTime + explosionTime*1000){

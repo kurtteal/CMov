@@ -328,7 +328,7 @@ public class Bomberman {
 				speed.setXStationary();
 				checkIfNextMove();
 				//Quando chego a um novo bloco vou ver se tinha plantado uma bomba no anterior
-				Log.d("BOMBCOLISION", "iJustPlanted = " + iJustPlanted);
+				//Log.d("BOMBCOLISION", "iJustPlanted = " + iJustPlanted);
 				if(iJustPlanted){
 					iJustPlanted = false;
 //					bombI = 0;

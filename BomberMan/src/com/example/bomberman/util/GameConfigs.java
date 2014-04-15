@@ -58,7 +58,7 @@ public class GameConfigs implements Serializable {
 				char[] charArray = line.toCharArray();
 				for(j=0; j< sizeY; j++){
 					matrix[i][j] = charArray[j]; //get element from file
-					if(charArray[j] != '-' && charArray[j] != 'W' && charArray[j] != 'O' && charArray[j] != 'B')
+					if(charArray[j] != '-' && charArray[j] != 'W' && charArray[j] != 'O' && charArray[j] != 'B' && charArray[j] != 'E')
 						overlay[i][j] = charArray[j]; //player or robot
 					else
 						overlay[i][j] = '-';
