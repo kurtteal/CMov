@@ -32,7 +32,7 @@ public class GameActivity extends Activity {
 		// set our MainGamePanel as the View
 		//setContentView(new MainGamePanel(this));
 
-		gc = (GameConfigs)getIntent().getSerializableExtra("matrix");
+		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
 
 		setContentView(R.layout.activity_game);
 		Log.d(TAG, "View added");

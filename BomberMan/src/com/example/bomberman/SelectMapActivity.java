@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 public class SelectMapActivity extends Activity implements OnItemSelectedListener {
 	
-	private GameConfigs matrix;
+	private GameConfigs gc;
 	
     public void onItemSelected(AdapterView<?> parent, View view, 
             int pos, long id) {
@@ -49,36 +49,36 @@ public class SelectMapActivity extends Activity implements OnItemSelectedListene
 				mapSelected = new String("map1");
 				
 		}
-		matrix = new GameConfigs();
+		gc = new GameConfigs();
         AssetManager am = getAssets();
         try {
 			InputStream is = am.open(mapSelected);
-			matrix.loadConfigs(is); //loads up the matrix from the map file
+			gc.loadConfigs(is); //loads up the matrix from the map file
 		} catch (IOException e) { e.printStackTrace(); }
         TextView t;
         t = (TextView)findViewById(R.id.level_name);
-        t.setText("Level name: "+matrix.levelName);
+        t.setText("Level name: "+gc.levelName);
         
         t = (TextView)findViewById(R.id.game_duration);
-        t.setText("Game duration: "+matrix.gameDuration);
+        t.setText("Game duration: "+gc.gameDuration);
         
         t = (TextView)findViewById(R.id.explosion_timeout);
-        t.setText("Explosion timeout: "+matrix.explosionTimeout);
+        t.setText("Explosion timeout: "+gc.explosionTimeout);
         
         t = (TextView)findViewById(R.id.explosion_duration);
-        t.setText("Explosion duration: "+matrix.explosionDuration);
+        t.setText("Explosion duration: "+gc.explosionDuration);
         
         t = (TextView)findViewById(R.id.explosion_range);
-        t.setText("Explosion range: "+matrix.explosionRange);
+        t.setText("Explosion range: "+gc.explosionRange);
         
         t = (TextView)findViewById(R.id.robot_speed);
-        t.setText("Robot speed: "+matrix.robotSpeed);
+        t.setText("Robot speed: "+gc.robotSpeed);
         
         t = (TextView)findViewById(R.id.pts_per_robot);
-        t.setText("Points per robot: "+matrix.ptsPerRobot);
+        t.setText("Points per robot: "+gc.ptsPerRobot);
         
         t = (TextView)findViewById(R.id.pts_per_opponent);
-        t.setText("Ponts per opponent: "+matrix.ptsPerPlayer);
+        t.setText("Ponts per opponent: "+gc.ptsPerPlayer);
     }
 
 	public void onNothingSelected(AdapterView parent) {
@@ -112,7 +112,7 @@ public class SelectMapActivity extends Activity implements OnItemSelectedListene
 
 	public void startGame(View v) {		
 		Intent intent = new Intent(SelectMapActivity.this, GameActivity.class);
-		intent.putExtra("matrix", matrix); //get number from select_map layout (the one selected)
+		intent.putExtra("gc", gc); //get number from select_map layout (the one selected)
 		startActivity(intent);
 	}
 

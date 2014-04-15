@@ -18,6 +18,9 @@ public class Arena {
 	private List<Bomberman> deadElements = new ArrayList<Bomberman>();
 
 	public IDrawable[][] pixelMatrix; // Matrix dos objectos para desenhar
+	private List<Bomberman> players;
+	private List<Robot> robots;
+	
 	protected GameConfigs gc; // matrix com chars, para verificacao de colisoes
 	public MainGamePanel panel;
 	public Map<String, Integer> scores = new HashMap<String, Integer>();
@@ -26,8 +29,6 @@ public class Arena {
 	// e o chao tem q ser desenhado por baixo deles, antes de estes serem
 	// desenhados
 	private Bomberman activePlayer;
-	private List<Bomberman> players;
-	private List<Robot> robots;
 	private Resources resources;
 
 	private boolean firstUpdate = true;
@@ -50,22 +51,22 @@ public class Arena {
 
 	private void fillDrawableMatrix() {
 
-		int sizeX = gc.getSizeX();
-		int sizeY = gc.getSizeY();
-		pixelMatrix = new IDrawable[sizeX][sizeY];
+		int numLines = gc.getNumLines();
+		int numColumns = gc.getNumColumns();
+		pixelMatrix = new IDrawable[numLines][numColumns];
 		int i, j;
 //		Log.d("Laaaaa", "test , last*sizeX= " 
 //				+ ((panel.getWidth() - (panel.getWidth() / sizeX)*sizeX)/2) + "," + (panel.getWidth() - (panel.getWidth() / sizeX)*sizeX));
-		int gameRightMargin = (panel.getWidth() - (panel.getWidth() / sizeY)*sizeY)/2;
-		int gameBottomMargin = (panel.getHeight() - (panel.getHeight() / sizeX)*sizeX)/2;
+		int gameRightMargin = (panel.getWidth() - (panel.getWidth() / numColumns)*numColumns)/2;
+		int gameBottomMargin = (panel.getHeight() - (panel.getHeight() / numLines)*numLines)/2;
 		
 		// preenche a matriz de objectos desenhaveis, e as listas de players e
 		// robots
-		for (i = 0; i < sizeX; i++) {
+		for (i = 0; i < numLines; i++) {
 			int previousBottomBorder = gameBottomMargin;
 			if (i != 0)
 				previousBottomBorder = pixelMatrix[i - 1][0].getDownBorder();
-			for (j = 0; j < sizeY; j++) {
+			for (j = 0; j < numColumns; j++) {
 				int previousRightBorder = gameRightMargin;
 				if (j != 0)
 					previousRightBorder = pixelMatrix[i][j - 1]
@@ -73,42 +74,42 @@ public class Arena {
 				switch (gc.matrix[i][j]) {
 				case 'W':
 					pixelMatrix[i][j] = new Wall(resources,
-							previousRightBorder, previousBottomBorder, sizeY,
-							sizeX, panel);
+							previousRightBorder, previousBottomBorder, numColumns,
+							numLines, panel);
 					break;
 				case '-':
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
-							PathState.FLOOR, i, j, sizeY, sizeX, panel);
+							PathState.FLOOR, i, j, numColumns, numLines, panel);
 					break;
 				case 'O':
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
-							PathState.OBSTACLE, i, j, sizeY, sizeX, panel);
+							PathState.OBSTACLE, i, j, numColumns, numLines, panel);
 					break;
 				case 'B':
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
-							PathState.BOMB, i, j, sizeY, sizeX, panel);
+							PathState.BOMB, i, j, numColumns, numLines, panel);
 					break;
 				case 'R':
 					robots.add(new Robot(resources, previousRightBorder,
 							previousBottomBorder, gameRightMargin, gameBottomMargin, panel, gc.matrix[i][j],
-							gc.robotSpeed, sizeY, sizeX));
+							gc.robotSpeed, numColumns, numLines));
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
-							PathState.FLOOR, i, j, sizeY, sizeX, panel);
+							PathState.FLOOR, i, j, numColumns, numLines, panel);
 					break;
 				default:
 					Bomberman player = new Bomberman(resources, previousRightBorder,
 							previousBottomBorder, gameRightMargin, gameBottomMargin, panel, gc.matrix[i][j],
-							sizeY, sizeX);
+							numColumns, numLines);
 					if(gc.matrix[i][j] == '1')
 						activePlayer = player;
 					players.add(player);
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
-							PathState.FLOOR, i, j, sizeY, sizeX, panel);
+							PathState.FLOOR, i, j, numColumns, numLines, panel);
 					break;
 				}
 			}
@@ -118,7 +119,7 @@ public class Arena {
 
 	public void plantBomb(int i, int j, char myself){
 		//gc.writeLogicPosition(j, i,'B'); write state ja faz isto
-		writeState(j, i, PathState.BOMB, myself);
+		writeState(i, j, PathState.BOMB, myself);
 	}
 	
 	// Proteccao contra acessos concorrentes
@@ -159,8 +160,8 @@ public class Arena {
 		}
 
 		int i, j;
-		int sizeX = gc.getSizeX();
-		int sizeY = gc.getSizeY();
+		int sizeX = gc.getNumLines();
+		int sizeY = gc.getNumColumns();
 
 		for (i = 0; i < sizeX; i++) {
 			for (j = 0; j < sizeY; j++) {
@@ -178,8 +179,8 @@ public class Arena {
 
 	public void draw(Canvas canvas) {
 		int i, j;
-		int sizeX = gc.getSizeX();
-		int sizeY = gc.getSizeY();
+		int sizeX = gc.getNumLines();
+		int sizeY = gc.getNumColumns();
 
 		// desenha primeiro a arena em si
 		for (i = 0; i < sizeX; i++) {
