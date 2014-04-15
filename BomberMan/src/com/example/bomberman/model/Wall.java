@@ -38,7 +38,7 @@ public class Wall implements IDrawable{
 		this.numLines = numLines;
 	}
 	
-	public void setState(PathState state) {}
+	public void setState(PathState state, char owner) {}
 
 	// for collision checks
 	public int getWidth() {

@@ -19,6 +19,8 @@ import com.example.bomberman.util.GameConfigs;
  */
 public class Path implements IDrawable{
 	
+	char bombOwner;
+	
 	private GameConfigs gc;
 	public int iArena;
 	public int jArena;
@@ -127,12 +129,12 @@ public class Path implements IDrawable{
 	}
 
 	//Muda o estado. 
-	public void setState(PathState state) {
+	public void setState(PathState state, char owner) {
 		this.state = state;
 		if(state == PathState.FLOOR){
 			bitmap = floorBitmap;
 			frameNr = floorFrameNr;
-			gc.writePosition(iArena, jArena, '-');
+			gc.writeLogicPosition(iArena, jArena, '-');
 		}
 		else if(state == PathState.OBSTACLE){
 			bitmap = obstacleBitmap;
@@ -142,13 +144,14 @@ public class Path implements IDrawable{
 			bitmap = explosionBitmap;
 			frameNr = explosionFrameNr;
 			explosionInitialTime = System.currentTimeMillis();
-			gc.writePosition(iArena, jArena, 'E');
+			gc.writeLogicPosition(iArena, jArena, 'E');
 		}
 		else if(state == PathState.BOMB){
 			bitmap = bombBitmap;
 			frameNr = bombFrameNr;
+			bombOwner = owner;
 			bombInitialTime = System.currentTimeMillis();
-			gc.writePosition(iArena, jArena, 'B');
+			gc.writeLogicPosition(iArena, jArena, 'B');
 		}
 	
 		currentFrame = 0;
@@ -165,7 +168,7 @@ public class Path implements IDrawable{
 		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);
 		
 		//na configuracao inicial
-		setState(initialState); 
+		setState(initialState, ' '); 
 	}
 
 	//Nos casos especiais em que muda de um estado para outro, pode precisar de
@@ -182,7 +185,7 @@ public class Path implements IDrawable{
 			//if bomb check if its time to explode
 			if(state == PathState.BOMB){
 				if(gameTime > bombInitialTime + bombTime*1000){
-					setState(PathState.EXPLOSION);
+					setState(PathState.EXPLOSION, bombOwner);
 					//indica para cada 1 das direcçoes se nessa direcao ja houve 1 bloqueio
 					//para nao passar por cima das walls
 					boolean[] directionsNotBlocked = {true, true, true, true};
@@ -193,34 +196,34 @@ public class Path implements IDrawable{
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[0]=false;
 							if(block != 'W')
-								panel.getArena().writeState(iArena+i, jArena, PathState.EXPLOSION);
+								panel.getArena().writeState(iArena+i, jArena, PathState.EXPLOSION, bombOwner);
 						}
 						if(directionsNotBlocked[1]){
 							char block = gc.readPosition(iArena-i, jArena);
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[1]=false;
 							if(block != 'W')
-								panel.getArena().writeState(iArena-i, jArena, PathState.EXPLOSION);
+								panel.getArena().writeState(iArena-i, jArena, PathState.EXPLOSION, bombOwner);
 						}
 						if(directionsNotBlocked[2]){
 							char block = gc.readPosition(iArena, jArena+i);
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[2]=false;
 							if(block != 'W')
-								panel.getArena().writeState(iArena, jArena+i, PathState.EXPLOSION);
+								panel.getArena().writeState(iArena, jArena+i, PathState.EXPLOSION, bombOwner);
 						}
 						if(directionsNotBlocked[3]){
 							char block = gc.readPosition(iArena, jArena-i);
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[3]=false;
 							if(block != 'W')
-								panel.getArena().writeState(iArena, jArena-i, PathState.EXPLOSION);
+								panel.getArena().writeState(iArena, jArena-i, PathState.EXPLOSION, bombOwner);
 						}				
 					}
 				}
 			}else { //se for explosao, ve se ja eh tempo de terminar a explosao
 				if(gameTime > explosionInitialTime + explosionTime*1000){
-					setState(PathState.FLOOR);
+					setState(PathState.FLOOR, ' ');
 				}
 			}
 			

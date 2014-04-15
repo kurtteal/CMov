@@ -53,6 +53,7 @@ public class Bomberman {
 	
 	private boolean firstUpdate = true;
 	private char nextMove = ' '; //players podem guardar o prox move para tornar o jogo mais responsivo 
+	private boolean iJustPlanted;
 	
 	public Bomberman (Resources resources, int x, int y, int xMargin, int yMargin, MainGamePanel panel, char myself, int numColumns, int numLines) {
 		this.myself = myself;
@@ -74,6 +75,8 @@ public class Bomberman {
 		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);
 		frameTicker = 0l;
 		this.speed = new Speed();
+		
+		iJustPlanted = false;
 		// DEBUG if(myself != 'R'){ oneSquareDown(); oneSquareLeft();}
 	}
 	
@@ -120,7 +123,16 @@ public class Bomberman {
 		return speed.isNotZero();
 	}
 	
-	//PLAYER BEHAVIOUR
+	public void plantBomb(){
+		int[] coords = getPositionInMatrix();
+		int i = coords[0];
+		int j = coords[1];
+		panel.getArena().plantBomb(i, j, myself);
+		iJustPlanted = true;
+	}
+	
+	
+	//PLAYER MOVEMENT BEHAVIOUR
 	//Move one square to the left
 	public void oneSquareLeft(){ 
 		if(!isMoving() || speed.getxDirection() == Speed.DIRECTION_RIGHT){
@@ -181,7 +193,7 @@ public class Bomberman {
 		
 		//A maneira como se detecta e de como se corrige uma colisao depende
 		//da direccao em que o boneco viaja. Nao ha colisoes entre players, ou
-		//entre players e robots (ha deps a condi�ao de morte se estiver perto do robot)
+		//entre players e robots (ha deps a condicao de morte se estiver perto do robot)
 		if(speed.getxDirection() == Speed.DIRECTION_RIGHT){ 
 			i=(x-xMapMargin)/width;
 			if((x-xMapMargin)%width != 0) i++;
@@ -189,7 +201,12 @@ public class Bomberman {
 			//Log.d("UPDATE", "i,j = "+i+","+j+", matrix[i,j] ="+gm.matrix[i][j]);
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
-			if(block == 'O' || block == 'W' || block == 'B'){
+			if(myself == '1') //PROBLEMA ESTA A ESCREVER 1 POR CIMA DO B TODO
+				Log.d("BLOCK", "block = " + block);
+			if(block == 'B' && iJustPlanted){ 
+				//Se eu acabei de por a bomba, nao ha colisao
+			}
+			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
 				x = xMapMargin + ((x-xMapMargin)/width)*width; //divisao inteira!! nao se anulam as operacoes!!
 				y = yMapMargin + j*height;
@@ -201,7 +218,10 @@ public class Bomberman {
 			j=(y-yMapMargin)/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
-			if(block == 'O' || block == 'W' || block == 'B'){
+			if(block == 'B' && iJustPlanted){ 
+				//Se eu acabei de por a bomba, nao ha colisao
+			}
+			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
 				x = xMapMargin + (i+1)*width; 
 				y = yMapMargin + j*height;
@@ -214,7 +234,10 @@ public class Bomberman {
 			if((y-yMapMargin)%height != 0) j++;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
-			if(block == 'O' || block == 'W' || block == 'B'){
+			if(block == 'B' && iJustPlanted){ 
+				//Se eu acabei de por a bomba, nao ha colisao
+			}
+			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
 				x = xMapMargin + (i)*width; 
 				y = yMapMargin + ((y-yMapMargin)/height)*height;
@@ -226,7 +249,10 @@ public class Bomberman {
 			j=(y-yMapMargin)/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
-			if(block == 'O' || block == 'W' || block == 'B'){
+			if(block == 'B' && iJustPlanted){ 
+				//Se eu acabei de por a bomba, nao ha colisao
+			}
+			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
 				x = xMapMargin + (i)*width; 
 				y = yMapMargin + (j+1)*height;
@@ -245,9 +271,9 @@ public class Bomberman {
 		targetY = 0; 
 	}
 	
-	//Se chegou aqui � porque ja fez deteccao de colisoes
+	//Se chegou aqui eh porque ja fez deteccao de colisoes
 	//Converte coordenadas de pixeis, em coords da matriz logica, nao para colisao,
-	//mas para obter a posi�ao actual na matriz de estados
+	//mas para obter a posicao actual na matriz de estados
 	public int[] getPositionInMatrix(){
 		int[] resultado = new int[2];
 
@@ -291,12 +317,19 @@ public class Bomberman {
 				targetX = 0;
 				speed.setXStationary();
 				checkIfNextMove();
+				//Quando chego a um novo bloco vou ver se tinha plantado uma bomba no anterior
+				Log.d("BOMBCOLISION", "iJustPlanted = " + iJustPlanted);
+				if(iJustPlanted)
+					iJustPlanted = false;
 			}
 			else if(targetY != 0 && Math.abs(targetY - y) < movementMargin){
 				y = targetY; 
 				targetY = 0;
 				speed.setYStationary();
 				checkIfNextMove();
+				//Quando chego a um novo bloco vou ver se tinha plantado uma bomba no anterior
+				if(iJustPlanted)
+					iJustPlanted = false;
 			}
 			else{
 				x += (speed.getVelocity() * speed.getxDirection()); 
@@ -318,13 +351,13 @@ public class Bomberman {
 		
 		//Se mudou de coords, significa que abandonou o bloco antigo
 		if(oldPositions[0] != newPositions[0] || oldPositions[1] != newPositions[1] ){
-			gc.writePosition(oldPositions[1], oldPositions[0], '-'); //antigo bloco agora eh chao
+			gc.writeOverlayPosition(oldPositions[1], oldPositions[0], '-'); //antigo bloco agora eh chao
 			//se a nova posicao eh 1 explosao, morre
 			if(gc.readPosition(newPositions[1], newPositions[0]) == 'E'){
 				die();
 			}
 			else{ //o novo bloco agora contem o proprio
-				gc.writePosition(newPositions[1], newPositions[0], myself); 
+				gc.writeOverlayPosition(newPositions[1], newPositions[0], myself); 
 			}
 		}
 		

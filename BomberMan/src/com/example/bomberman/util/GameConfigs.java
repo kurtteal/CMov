@@ -8,7 +8,8 @@ import java.io.Serializable;
 
 public class GameConfigs implements Serializable {
 
-	public char matrix[][];
+	public char matrix[][]; //onde estao walls e paths
+	public char overlay[][]; //onde estao os players e robots
 	private int sizeX;
 	private int sizeY;
 
@@ -48,14 +49,20 @@ public class GameConfigs implements Serializable {
 		sizeX = Integer.parseInt(dimensions[0]); //linhas
 		sizeY = Integer.parseInt(dimensions[1]); //colunas
 		matrix = new char[sizeX][sizeY];
+		overlay = new char[sizeX][sizeY];
 		
 		//returns an empty String if two newlines appear in a row (this should never happen tho)
 		int i,j;
 		for(i=0; i< sizeX; i++){
 			if((line = input.readLine()) != null){
 				char[] charArray = line.toCharArray();
-				for(j=0; j< sizeY; j++)
+				for(j=0; j< sizeY; j++){
 					matrix[i][j] = charArray[j]; //get element from file
+					if(charArray[j] != '-' && charArray[j] != 'W' && charArray[j] != 'O' && charArray[j] != 'B')
+						overlay[i][j] = charArray[j]; //player or robot
+					else
+						overlay[i][j] = '-';
+				}
 			}
 		}
 		//Obtem os outros dados
@@ -103,9 +110,16 @@ public class GameConfigs implements Serializable {
 	}
 	
 	//Protecçao contra acessos concorrentes
-	public void writePosition(int i, int j, char value){
+	public void writeLogicPosition(int i, int j, char value){
 		synchronized(matrix){
 			matrix[i][j] = value;
+		}
+	}
+	
+	//Protecçao contra acessos concorrentes
+	public void writeOverlayPosition(int i, int j, char value){
+		synchronized(matrix){
+			overlay[i][j] = value;
 		}
 	}
 	

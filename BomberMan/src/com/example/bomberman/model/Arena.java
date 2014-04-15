@@ -1,7 +1,9 @@
 package com.example.bomberman.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.util.GameConfigs;
@@ -18,6 +20,7 @@ public class Arena {
 	public IDrawable[][] pixelMatrix; // Matrix dos objectos para desenhar
 	protected GameConfigs gc; // matrix com chars, para verificacao de colisoes
 	public MainGamePanel panel;
+	public Map<String, Integer> scores = new HashMap<String, Integer>();
 
 	// os players/robots tem de ser os ultimos a ser desenhados
 	// e o chao tem q ser desenhado por baixo deles, antes de estes serem
@@ -39,7 +42,6 @@ public class Arena {
 		gc = gameConfigs;
 		this.panel = panel;
 		this.resources = resources;
-
 	}
 	
 	public Bomberman getActivePlayer(){
@@ -98,10 +100,12 @@ public class Arena {
 							PathState.FLOOR, i, j, sizeY, sizeX, panel);
 					break;
 				default:
-					activePlayer = new Bomberman(resources, previousRightBorder,
+					Bomberman player = new Bomberman(resources, previousRightBorder,
 							previousBottomBorder, gameRightMargin, gameBottomMargin, panel, gc.matrix[i][j],
 							sizeY, sizeX);
-					players.add(activePlayer);
+					if(gc.matrix[i][j] == '1')
+						activePlayer = player;
+					players.add(player);
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
 							PathState.FLOOR, i, j, sizeY, sizeX, panel);
@@ -112,11 +116,16 @@ public class Arena {
 		}
 	}
 
+	public void plantBomb(int i, int j, char myself){
+		gc.writeLogicPosition(j, i,'B');
+		writeState(j, i, PathState.BOMB, myself);
+	}
+	
 	// Protec�ao contra acessos concorrentes
 	// Escreve o novo estado no objecto Path localizado em i,j
-	public void writeState(int i, int j, PathState state) {
+	public void writeState(int i, int j, PathState state, char owner) {
 		synchronized (pixelMatrix) {
-			pixelMatrix[i][j].setState(state);
+			pixelMatrix[i][j].setState(state, owner);
 		}
 	}
 

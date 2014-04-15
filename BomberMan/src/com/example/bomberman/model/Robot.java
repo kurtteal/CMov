@@ -40,7 +40,7 @@ public class Robot extends Bomberman{
 	//entre os caminhos livres
 	private void decideNewPath(){
 		int[] array = getPositionInMatrix();
-		Log.i("ARRAY:", array[0]+","+array[1]);
+		//Log.i("ARRAY:", array[0]+","+array[1]);
 		int i = array[0];
 		int j = array[1];
 		//check surroundings

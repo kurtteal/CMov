@@ -43,31 +43,28 @@ public class MainGamePanel extends SurfaceView implements
 	public MainGamePanel(Context context) {
 		super(context);
 		// adding the callback (this) to the surface holder to intercept events
-		getHolder().addCallback(this);
-		GameActivity activ = (GameActivity) context;
-		activ.setGamePanel(this);
+
 		commonInit(context);
 		
 	}
 	
     public MainGamePanel(Context context, AttributeSet attrs) {
         super(context, attrs);
-        getHolder().addCallback(this);
-        GameActivity activ = (GameActivity) context;
-		activ.setGamePanel(this);
+
 		commonInit(context);
     }
 
     public MainGamePanel(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        getHolder().addCallback(this);
-        GameActivity activ = (GameActivity) context;
-		activ.setGamePanel(this);
+
 		commonInit(context);
     }
 
 	private void commonInit(Context context){
-
+		getHolder().addCallback(this);
+		GameActivity activ = (GameActivity) context;
+		activ.setGamePanel(this);
+		
     	GameConfigs gc = ((GameActivity)context).gc;      
 		//Log.d("CONTEXT", matrix.getLine(1)); //ja funca
 		arena = new Arena(getResources(), gc, this);

@@ -16,5 +16,5 @@ public interface IDrawable {
 	public void update(long gameTime, GameConfigs gm);
 	public void draw(Canvas canvas);
 	
-	public void setState(PathState state);
+	public void setState(PathState state, char owner);
 }

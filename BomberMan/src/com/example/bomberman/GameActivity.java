@@ -83,11 +83,7 @@ public class GameActivity extends Activity {
 	public void dropBomb(View v){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getActivePlayer();
-		int[] coords = bman.getPositionInMatrix();
-		int i = coords[0];
-		int j = coords[1];
-		gc.matrix[j][i] = 'B';
-		arena.pixelMatrix[j][i].setState(PathState.BOMB);
+		bman.plantBomb();
 	}
 	
 	public void quitGame(View v){
