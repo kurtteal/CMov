@@ -420,13 +420,13 @@ public class Bomberman {
 			sourceRect.left = currentFrame * spriteWidth;
 			sourceRect.right = sourceRect.left + spriteWidth;
 		}
-		else{ //se esta parado, ver se alguma explosao nova o atinge
-			int[] currentPos = getPositionInMatrix();
-			int x = currentPos[0];
-			int y = currentPos[1];
-			if(gc.readPosition(y,x)=='E')
-				die();
-		}
+		//ver se alguma explosao nova o atinge (mesmo que esteja parado)
+		int[] currentPos = getPositionInMatrix();
+		int x = currentPos[0];
+		int y = currentPos[1];
+		if(gc.readPosition(y,x)=='E')
+			die();
+		
 	}
 
 	// the draw method which draws the corresponding frame
