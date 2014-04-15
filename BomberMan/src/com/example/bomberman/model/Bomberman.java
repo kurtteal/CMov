@@ -53,7 +53,9 @@ public class Bomberman {
 	
 	private boolean firstUpdate = true;
 	private char nextMove = ' '; //players podem guardar o prox move para tornar o jogo mais responsivo 
-	private boolean iJustPlanted;
+	protected boolean iJustPlanted;
+	protected int bombI;
+	protected int bombJ;
 	
 	public Bomberman (Resources resources, int x, int y, int xMargin, int yMargin, MainGamePanel panel, char myself, int numColumns, int numLines) {
 		this.myself = myself;
@@ -77,6 +79,8 @@ public class Bomberman {
 		this.speed = new Speed();
 		
 		iJustPlanted = false;
+		bombI = 0;
+		bombJ = 0;
 		// DEBUG if(myself != 'R'){ oneSquareDown(); oneSquareLeft();}
 	}
 	
@@ -129,6 +133,8 @@ public class Bomberman {
 		int j = coords[1];
 		panel.getArena().plantBomb(i, j, myself);
 		iJustPlanted = true;
+		bombI = i;
+		bombJ = j;
 	}
 	
 	
@@ -201,9 +207,10 @@ public class Bomberman {
 			//Log.d("UPDATE", "i,j = "+i+","+j+", matrix[i,j] ="+gm.matrix[i][j]);
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
-			if(myself == '1') //PROBLEMA ESTA A ESCREVER 1 POR CIMA DO B TODO
-				Log.d("BLOCK", "block = " + block);
-			if(block == 'B' && iJustPlanted){ 
+//			if(myself == '1') //PROBLEMA ESTA A ESCREVER 1 POR CIMA DO B TODO
+//				Log.d("BLOCK", "block = " + block);
+			int[] coords = getPositionInMatrix();
+			if(block == 'B' && iJustPlanted && bombI == coords[0] && bombJ == coords[1]){ 
 				//Se eu acabei de por a bomba, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
@@ -218,7 +225,8 @@ public class Bomberman {
 			j=(y-yMapMargin)/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
-			if(block == 'B' && iJustPlanted){ 
+			int[] coords = getPositionInMatrix();
+			if(block == 'B' && iJustPlanted && bombI == coords[0] && bombJ == coords[1]){ 
 				//Se eu acabei de por a bomba, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
@@ -234,7 +242,8 @@ public class Bomberman {
 			if((y-yMapMargin)%height != 0) j++;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
-			if(block == 'B' && iJustPlanted){ 
+			int[] coords = getPositionInMatrix();
+			if(block == 'B' && iJustPlanted && bombI == coords[0] && bombJ == coords[1]){ 
 				//Se eu acabei de por a bomba, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
@@ -249,7 +258,8 @@ public class Bomberman {
 			j=(y-yMapMargin)/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
-			if(block == 'B' && iJustPlanted){ 
+			int[] coords = getPositionInMatrix();
+			if(block == 'B' && iJustPlanted && bombI == coords[0] && bombJ == coords[1]){ 
 				//Se eu acabei de por a bomba, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
@@ -319,8 +329,11 @@ public class Bomberman {
 				checkIfNextMove();
 				//Quando chego a um novo bloco vou ver se tinha plantado uma bomba no anterior
 				Log.d("BOMBCOLISION", "iJustPlanted = " + iJustPlanted);
-				if(iJustPlanted)
+				if(iJustPlanted){
 					iJustPlanted = false;
+//					bombI = 0;
+//					bombJ = 0;
+				}
 			}
 			else if(targetY != 0 && Math.abs(targetY - y) < movementMargin){
 				y = targetY; 
@@ -339,7 +352,7 @@ public class Bomberman {
 	}
 	
 	//Verifica a sua posicao na matrix logica
-	private void checkPositionChange(){
+	protected void checkPositionChange(){
 		//Get old coordinate positions from pixel positions
 		int[] oldPositions = getPositionInMatrix();
 		

@@ -121,7 +121,7 @@ public class Arena {
 		writeState(j, i, PathState.BOMB, myself);
 	}
 	
-	// Protec�ao contra acessos concorrentes
+	// Proteccao contra acessos concorrentes
 	// Escreve o novo estado no objecto Path localizado em i,j
 	public void writeState(int i, int j, PathState state, char owner) {
 		synchronized (pixelMatrix) {

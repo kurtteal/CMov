@@ -99,14 +99,30 @@ public class Robot extends Bomberman{
 		if( (y-yMapMargin)%getHeight() == 0 && Math.abs((x-xMapMargin) - getPositionInMatrix()[0]*getWidth()) < movementMargin ){ //horizontal
 			x = xMapMargin + getPositionInMatrix()[0]*getWidth();
 			decideNewPath();
+			if(iJustPlanted)
+				iJustPlanted = false;
+			//will plant a bomb with a given probability if it is at an intersection
+			if(Math.random() > 0.9) //10% prob d por bomba num cruzamento
+				plantBomb();
 		} else if( (x-xMapMargin)%getWidth() == 0 && Math.abs((y-yMapMargin) - getPositionInMatrix()[1]*getHeight()) < movementMargin ){ //horizontal
 			y = yMapMargin + getPositionInMatrix()[1]*getHeight();
 			decideNewPath();
+			if(iJustPlanted)
+				iJustPlanted = false;
+			//will plant a bomb with a given probability if it is at an intersection
+			if(Math.random() > 0.9) //10% prob d por bomba num cruzamento
+				plantBomb();
 		}
 		x += (speed.getVelocity() * speed.getxDirection()); 
 		y += (speed.getVelocity() * speed.getyDirection());
 			
 	}
+	
+//	protected void checkPositionChange(){
+//		super.checkPositionChange();
+//		
+//		//Decide whether or not to plant a bomb here
+//	}
 	
 	private boolean pathIsFree(char block){
 		if(block != 'O' && block != 'W' && block != 'B') return true;
