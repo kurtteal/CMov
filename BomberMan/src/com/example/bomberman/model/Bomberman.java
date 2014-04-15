@@ -329,10 +329,11 @@ public class Bomberman {
 				checkIfNextMove();
 				//Quando chego a um novo bloco vou ver se tinha plantado uma bomba no anterior
 				//Log.d("BOMBCOLISION", "iJustPlanted = " + iJustPlanted);
-				if(iJustPlanted){
+				int[] coords = getPositionInMatrix();
+				if(iJustPlanted && (coords[0] != bombI || coords[1] != bombJ)){
 					iJustPlanted = false;
-//					bombI = 0;
-//					bombJ = 0;
+					bombI = 0;
+					bombJ = 0;
 				}
 			}
 			else if(targetY != 0 && Math.abs(targetY - y) < movementMargin){
@@ -341,8 +342,12 @@ public class Bomberman {
 				speed.setYStationary();
 				checkIfNextMove();
 				//Quando chego a um novo bloco vou ver se tinha plantado uma bomba no anterior
-				if(iJustPlanted)
+				int[] coords = getPositionInMatrix();
+				if(iJustPlanted && (coords[0] != bombI || coords[1] != bombJ)){
 					iJustPlanted = false;
+					bombI = 0;
+					bombJ = 0;
+				}
 			}
 			else{
 				x += (speed.getVelocity() * speed.getxDirection()); 
