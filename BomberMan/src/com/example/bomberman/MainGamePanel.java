@@ -35,6 +35,7 @@ public class MainGamePanel extends SurfaceView implements
 		SurfaceHolder.Callback {
 
 	private static final String TAG = MainGamePanel.class.getSimpleName();
+	public GameActivity activity; 
 	
 	public GameThread thread;
 	//private Bomberman bomberman; //modelo q s mexe
@@ -62,8 +63,8 @@ public class MainGamePanel extends SurfaceView implements
 
 	private void commonInit(Context context){
 		getHolder().addCallback(this);
-		GameActivity activ = (GameActivity) context;
-		activ.setGamePanel(this);
+		activity = (GameActivity) context;
+		activity.setGamePanel(this);
 		
     	GameConfigs gc = ((GameActivity)context).gc;      
 		//Log.d("CONTEXT", matrix.getLine(1)); //ja funca
@@ -72,6 +73,10 @@ public class MainGamePanel extends SurfaceView implements
 		thread = new GameThread(getHolder(), this);
 		// make the GamePanel focusable so it can handle events
 		setFocusable(true);
+	}
+	
+	public void endGame(){
+		activity.endGame();
 	}
 	
 	public Arena getArena(){

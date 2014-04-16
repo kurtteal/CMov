@@ -34,6 +34,10 @@
             android:name="com.example.bomberman.SelectMapActivity"
             android:label="@string/title_activity_select_map" >
         </activity>
+        <activity
+            android:name="com.example.bomberman.ScoresActivity"
+            android:label="@string/title_activity_scores" >
+        </activity>
     </application>
 
 </manifest>

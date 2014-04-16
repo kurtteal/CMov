@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.util.GameConfigs;
+import com.example.bomberman.util.ScoreBoard;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -23,7 +24,7 @@ public class Arena {
 	
 	protected GameConfigs gc; // matrix com chars, para verificacao de colisoes
 	public MainGamePanel panel;
-	public Map<String, Integer> scores = new HashMap<String, Integer>();
+	public ScoreBoard scores = new ScoreBoard();
 	
 	//Cada bomberman so pode por uma bomba de cada vez (enunciado)
 	public List<String> bombs; //contem os 'ids' dos players que puseram bombas
@@ -111,7 +112,7 @@ public class Arena {
 						activePlayer = player;
 					players.add(player);
 					String playerId = "" + gc.matrix[i][j];
-					scores.put(playerId, 0); //auto-boxing
+					scores.add(playerId);
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
 							PathState.FLOOR, i, j, numColumns, numLines, panel);
@@ -180,9 +181,9 @@ public class Arena {
 		String planter = "" + bombOwnerId;
 		if(bombOwnerId != 'R' && deadBomberId != bombOwnerId){ //suicide doesnt count
 			if(deadBomberId == 'R')
-				scores.put(planter, scores.get(planter) + gc.ptsPerRobot);
+				scores.update(planter, gc.ptsPerRobot);
 			else
-				scores.put(planter, scores.get(planter) + gc.ptsPerPlayer);
+				scores.update(planter, gc.ptsPerPlayer);
 		}
 		//Log.d("MORREU", "Morreu: " + deadBomberId + " nas coords[i][j]: " + i + " " + j);
 		//Log.d("DEAD", "Score do " + planter + " is: " + scores.get(planter));
@@ -239,6 +240,12 @@ public class Arena {
 			robot.draw(canvas);
 		for (Bomberman player : players)
 			player.draw(canvas);
+		
+		//JOGO TERMINA SE NAO HOUVER MAIS PLAYERS
+		//ou se havendo apenas 1 player nao ha robots
+		if(players.isEmpty() || players.size() == 1 && robots.isEmpty()){
+			panel.endGame();
+		}
 
 	}
 }

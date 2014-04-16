@@ -8,6 +8,7 @@
 	<string name="joingame_button">Join Game</string>
 	<string name="startgame_button">Start Game</string>
 	<string name="settings_button">Settings</string>
+	<string name="leave_button">Leave</string>
 	
 	<string name="adduser_button">Add User</string>
 	<string name="adduser_hint">New User</string>
@@ -15,6 +16,7 @@
     <string name="title_activity_select_user">SelectUserActivity</string>
     <string name="title_activity_select_map">SelectMapActivity</string>
     <string name="title_activity_game">GameActivity</string>
+    <string name="title_activity_scores">ScoresActivity</string>
     
     <string-array name="levels_array">
         <item>Map 1</item>

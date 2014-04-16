@@ -1,13 +1,16 @@
 package com.example.bomberman;
 
 import java.io.InputStream;
+import java.util.Map;
 
 import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
 import com.example.bomberman.model.PathState;
 import com.example.bomberman.util.GameConfigs;
+import com.example.bomberman.util.ScoreBoard;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -90,6 +93,14 @@ public class GameActivity extends Activity {
 		gamePanel.thread.setRunning(false);
 		
 		this.finish();
+	}
+	
+	public void endGame(){
+		ScoreBoard scores = gamePanel.getArena().scores;
+		Intent intent = new Intent(GameActivity.this, ScoresActivity.class);
+		intent.putExtra("scores", scores);
+		gamePanel.thread.setRunning(false);
+		startActivity(intent);
 	}
 	
 }
