@@ -41,13 +41,13 @@ public class Robot extends Bomberman{
 	private void decideNewPath(){
 		int[] array = getPositionInMatrix();
 		//Log.i("ARRAY:", array[0]+","+array[1]);
-		int i = array[0];
-		int j = array[1];
+		int j = array[0];
+		int i = array[1];
 		//check surroundings
-		char above = gc.readPosition(j-1, i);
-		char below = gc.readPosition(j+1, i);
-		char toTheLeft = gc.readPosition(j, i-1);
-		char toTheRight = gc.readPosition(j, i+1);
+		char above = gc.readPosition(i-1, j);
+		char below = gc.readPosition(i+1, j);
+		char toTheLeft = gc.readPosition(i, j-1);
+		char toTheRight = gc.readPosition(i, j+1);
 		
 		//Log.d("ROBOT", "U,D,L,R = "+above+","+below+","+toTheLeft+","+toTheRight);
 		
@@ -95,27 +95,39 @@ public class Robot extends Bomberman{
 	//New positions (pixels) for robots
 	@Override
 	protected void updatePixelPosition(){
+		int[] coords = getPositionInMatrix();
+		int j = coords[1];
+		int i = coords[0];
 		//Se estiver num cruzamento, decide aleatoriamente a nova direccao
-		if( (y-yMapMargin)%getHeight() == 0 && Math.abs((x-xMapMargin) - getPositionInMatrix()[0]*getWidth()) < movementMargin ){ //horizontal
-			x = xMapMargin + getPositionInMatrix()[0]*getWidth();
+		if( (y-yMapMargin)%getHeight() == 0 && Math.abs((x-xMapMargin) - i*getWidth()) < movementMargin ){ //horizontal
+			x = xMapMargin + i*getWidth();
 			decideNewPath();
-			if(justPlanted)
-				justPlanted = false;
+			checkIfPlanted();
 			//will plant a bomb with a given probability if it is at an intersection
-			if(Math.random() > 0.9) //10% prob d por bomba num cruzamento
-				plantBomb();
-		} else if( (x-xMapMargin)%getWidth() == 0 && Math.abs((y-yMapMargin) - getPositionInMatrix()[1]*getHeight()) < movementMargin ){ //horizontal
-			y = yMapMargin + getPositionInMatrix()[1]*getHeight();
+			decideIfPlant();
+			
+		} else if( (x-xMapMargin)%getWidth() == 0 && Math.abs((y-yMapMargin) - j*getHeight()) < movementMargin ){ //horizontal
+			y = yMapMargin + j*getHeight();
 			decideNewPath();
-			if(justPlanted)
-				justPlanted = false;
+			checkIfPlanted();
 			//will plant a bomb with a given probability if it is at an intersection
-			if(Math.random() > 0.9) //10% prob d por bomba num cruzamento
-				plantBomb();
+			decideIfPlant();
 		}
 		x += (speed.getVelocity() * speed.getxDirection()); 
 		y += (speed.getVelocity() * speed.getyDirection());
 			
+	}
+	
+	//actualiza a variavel de estado que diz se pos uma bomba recentemente (num bloco anterior)
+	@Override
+	protected void checkIfPlanted(){
+		if(justPlanted)
+			justPlanted = false;
+	}
+	
+	private void decideIfPlant(){
+		if(Math.random() > 0.95) //5% prob de por bomba num cruzamento
+			plantBomb();
 	}
 	
 //	protected void checkPositionChange(){

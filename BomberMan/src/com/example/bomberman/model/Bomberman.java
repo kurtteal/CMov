@@ -210,8 +210,10 @@ public class Bomberman {
 //			if(myself == '1') //PROBLEMA ESTA A ESCREVER 1 POR CIMA DO B TODO
 //				Log.d("BLOCK", "block = " + block);
 			int[] coords = getPositionInMatrix();
-			if(block == 'B' && justPlanted && iBomb == coords[1] && jBomb == coords[0]){ 
-				//Se eu acabei de por a bomba, nao ha colisao
+			int iCurrent = coords[1];
+			int jCurrent = coords[0];
+			if(block == 'B' && justPlanted && iBomb == iCurrent && jBomb == jCurrent){ 
+				//Se eu acabei de por a bomba e estou em cima dela, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
@@ -226,8 +228,10 @@ public class Bomberman {
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
 			int[] coords = getPositionInMatrix();
-			if(block == 'B' && justPlanted && iBomb == coords[1] && jBomb == coords[0]){ 
-				//Se eu acabei de por a bomba, nao ha colisao
+			int iCurrent = coords[1];
+			int jCurrent = coords[0];
+			if(block == 'B' && justPlanted && iBomb == iCurrent && jBomb == jCurrent){ 
+				//Se eu acabei de por a bomba e estou em cima dela, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
@@ -243,8 +247,10 @@ public class Bomberman {
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
 			int[] coords = getPositionInMatrix();
-			if(block == 'B' && justPlanted && iBomb == coords[1] && jBomb == coords[0]){ 
-				//Se eu acabei de por a bomba, nao ha colisao
+			int iCurrent = coords[1];
+			int jCurrent = coords[0];
+			if(block == 'B' && justPlanted && iBomb == iCurrent && jBomb == jCurrent){ 
+				//Se eu acabei de por a bomba e estou em cima dela, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
@@ -259,8 +265,10 @@ public class Bomberman {
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
 			char block = gc.readPosition(j, i);
 			int[] coords = getPositionInMatrix();
-			if(block == 'B' && justPlanted && iBomb == coords[1] && jBomb == coords[0]){ 
-				//Se eu acabei de por a bomba, nao ha colisao
+			int iCurrent = coords[1];
+			int jCurrent = coords[0];
+			if(block == 'B' && justPlanted && iBomb == iCurrent && jBomb == jCurrent){ 
+				//Se eu acabei de por a bomba e estou em cima dela, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
@@ -297,7 +305,7 @@ public class Bomberman {
 		return resultado;
 	}
 	
-	
+	//Verifica se existe um nextMove para fazer
 	private void checkIfNextMove(){
 		if(nextMove != ' '){
 			switch(nextMove){
@@ -330,12 +338,7 @@ public class Bomberman {
 				checkIfNextMove();
 				//Quando chego a um novo bloco vou ver se tinha plantado uma bomba no anterior
 				//Log.d("BOMBCOLISION", "iJustPlanted = " + iJustPlanted);
-				int[] coords = getPositionInMatrix();
-				if(justPlanted && (coords[1] != iBomb || coords[0] != jBomb)){
-					justPlanted = false;
-					iBomb = 0;
-					jBomb = 0;
-				}
+				checkIfPlanted();
 			}
 			else if(targetY != 0 && Math.abs(targetY - y) < movementMargin){
 				y = targetY; 
@@ -343,17 +346,21 @@ public class Bomberman {
 				speed.setYStationary();
 				checkIfNextMove();
 				//Quando chego a um novo bloco vou ver se tinha plantado uma bomba no anterior
-				int[] coords = getPositionInMatrix();
-				if(justPlanted && (coords[1] != iBomb || coords[0] != jBomb)){
-					justPlanted = false;
-					iBomb = 0;
-					jBomb = 0;
-				}
+				checkIfPlanted();
 			}
 			else{
 				x += (speed.getVelocity() * speed.getxDirection()); 
 				y += (speed.getVelocity() * speed.getyDirection());
 			}
+		}
+	}
+	
+	protected void checkIfPlanted(){
+		int[] coords = getPositionInMatrix();
+		if(justPlanted && (coords[1] != iBomb || coords[0] != jBomb)){
+			justPlanted = false;
+			iBomb = 0;
+			jBomb = 0;
 		}
 	}
 	
