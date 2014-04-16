@@ -102,33 +102,33 @@ public class Robot extends Bomberman{
 		if( (y-yMapMargin)%getHeight() == 0 && Math.abs((x-xMapMargin) - i*getWidth()) < movementMargin ){ //horizontal
 			x = xMapMargin + i*getWidth();
 			decideNewPath();
-			checkIfPlanted();
+			//checkIfPlanted();
 			//will plant a bomb with a given probability if it is at an intersection
-			decideIfPlant();
+			//decideIfPlant();
 			
 		} else if( (x-xMapMargin)%getWidth() == 0 && Math.abs((y-yMapMargin) - j*getHeight()) < movementMargin ){ //horizontal
 			y = yMapMargin + j*getHeight();
 			decideNewPath();
-			checkIfPlanted();
+			//checkIfPlanted();
 			//will plant a bomb with a given probability if it is at an intersection
-			decideIfPlant();
+			//decideIfPlant();
 		}
 		x += (speed.getVelocity() * speed.getxDirection()); 
 		y += (speed.getVelocity() * speed.getyDirection());
 			
 	}
 	
-	//actualiza a variavel de estado que diz se pos uma bomba recentemente (num bloco anterior)
-	@Override
-	protected void checkIfPlanted(){
-		if(justPlanted)
-			justPlanted = false;
-	}
-	
-	private void decideIfPlant(){
-		if(Math.random() > 0.95) //5% prob de por bomba num cruzamento
-			plantBomb();
-	}
+//	//actualiza a variavel de estado que diz se pos uma bomba recentemente (num bloco anterior)
+//	@Override
+//	protected void checkIfPlanted(){
+//		if(justPlanted)
+//			justPlanted = false;
+//	}
+//	
+//	private void decideIfPlant(){
+//		if(Math.random() > 0.95) //5% prob de por bomba num cruzamento
+//			plantBomb();
+//	}
 	
 //	protected void checkPositionChange(){
 //		super.checkPositionChange();

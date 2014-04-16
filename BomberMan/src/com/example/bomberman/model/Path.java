@@ -82,7 +82,7 @@ public class Path implements IDrawable{
 		bombBitmap = BitmapFactory.decodeResource(resources, R.drawable.bomb);
 		explosionBitmap = BitmapFactory.decodeResource(resources, R.drawable.explosion);
 		
-		bombOwner = 'R'; //owner de alguma bomba que ja vinha desenhada no mapa inicial
+		bombOwner = '1'; //owner default de alguma bomba que ja vinha desenhada no mapa inicial
 		
 		this.x = x;
 		this.y = y;

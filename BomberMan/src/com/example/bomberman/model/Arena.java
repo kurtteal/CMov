@@ -184,8 +184,8 @@ public class Arena {
 			else
 				scores.put(planter, scores.get(planter) + gc.ptsPerPlayer);
 		}
-		Log.d("MORREU", "Morreu: " + deadBomberId + " nas coords[i][j]: " + i + " " + j);
-		Log.d("DEAD", "Score do " + planter + " is: " + scores.get(planter));
+		//Log.d("MORREU", "Morreu: " + deadBomberId + " nas coords[i][j]: " + i + " " + j);
+		//Log.d("DEAD", "Score do " + planter + " is: " + scores.get(planter));
 	}
 
 	/**
