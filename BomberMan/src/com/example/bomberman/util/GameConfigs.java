@@ -8,8 +8,10 @@ import java.io.Serializable;
 
 public class GameConfigs implements Serializable {
 
+	//matrizes de estado
 	public char matrix[][]; //onde estao walls e paths
 	public char overlay[][]; //onde estao os players e robots
+	
 	private int numLines;
 	private int numColumns;
 
@@ -117,6 +119,8 @@ public class GameConfigs implements Serializable {
 	}
 	
 	//Protecçao contra acessos concorrentes
+	//A matriz overlay serve para poder escrever cada player no mapa na posicao 
+	//correcta sem escrever por cima de uma bomba ou de uma explosao
 	public void writeOverlayPosition(int i, int j, char value){
 		synchronized(matrix){
 			overlay[i][j] = value;

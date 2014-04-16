@@ -355,6 +355,9 @@ public class Bomberman {
 		}
 	}
 	
+	//Se pus uma bomba num bloco que nao o actual, devo poder "passar por cima" da bomba que
+	//acabei de por, ate chegar a um novo bloco. Quando chegar ao novo bloco volto a "ligar"
+	//o controlo de colisoes.
 	protected void checkIfPlanted(){
 		int[] coords = getPositionInMatrix();
 		if(justPlanted && (coords[1] != iBomb || coords[0] != jBomb)){
@@ -416,9 +419,6 @@ public class Bomberman {
 				
 			// update the gm matrix with 'floor' if left and 'myself' if arrived at new block
 			checkPositionChange();
-			
-//			x += (speed.getVelocity() * speed.getxDirection()); 
-//			y += (speed.getVelocity() * speed.getyDirection());
 			
 			//Prepare new frame
 			if (gameTime > frameTicker + framePeriod) {

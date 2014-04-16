@@ -10,7 +10,6 @@ import com.example.bomberman.util.GameConfigs;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.util.Log;
 
 //The arena is updated and drawn here
 public class Arena {
@@ -25,7 +24,7 @@ public class Arena {
 	public MainGamePanel panel;
 	public Map<String, Integer> scores = new HashMap<String, Integer>();
 
-	// os players/robots tem de ser os ultimos a ser desenhados
+	// Os players/robots tem de ser os ultimos a ser desenhados
 	// e o chao tem q ser desenhado por baixo deles, antes de estes serem
 	// desenhados
 	private Bomberman activePlayer;
@@ -33,9 +32,8 @@ public class Arena {
 
 	private boolean firstUpdate = true;
 
-	// cant draw the arena on the constructor because I need
+	// Cant draw the arena on the constructor because I need
 	// the panel dimensions... so draw on the first update
-
 	public Arena(Resources resources, GameConfigs gameConfigs,
 			MainGamePanel panel) {
 		players = new ArrayList<Bomberman>();
