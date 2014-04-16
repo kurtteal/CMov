@@ -23,6 +23,9 @@ public class Arena {
 	protected GameConfigs gc; // matrix com chars, para verificacao de colisoes
 	public MainGamePanel panel;
 	public Map<String, Integer> scores = new HashMap<String, Integer>();
+	
+	//Cada bomberman so pode por uma bomba de cada vez (enunciado)
+	public List<String> bombs; //contem os 'ids' dos players que puseram bombas
 
 	// Os players/robots tem de ser os ultimos a ser desenhados
 	// e o chao tem q ser desenhado por baixo deles, antes de estes serem
@@ -41,6 +44,7 @@ public class Arena {
 		gc = gameConfigs;
 		this.panel = panel;
 		this.resources = resources;
+		bombs = new ArrayList<String>();
 	}
 	
 	public Bomberman getActivePlayer(){
@@ -116,8 +120,34 @@ public class Arena {
 	}
 
 	public void plantBomb(int i, int j, char myself){
-		//gc.writeLogicPosition(j, i,'B'); write state ja faz isto
-		writeState(i, j, PathState.BOMB, myself);
+		boolean canPlant;
+		String planter = "" + myself;
+		if(myself != 'R'){ //players so podem por 1 bomba
+			//Verificar se este player ja pos uma bomba que ainda nao explodiu
+			canPlant = true;
+			for(String player : bombs){
+				if(player.equals(planter)){
+					canPlant = false;
+					break;
+				}
+			}
+		}
+		else
+			canPlant = true; //robots podem por as bombas que quiserem
+		
+		if(canPlant){
+			//gc.writeLogicPosition(j, i,'B'); setState do Path ja faz isto
+			writeState(i, j, PathState.BOMB, myself);
+			//so os players eh q sao adicionados 
+			if(myself != 'R')
+				bombs.add(planter);
+		}
+	}
+	
+	protected void updatePlayerBomb(char owner){
+		String planter = "" + owner;
+		if(bombs.contains(planter))
+			bombs.remove(planter);
 	}
 	
 	// Proteccao contra acessos concorrentes

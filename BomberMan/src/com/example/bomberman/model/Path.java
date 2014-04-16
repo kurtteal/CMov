@@ -150,6 +150,9 @@ public class Path implements IDrawable{
 			frameNr = explosionFrameNr;
 			explosionInitialTime = System.currentTimeMillis();
 			gc.writeLogicPosition(iArena, jArena, 'E');
+			//se o owner eh player, avisa a arena que este ja pode por mais 1 bomba
+			if(bombOwner != 'R')
+				panel.getArena().updatePlayerBomb(bombOwner);
 		}
 		else if(state == PathState.BOMB){
 			bitmap = bombBitmap;
