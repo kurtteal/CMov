@@ -10,6 +10,7 @@ import com.example.bomberman.util.GameConfigs;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.util.Log;
 
 //The arena is updated and drawn here
 public class Arena {
@@ -109,6 +110,8 @@ public class Arena {
 					if(gc.matrix[i][j] == '1')
 						activePlayer = player;
 					players.add(player);
+					String playerId = "" + gc.matrix[i][j];
+					scores.put(playerId, 0); //auto-boxing
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
 							PathState.FLOOR, i, j, numColumns, numLines, panel);
@@ -165,9 +168,24 @@ public class Arena {
 			players.remove(bomber);
 	}
 
-	// marca este elemento como morto
 	public void elementHasDied(Bomberman bomber) {
+		// marca este elemento como morto
 		deadElements.add(bomber);
+		char deadBomberId = bomber.myself;
+		//vou ah procura do dono da explosao que matou este elemento, e aumento o score se for player
+		int[] coords = bomber.getPositionInMatrix();
+		int i = coords[1];
+		int j = coords[0];
+		char bombOwnerId = ((Path)pixelMatrix[i][j]).getOwner();
+		String planter = "" + bombOwnerId;
+		if(bombOwnerId != 'R' && deadBomberId != bombOwnerId){ //suicide doesnt count
+			if(deadBomberId == 'R')
+				scores.put(planter, scores.get(planter) + gc.ptsPerRobot);
+			else
+				scores.put(planter, scores.get(planter) + gc.ptsPerPlayer);
+		}
+		Log.d("MORREU", "Morreu: " + deadBomberId + " nas coords[i][j]: " + i + " " + j);
+		Log.d("DEAD", "Score do " + planter + " is: " + scores.get(planter));
 	}
 
 	/**

@@ -183,7 +183,7 @@ public class Bomberman {
 	}
 
 	public void die(){
-		//Avisar a arena que este elemento est� fora de jogo
+		//Avisar a arena que este elemento esta fora de jogo
 		panel.getArena().elementHasDied(this);
 	}
 	

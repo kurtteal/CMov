@@ -82,6 +82,8 @@ public class Path implements IDrawable{
 		bombBitmap = BitmapFactory.decodeResource(resources, R.drawable.bomb);
 		explosionBitmap = BitmapFactory.decodeResource(resources, R.drawable.explosion);
 		
+		bombOwner = 'R'; //owner de alguma bomba que ja vinha desenhada no mapa inicial
+		
 		this.x = x;
 		this.y = y;
 		
@@ -90,6 +92,10 @@ public class Path implements IDrawable{
 		this.explosionRange = panel.getArena().gc.explosionRange;
 
 		frameTicker = 0l;
+	}
+	
+	public char getOwner(){
+		return bombOwner;
 	}
 
 	private void explodePrematurely(){
@@ -151,6 +157,7 @@ public class Path implements IDrawable{
 			explosionInitialTime = System.currentTimeMillis();
 			gc.writeLogicPosition(iArena, jArena, 'E');
 			//se o owner eh player, avisa a arena que este ja pode por mais 1 bomba
+			bombOwner = owner;
 			if(bombOwner != 'R')
 				panel.getArena().updatePlayerBomb(bombOwner);
 		}
