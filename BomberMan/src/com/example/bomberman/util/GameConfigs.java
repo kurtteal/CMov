@@ -105,7 +105,7 @@ public class GameConfigs implements Serializable {
 	}
 	
 	//Protecçao contra acessos concorrentes
-	public char readPosition(int i, int j){
+	public char readLogicPosition(int i, int j){
 		synchronized(matrix){
 			return matrix[i][j];
 		}
@@ -119,10 +119,17 @@ public class GameConfigs implements Serializable {
 	}
 	
 	//Protecçao contra acessos concorrentes
+	public char readOverlayPosition(int i, int j){
+		synchronized(overlay){
+			return overlay[i][j];
+		}
+	}
+	
+	//Protecçao contra acessos concorrentes
 	//A matriz overlay serve para poder escrever cada player no mapa na posicao 
 	//correcta sem escrever por cima de uma bomba ou de uma explosao
 	public void writeOverlayPosition(int i, int j, char value){
-		synchronized(matrix){
+		synchronized(overlay){
 			overlay[i][j] = value;
 		}
 	}

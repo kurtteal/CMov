@@ -206,7 +206,7 @@ public class Bomberman {
 			j=(y-yMapMargin)/height;
 			//Log.d("UPDATE", "i,j = "+i+","+j+", matrix[i,j] ="+gm.matrix[i][j]);
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			char block = gc.readPosition(j, i);
+			char block = gc.readLogicPosition(j, i);
 //			if(myself == '1') //PROBLEMA ESTA A ESCREVER 1 POR CIMA DO B TODO
 //				Log.d("BLOCK", "block = " + block);
 			int[] coords = getPositionInMatrix();
@@ -226,7 +226,7 @@ public class Bomberman {
 			i=(x-xMapMargin)/width;
 			j=(y-yMapMargin)/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			char block = gc.readPosition(j, i);
+			char block = gc.readLogicPosition(j, i);
 			int[] coords = getPositionInMatrix();
 			int iCurrent = coords[1];
 			int jCurrent = coords[0];
@@ -245,7 +245,7 @@ public class Bomberman {
 			j=(y-yMapMargin)/height;
 			if((y-yMapMargin)%height != 0) j++;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			char block = gc.readPosition(j, i);
+			char block = gc.readLogicPosition(j, i);
 			int[] coords = getPositionInMatrix();
 			int iCurrent = coords[1];
 			int jCurrent = coords[0];
@@ -263,7 +263,7 @@ public class Bomberman {
 			i=(x-xMapMargin)/width;
 			j=(y-yMapMargin)/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			char block = gc.readPosition(j, i);
+			char block = gc.readLogicPosition(j, i);
 			int[] coords = getPositionInMatrix();
 			int iCurrent = coords[1];
 			int jCurrent = coords[0];
@@ -382,7 +382,7 @@ public class Bomberman {
 		if(oldPositions[0] != newPositions[0] || oldPositions[1] != newPositions[1] ){
 			gc.writeOverlayPosition(oldPositions[1], oldPositions[0], '-'); //antigo bloco agora eh chao
 			//se a nova posicao eh 1 explosao, morre
-			if(gc.readPosition(newPositions[1], newPositions[0]) == 'E'){
+			if(gc.readLogicPosition(newPositions[1], newPositions[0]) == 'E'){
 				die();
 			}
 			else{ //o novo bloco agora contem o proprio
@@ -437,7 +437,7 @@ public class Bomberman {
 		int[] currentPos = getPositionInMatrix();
 		int j = currentPos[0];
 		int i = currentPos[1];
-		if(gc.readPosition(i,j)=='E')
+		if(gc.readLogicPosition(i,j)=='E')
 			die();
 		
 	}

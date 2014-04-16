@@ -1,9 +1,7 @@
 package com.example.bomberman.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.util.GameConfigs;
@@ -11,7 +9,6 @@ import com.example.bomberman.util.ScoreBoard;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.util.Log;
 
 //The arena is updated and drawn here
 public class Arena {
@@ -160,6 +157,14 @@ public class Arena {
 		synchronized (pixelMatrix) {
 			pixelMatrix[i][j].setState(state, owner);
 		}
+	}
+	
+	public Bomberman getPlayerById(char playerId){
+		for(Bomberman player : players){
+			if(player.myself == playerId)
+				return player;
+		}
+		return null;
 	}
 
 	public void removeElement(Bomberman bomber) {

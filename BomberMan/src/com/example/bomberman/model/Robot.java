@@ -35,7 +35,53 @@ public class Robot extends Bomberman{
 		decideNewPath();
 	}
 	
-	//Recebe a matriz de estados, olha para as posicoes ah sua volta
+	//Returns a char[4] with whats in the surroundings on the logic matrix
+	//if I find a player in the surroundings, I kill it immediately!
+	private char[] checkSurroundings(){
+		int[] array = getPositionInMatrix();
+		//Log.i("ARRAY:", array[0]+","+array[1]);
+		int j = array[0];
+		int i = array[1];
+		
+		//check for players in the surroundings
+		char above = gc.readOverlayPosition(i-1, j);
+		char below = gc.readOverlayPosition(i+1, j);
+		char toTheLeft = gc.readOverlayPosition(i, j-1);
+		char toTheRight = gc.readOverlayPosition(i, j+1);
+		
+		if(above != '-'){
+			Bomberman bman = panel.getArena().getPlayerById(above);
+			if(bman != null)
+				bman.die();
+		}
+		if(below != '-'){
+			Bomberman bman = panel.getArena().getPlayerById(below);
+			if(bman != null)
+				bman.die();
+		}
+		if(toTheLeft != '-'){
+			Bomberman bman = panel.getArena().getPlayerById(toTheLeft);
+			if(bman != null)
+				bman.die();
+		}
+		if(toTheRight != '-'){
+			Bomberman bman = panel.getArena().getPlayerById(toTheRight);
+			if(bman != null)
+				bman.die();
+		}
+		
+		char[] directions = new char[4];
+		
+		//fill the directions array			
+		directions[0] = gc.readLogicPosition(i-1, j);
+		directions[1] = gc.readLogicPosition(i+1, j);
+		directions[2] = gc.readLogicPosition(i, j-1);
+		directions[3] = gc.readLogicPosition(i, j+1);
+		
+		return directions;
+	}
+	
+	//Obtem a matriz de estados, olha para as posicoes ah sua volta
 	//e ve dessas quais as que tem caminho livre, depois decide aleatoriamente
 	//entre os caminhos livres
 	private void decideNewPath(){
@@ -44,12 +90,12 @@ public class Robot extends Bomberman{
 		int j = array[0];
 		int i = array[1];
 		//check surroundings
-		char above = gc.readPosition(i-1, j);
-		char below = gc.readPosition(i+1, j);
-		char toTheLeft = gc.readPosition(i, j-1);
-		char toTheRight = gc.readPosition(i, j+1);
+		char[] surroundings = checkSurroundings();
+		char above = surroundings[0];
+		char below = surroundings[1];
+		char toTheLeft = surroundings[2];
+		char toTheRight = surroundings[3];
 		
-		//Log.d("ROBOT", "U,D,L,R = "+above+","+below+","+toTheLeft+","+toTheRight);
 		
 		int numPossible = 0;
 		char[] possiblePaths = new char[4];
@@ -99,6 +145,7 @@ public class Robot extends Bomberman{
 		int j = coords[1];
 		int i = coords[0];
 		//Se estiver num cruzamento, decide aleatoriamente a nova direccao
+		//e verifica se ha player na vizinhanca 
 		if( (y-yMapMargin)%getHeight() == 0 && Math.abs((x-xMapMargin) - i*getWidth()) < movementMargin ){ //horizontal
 			x = xMapMargin + i*getWidth();
 			decideNewPath();
@@ -128,12 +175,6 @@ public class Robot extends Bomberman{
 //	private void decideIfPlant(){
 //		if(Math.random() > 0.95) //5% prob de por bomba num cruzamento
 //			plantBomb();
-//	}
-	
-//	protected void checkPositionChange(){
-//		super.checkPositionChange();
-//		
-//		//Decide whether or not to plant a bomb here
 //	}
 	
 	private boolean pathIsFree(char block){

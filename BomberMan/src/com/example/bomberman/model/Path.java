@@ -207,7 +207,7 @@ public class Path implements IDrawable{
 					//Faz o setState tb nos blocos ao lado, se nao forem wall
 					for(int i=1; i<= explosionRange; i++){
 						if(directionsNotBlocked[0]){
-							char block = gc.readPosition(iArena+i, jArena);
+							char block = gc.readLogicPosition(iArena+i, jArena);
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[0]=false;
 							if(block == 'B')
@@ -216,7 +216,7 @@ public class Path implements IDrawable{
 								panel.getArena().writeState(iArena+i, jArena, PathState.EXPLOSION, bombOwner);
 						}
 						if(directionsNotBlocked[1]){
-							char block = gc.readPosition(iArena-i, jArena);
+							char block = gc.readLogicPosition(iArena-i, jArena);
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[1]=false;
 							if(block == 'B')
@@ -225,7 +225,7 @@ public class Path implements IDrawable{
 								panel.getArena().writeState(iArena-i, jArena, PathState.EXPLOSION, bombOwner);
 						}
 						if(directionsNotBlocked[2]){
-							char block = gc.readPosition(iArena, jArena+i);
+							char block = gc.readLogicPosition(iArena, jArena+i);
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[2]=false;
 							if(block == 'B')
@@ -234,7 +234,7 @@ public class Path implements IDrawable{
 								panel.getArena().writeState(iArena, jArena+i, PathState.EXPLOSION, bombOwner);
 						}
 						if(directionsNotBlocked[3]){
-							char block = gc.readPosition(iArena, jArena-i);
+							char block = gc.readLogicPosition(iArena, jArena-i);
 							if(block == 'O' || block == 'W') 
 								directionsNotBlocked[3]=false;
 							if(block == 'B')
@@ -244,7 +244,7 @@ public class Path implements IDrawable{
 						}				
 					}
 				}else{ //verifica se esta a ser tocado por uma explosao
-					if( gc.readPosition(iArena, jArena) == 'E' )
+					if( gc.readLogicPosition(iArena, jArena) == 'E' )
 						explodePrematurely();
 				}
 			}else { //se for explosao, ve se ja eh tempo de terminar a explosao
