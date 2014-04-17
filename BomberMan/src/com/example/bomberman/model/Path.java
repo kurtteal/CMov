@@ -10,13 +10,6 @@ import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.R;
 import com.example.bomberman.util.GameConfigs;
 
-/**
- * This is a test droid that is dragged, dropped, moved, smashed against the
- * wall and done other terrible things with. Wait till it gets a weapon!
- * 
- * @author impaler
- * 
- */
 public class Path implements IDrawable{
 	
 	char bombOwner;
@@ -201,7 +194,7 @@ public class Path implements IDrawable{
 			if(state == PathState.BOMB){
 				if(gameTime > bombInitialTime + bombTime*1000){
 					setState(PathState.EXPLOSION, bombOwner);
-					//indica para cada 1 das direcçoes se nessa direcao ja houve 1 bloqueio
+					//indica para cada 1 das direcoes se nessa direcao ja houve 1 bloqueio
 					//para nao passar por cima das walls
 					boolean[] directionsNotBlocked = {true, true, true, true};
 					//Faz o setState tb nos blocos ao lado, se nao forem wall

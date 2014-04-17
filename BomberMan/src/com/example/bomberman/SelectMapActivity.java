@@ -2,14 +2,11 @@ package com.example.bomberman;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 
-import com.example.bomberman.util.GameConfigs;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -19,9 +16,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.bomberman.util.GameConfigs;
+
 public class SelectMapActivity extends Activity implements OnItemSelectedListener {
 	
 	private GameConfigs gc;
+	private String playerName;
 	
     public void onItemSelected(AdapterView<?> parent, View view, 
             int pos, long id) {
@@ -99,6 +99,8 @@ public class SelectMapActivity extends Activity implements OnItemSelectedListene
 		// Apply the adapter to the spinner
 		spinner.setAdapter(spin_adapter);
 		spinner.setOnItemSelectedListener(this);
+		
+	    playerName = getIntent().getStringExtra("playerName");
 	
 	}
 
@@ -113,6 +115,7 @@ public class SelectMapActivity extends Activity implements OnItemSelectedListene
 	public void startGame(View v) {		
 		Intent intent = new Intent(SelectMapActivity.this, GameActivity.class);
 		intent.putExtra("gc", gc); //get number from select_map layout (the one selected)
+		intent.putExtra("playerName", playerName);
 		startActivity(intent);
 	}
 

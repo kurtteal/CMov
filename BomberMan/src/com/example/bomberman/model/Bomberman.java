@@ -5,21 +5,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.util.Log;
-
 import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.R;
 import com.example.bomberman.model.components.Speed;
 import com.example.bomberman.util.GameConfigs;
 
-/**
- * This is a test droid that is dragged, dropped, moved, smashed against
- * the wall and done other terrible things with.
- * Wait till it gets a weapon!
- * 
- * @author impaler
- *
- */
 public class Bomberman { 
 	
 	MainGamePanel panel;

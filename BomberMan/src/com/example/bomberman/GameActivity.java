@@ -1,22 +1,21 @@
 package com.example.bomberman;
 
-import java.io.InputStream;
-import java.util.Map;
-
-import com.example.bomberman.model.Arena;
-import com.example.bomberman.model.Bomberman;
-import com.example.bomberman.model.PathState;
-import com.example.bomberman.util.GameConfigs;
-import com.example.bomberman.util.ScoreBoard;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
+import android.widget.TextView;
+
+import com.example.bomberman.model.Arena;
+import com.example.bomberman.model.Bomberman;
+import com.example.bomberman.util.GameConfigs;
+import com.example.bomberman.util.ScoreBoard;
 
 public class GameActivity extends Activity {
 	/** Called when the activity is first created. */
@@ -24,7 +23,13 @@ public class GameActivity extends Activity {
 	private static final String TAG = GameActivity.class.getSimpleName();
 	protected GameConfigs gc;
 	private MainGamePanel gamePanel;
-
+	private TextView timeLeft;
+	private TextView score;
+	
+	private Timer timeUpdater;
+	private Handler mHandler;
+	private int countDown;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,8 +41,33 @@ public class GameActivity extends Activity {
 		//setContentView(new MainGamePanel(this));
 
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
+	    String userName = getIntent().getStringExtra("playerName");
 
 		setContentView(R.layout.activity_game);
+		
+		TextView playerName = (TextView)findViewById(R.id.activity_game_player_name);
+		score = (TextView)findViewById(R.id.activity_game_score);
+		timeLeft = (TextView)findViewById(R.id.activity_game_time_left);
+		TextView playerCount = (TextView)findViewById(R.id.activity_game_player_count);
+		
+		playerName.setText("Player:\n" + userName);
+		score.setText("Score:\n0");
+		timeLeft.setText("Time left:\n" + gc.gameDuration);
+		playerCount.setText("# Players:\n" + "(todo)");
+		
+		// Timer setup, it will only start when the game starts.
+		// The handler gets the message from the timer thread to update the UI.
+		timeUpdater = new Timer();
+		countDown = gc.gameDuration;
+		mHandler = new Handler() {
+		    public void handleMessage(Message msg) {
+		    	if(countDown == 0)
+		    		endGame();
+		    	else
+		    		timeLeft.setText("Time left:\n" + countDown);
+		    }
+		};
+		
 		Log.d(TAG, "View added");
 	}
 
@@ -89,9 +119,23 @@ public class GameActivity extends Activity {
 		bman.plantBomb();
 	}
 	
+	protected void startTimer() {
+		// Start the time left timer.
+		timeUpdater.scheduleAtFixedRate(new TimerTask() {
+			  @Override
+			  public void run() {
+				  countDown--;
+				  mHandler.obtainMessage().sendToTarget();
+			  }
+		}, 1000, 1000);
+	}
+	
+	public void updateTimeLeft() {
+		
+	}
+	
 	public void quitGame(View v){
 		gamePanel.thread.setRunning(false);
-		
 		this.finish();
 	}
 	

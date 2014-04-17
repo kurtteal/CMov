@@ -7,104 +7,100 @@
     tools:context="com.example.bomberman.SelectMapActivity"
     tools:ignore="MergeRootFrame" >
 
-
-
     <Spinner
         android:id="@+id/levels_spinner"
         android:layout_width="fill_parent"
-    	android:layout_height="wrap_content" />
-   
+        android:layout_height="wrap_content" />
+
     <TextView
-   	    android:id="@+id/level_name"
-   	    android:layout_width="fill_parent"
-   	    android:layout_height="wrap_content"
-   	    android:layout_alignParentLeft="true"
-   	    android:layout_below="@+id/levels_spinner"
-   	    android:layout_marginLeft="30dp"
-   	    android:layout_marginTop="10dp"
-   	    android:text="Level name: "
-   	    android:textAppearance="?android:attr/textAppearanceMedium" />
-    
-   	<TextView
-   	    android:id="@+id/game_duration"
-   	    android:layout_width="fill_parent"
-   	    android:layout_height="wrap_content"
-   	    android:layout_below="@+id/level_name"
-   	    android:layout_marginLeft="30dp"
-   	    android:layout_marginTop="10dp"
-   	    android:text="Game duration: "
-   	    android:textAppearance="?android:attr/textAppearanceMedium" />
-   	
-   	<TextView
-   	    android:id="@+id/explosion_timeout"
-   	    android:layout_width="fill_parent"
-   	    android:layout_height="wrap_content"
-   	    android:layout_below="@+id/game_duration"
-   	    android:layout_marginLeft="30dp"
-   	    android:layout_marginTop="10dp"
-   	    android:text="Explosion timeout: "
-   	    android:textAppearance="?android:attr/textAppearanceMedium" />  
-   	    
-   	<TextView
-   	    android:id="@+id/explosion_duration"
-   	    android:layout_width="fill_parent"
-   	    android:layout_height="wrap_content"
-   	    android:layout_below="@+id/explosion_timeout"
-   	    android:layout_marginLeft="30dp"
-   	    android:layout_marginTop="10dp"
-   	    android:text="Explosion duration: "
-   	    android:textAppearance="?android:attr/textAppearanceMedium" /> 
-   	    
-   	<TextView
-   	    android:id="@+id/explosion_range"
-   	    android:layout_width="fill_parent"
-   	    android:layout_height="wrap_content"
-   	    android:layout_below="@+id/explosion_duration"
-   	    android:layout_marginLeft="30dp"
-   	    android:layout_marginTop="10dp"
-   	    android:text="Explosion range: "
-   	    android:textAppearance="?android:attr/textAppearanceMedium" />  
-   	    
-   	<TextView
-   	    android:id="@+id/robot_speed"
-   	    android:layout_width="fill_parent"
-   	    android:layout_height="wrap_content"
-   	    android:layout_below="@+id/explosion_range"
-   	    android:layout_marginLeft="30dp"
-   	    android:layout_marginTop="10dp"
-   	    android:text="Robot speed: "
-   	    android:textAppearance="?android:attr/textAppearanceMedium" />
-   	
-   	<TextView
-   	    android:id="@+id/pts_per_robot"
-   	    android:layout_width="fill_parent"
-   	    android:layout_height="wrap_content"
-   	    android:layout_below="@+id/robot_speed"
-   	    android:layout_marginLeft="30dp"
-   	    android:layout_marginTop="10dp"
-   	    android:text="Points per robot: "
-   	    android:textAppearance="?android:attr/textAppearanceMedium" />  
-   	    
-   	<TextView
-   	    android:id="@+id/pts_per_opponent"
-   	    android:layout_width="fill_parent"
-   	    android:layout_height="wrap_content"
-   	    android:layout_below="@+id/pts_per_robot"
-   	    android:layout_marginLeft="30dp"
-   	    android:layout_marginTop="10dp"
-   	    android:text="Points per opponent: "
-   	    android:textAppearance="?android:attr/textAppearanceMedium" />  
-    
-   	<Button
-      	android:id="@+id/button1"
-      	android:layout_width="wrap_content"
-       	android:layout_height="wrap_content"
-   	    android:layout_below="@+id/pts_per_opponent"
-   	    android:layout_marginTop="30dp"
-       	android:layout_centerInParent="true"
-       	android:onClick="startGame"
-       	android:text="@string/startgame_button" />
+        android:id="@+id/level_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/levels_spinner"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/activity_select_map_level_name"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <TextView
+        android:id="@+id/game_duration"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/level_name"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/activity_select_map_game_duration"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <TextView
+        android:id="@+id/explosion_timeout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/game_duration"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/activity_select_map_explosion_timeout"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/explosion_duration"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/explosion_timeout"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/activity_select_map_explosion_duration"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/explosion_range"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/explosion_duration"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/activity_select_map_explosion_range"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/robot_speed"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/explosion_range"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/activity_select_map_robot_speed"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/pts_per_robot"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/robot_speed"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/activity_select_map_points_per_robot"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/pts_per_opponent"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/pts_per_robot"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/activity_select_map_points_per_opponent"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/pts_per_opponent"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="30dp"
+        android:onClick="startGame"
+        android:text="@string/startgame_button" />
 
 </RelativeLayout>

@@ -16,20 +16,16 @@
         android:ems="10"
         android:hint="@string/adduser_hint"
         android:inputType="text" >
-
-        <requestFocus />
+        <requestFocus />
     </EditText>
-    
-    <Button
-     android:id="@+id/addUserButton"
-     android:layout_width="fill_parent"
-     android:layout_height="wrap_content"
-     android:onClick="newUser"
-     android:text="@string/adduser_button"/>
-        
 
-    
-    
+    <Button
+        android:id="@+id/addUserButton"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="newUser"
+        android:text="@string/adduser_button" />
+
     <ListView
         android:id="@+id/userList"
         android:layout_width="match_parent"

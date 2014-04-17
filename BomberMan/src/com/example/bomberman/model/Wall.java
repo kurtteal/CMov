@@ -4,19 +4,11 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Rect;
 
 import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.R;
 import com.example.bomberman.util.GameConfigs;
 
-/**
- * This is a test droid that is dragged, dropped, moved, smashed against the
- * wall and done other terrible things with. Wait till it gets a weapon!
- * 
- * @author impaler
- * 
- */
 public class Wall implements IDrawable{
 
 	private Bitmap bitmap; // the actual bitmap (or the animation sequence)

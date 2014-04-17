@@ -13,7 +13,7 @@ WW-W-W-W-W-W-W-WW
 WO1O2ORORORO----W
 WWWWWWWWWWWWWWWWW
 Teste do tamanho do mapa
-2/Game duration (min)
+120/Game duration (min)
 14/Explosion timeout (s) <-AQUI HA PROBLEMA CONCURRENT MODIFICATION ACCESS!!!! eh preciso proteger a matriz
 1/Explosion duration
 5/Explosion range

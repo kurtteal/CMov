@@ -13,6 +13,7 @@ import java.util.Set;
 
 public class ScoreBoard implements Serializable {
 
+	private static final long serialVersionUID = -8749964416361074903L;
 	Map<String, Integer> scores;
 	
 	public ScoreBoard(){

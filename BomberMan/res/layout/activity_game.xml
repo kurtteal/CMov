@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".GameActivity" >
-    
+
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="fill_parent"
@@ -13,6 +13,7 @@
         android:orientation="horizontal" >
 
         <TextView
+            android:id="@+id/activity_game_player_name"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_marginLeft="5dp"
@@ -23,6 +24,7 @@
             tools:ignore="HardcodedText" />
 
         <TextView
+            android:id="@+id/activity_game_score"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_marginLeft="5dp"
@@ -33,6 +35,7 @@
             tools:ignore="HardcodedText" />
 
         <TextView
+            android:id="@+id/activity_game_time_left"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_marginLeft="5dp"
@@ -43,6 +46,7 @@
             tools:ignore="HardcodedText" />
 
         <TextView
+            android:id="@+id/activity_game_player_count"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_marginLeft="5dp"
@@ -51,28 +55,28 @@
             android:gravity="center"
             android:text="PLAYERS:\n6"
             tools:ignore="HardcodedText" />
-
     </LinearLayout>
 
     <com.example.bomberman.MainGamePanel
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="0.35"/>
-    
+        android:layout_weight="0.35" />
+
     <LinearLayout
         android:id="@+id/controls"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="0.9"
-        android:orientation="horizontal" >
-        
+        android:orientation="horizontal"
+        android:baselineAligned="false" >
+
         <LinearLayout
             android:id="@+id/bottomBar1"
-	        android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
-	        android:layout_weight="1"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
             android:orientation="vertical" >
-            
+
             <Button
                 android:id="@+id/pause"
                 android:layout_width="80dp"
@@ -85,63 +89,61 @@
                 android:id="@+id/quit"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
+                android:onClick="quitGame"
                 android:text="Quit"
-                tools:ignore="HardcodedText"
-                android:onClick="quitGame"/>
-
+                tools:ignore="HardcodedText" />
         </LinearLayout>
-        <RelativeLayout 
-		    android:layout_width="fill_parent"
-		    android:layout_height="fill_parent"
-		    android:layout_weight="0.4"
-		    android:paddingLeft="16dp"
-		    android:paddingRight="16dp" >
-            
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.4"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp" >
+
             <Button
                 android:id="@+id/up"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-		    	android:layout_marginLeft="40dp"
-                android:text="U" 
-                android:onClick="movePlayerUp" />
+                android:layout_marginLeft="40dp"
+                android:onClick="movePlayerUp"
+                android:text="U" />
 
             <Button
                 android:id="@+id/left"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="20dp"
-                android:text="L"
-                android:onClick="movePlayerLeft" />
-            
+                android:onClick="movePlayerLeft"
+                android:text="L" />
+
             <Button
                 android:id="@+id/right"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginTop="20dp"
                 android:layout_marginLeft="80dp"
-                android:text="R"
-                android:onClick="movePlayerRight" />
+                android:layout_marginTop="20dp"
+                android:onClick="movePlayerRight"
+                android:text="R" />
 
             <Button
                 android:id="@+id/down"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginTop="40dp"
                 android:layout_marginLeft="40dp"
-                android:text="D"
-                android:onClick="movePlayerDown" />
-            
+                android:layout_marginTop="40dp"
+                android:onClick="movePlayerDown"
+                android:text="D" />
+
             <Button
                 android:id="@+id/bomb"
                 android:layout_width="80dp"
                 android:layout_height="40dp"
-                android:layout_marginTop="20dp"
                 android:layout_marginLeft="120dp"
-                android:text="Bomb" 
-                android:onClick="dropBomb" />
-		    
-		</RelativeLayout>
-
+                android:layout_marginTop="20dp"
+                android:onClick="dropBomb"
+                android:text="Bomb" />
+        </RelativeLayout>
     </LinearLayout>
-	
+
 </LinearLayout>

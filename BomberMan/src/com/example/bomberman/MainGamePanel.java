@@ -1,29 +1,14 @@
 package com.example.bomberman;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.example.bomberman.model.Arena;
-import com.example.bomberman.model.Bomberman;
-import com.example.bomberman.model.Path;
-import com.example.bomberman.model.PathState;
-import com.example.bomberman.model.Wall;
-import com.example.bomberman.model.components.Speed;
 import com.example.bomberman.util.GameConfigs;
 
 /**
@@ -35,7 +20,7 @@ public class MainGamePanel extends SurfaceView implements
 		SurfaceHolder.Callback {
 
 	private static final String TAG = MainGamePanel.class.getSimpleName();
-	public GameActivity activity; 
+	public GameActivity activity;
 	
 	public GameThread thread;
 	//private Bomberman bomberman; //modelo q s mexe
@@ -43,21 +28,16 @@ public class MainGamePanel extends SurfaceView implements
 	
 	public MainGamePanel(Context context) {
 		super(context);
-		// adding the callback (this) to the surface holder to intercept events
-
 		commonInit(context);
-		
 	}
 	
     public MainGamePanel(Context context, AttributeSet attrs) {
         super(context, attrs);
-
 		commonInit(context);
     }
 
     public MainGamePanel(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
 		commonInit(context);
     }
 
@@ -94,6 +74,7 @@ public class MainGamePanel extends SurfaceView implements
 		// we can safely start the game loop
 		thread.setRunning(true);
 		thread.start();
+		activity.startTimer();
 	}
 
 	@Override

@@ -3,19 +3,9 @@ package com.example.bomberman.model;
 import java.util.Random;
 
 import android.content.res.Resources;
-import android.util.Log;
 
 import com.example.bomberman.MainGamePanel;
-import com.example.bomberman.util.GameConfigs;
 
-/**
- * This is a test droid that is dragged, dropped, moved, smashed against
- * the wall and done other terrible things with.
- * Wait till it gets a weapon!
- * 
- * @author impaler
- *
- */
 public class Robot extends Bomberman{
 	
 	public Robot(){
@@ -85,10 +75,10 @@ public class Robot extends Bomberman{
 	//e ve dessas quais as que tem caminho livre, depois decide aleatoriamente
 	//entre os caminhos livres
 	private void decideNewPath(){
-		int[] array = getPositionInMatrix();
+		//int[] array = getPositionInMatrix();
 		//Log.i("ARRAY:", array[0]+","+array[1]);
-		int j = array[0];
-		int i = array[1];
+		//int j = array[0];
+		//int i = array[1];
 		//check surroundings
 		char[] surroundings = checkSurroundings();
 		char above = surroundings[0];

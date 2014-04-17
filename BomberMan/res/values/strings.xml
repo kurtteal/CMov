@@ -3,21 +3,26 @@
 
     <string name="app_name">Bomberman</string>
     <string name="action_settings">Settings</string>
-	
     <string name="newgame_button">New Game</string>
-	<string name="joingame_button">Join Game</string>
-	<string name="startgame_button">Start Game</string>
-	<string name="settings_button">Settings</string>
-	<string name="leave_button">Leave</string>
-	
-	<string name="adduser_button">Add User</string>
-	<string name="adduser_hint">New User</string>
-    
+    <string name="joingame_button">Join Game</string>
+    <string name="startgame_button">Start Game</string>
+    <string name="settings_button">Settings</string>
+    <string name="leave_button">Leave</string>
+    <string name="adduser_button">Add User</string>
+    <string name="adduser_hint">New User</string>
     <string name="title_activity_select_user">SelectUserActivity</string>
     <string name="title_activity_select_map">SelectMapActivity</string>
     <string name="title_activity_game">GameActivity</string>
     <string name="title_activity_scores">ScoresActivity</string>
-    
+    <string name="activity_select_map_level_name">Level name: </string>
+    <string name="activity_select_map_game_duration">Game duration: </string>
+    <string name="activity_select_map_explosion_timeout">Explosion timeout: </string>
+    <string name="activity_select_map_explosion_duration">Explosion duration: </string>
+    <string name="activity_select_map_explosion_range">Explosion range: </string>
+    <string name="activity_select_map_robot_speed">Robots speed: </string>
+    <string name="activity_select_map_points_per_robot">Pts. per robot: </string>
+    <string name="activity_select_map_points_per_opponent">Pts. per opponent: </string>
+
     <string-array name="levels_array">
         <item>Map 1</item>
         <item>Map 2</item>

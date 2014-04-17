@@ -49,6 +49,8 @@ public class MenuActivity extends Activity {
 
 	public void selectLevel(View v) {
 		Intent intent = new Intent(MenuActivity.this, SelectMapActivity.class);
+		// Pass the player name to the next activities.
+    	intent.putExtra("playerName", activeUser.getText());
 		startActivity(intent);
 	}
 
