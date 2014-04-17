@@ -22,9 +22,12 @@ public class GameActivity extends Activity {
 
 	private static final String TAG = GameActivity.class.getSimpleName();
 	protected GameConfigs gc;
+	
 	private MainGamePanel gamePanel;
 	private TextView timeLeft;
 	private TextView score;
+	
+	private String playerId;
 	
 	private Timer timeUpdater;
 	private Handler mHandler;
@@ -41,7 +44,7 @@ public class GameActivity extends Activity {
 		//setContentView(new MainGamePanel(this));
 
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
-	    String userName = getIntent().getStringExtra("playerName");
+	    playerId = getIntent().getStringExtra("playerName");
 
 		setContentView(R.layout.activity_game);
 		
@@ -50,7 +53,7 @@ public class GameActivity extends Activity {
 		timeLeft = (TextView)findViewById(R.id.activity_game_time_left);
 		TextView playerCount = (TextView)findViewById(R.id.activity_game_player_count);
 		
-		playerName.setText("Player:\n" + userName);
+		playerName.setText("Player:\n" + playerId);
 		score.setText("Score:\n0");
 		timeLeft.setText("Time left:\n" + gc.gameDuration);
 		playerCount.setText("# Players:\n" + "(todo)");
@@ -65,6 +68,7 @@ public class GameActivity extends Activity {
 		    		endGame();
 		    	else
 		    		timeLeft.setText("Time left:\n" + countDown);
+		    		score.setText("Score:\n" + gamePanel.getArena().scores.get(playerId));
 		    }
 		};
 		
@@ -72,7 +76,7 @@ public class GameActivity extends Activity {
 	}
 
 
-	public void setGamePanel(MainGamePanel gPanel){
+	public void setGamePanel(MainGamePanel gPanel) {
 		this.gamePanel = gPanel;
 	}
 
