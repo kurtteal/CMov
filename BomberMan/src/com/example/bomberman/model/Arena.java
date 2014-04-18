@@ -9,6 +9,7 @@ import com.example.bomberman.util.ScoreBoard;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.util.Log;
 
 //The arena is updated and drawn here
 public class Arena {

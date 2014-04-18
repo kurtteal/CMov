@@ -24,14 +24,16 @@ public class GameActivity extends Activity {
 	protected GameConfigs gc;
 	
 	private MainGamePanel gamePanel;
-	private TextView timeLeft;
-	private TextView score;
+	private TextView timeLeftView;
+	private TextView scoreView;
 	
+	private String playerName;
 	private String playerId;
 	
 	private Timer timeUpdater;
 	private Handler mHandler;
 	private int countDown;
+	private int score;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -44,19 +46,19 @@ public class GameActivity extends Activity {
 		//setContentView(new MainGamePanel(this));
 
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
-	    playerId = getIntent().getStringExtra("playerName");
+	    playerName = getIntent().getStringExtra("playerName");
 
 		setContentView(R.layout.activity_game);
 		
-		TextView playerName = (TextView)findViewById(R.id.activity_game_player_name);
-		score = (TextView)findViewById(R.id.activity_game_score);
-		timeLeft = (TextView)findViewById(R.id.activity_game_time_left);
-		TextView playerCount = (TextView)findViewById(R.id.activity_game_player_count);
+		TextView playerNameView = (TextView)findViewById(R.id.activity_game_player_name);
+		scoreView = (TextView)findViewById(R.id.activity_game_score);
+		timeLeftView = (TextView)findViewById(R.id.activity_game_time_left);
+		TextView playerCountView = (TextView)findViewById(R.id.activity_game_player_count);
 		
-		playerName.setText("Player:\n" + playerId);
-		score.setText("Score:\n0");
-		timeLeft.setText("Time left:\n" + gc.gameDuration);
-		playerCount.setText("# Players:\n" + "(todo)");
+		playerNameView.setText("Player:\n" + playerName);
+		scoreView.setText("Score:\n0");
+		timeLeftView.setText("Time left:\n" + gc.gameDuration);
+		playerCountView.setText("# Players:\n" + "(todo)");
 		
 		// Timer setup, it will only start when the game starts.
 		// The handler gets the message from the timer thread to update the UI.
@@ -66,9 +68,14 @@ public class GameActivity extends Activity {
 		    public void handleMessage(Message msg) {
 		    	if(countDown == 0)
 		    		endGame();
-		    	else
-		    		timeLeft.setText("Time left:\n" + countDown);
-		    		score.setText("Score:\n" + gamePanel.getArena().scores.get(playerId));
+		    	else{
+		    		timeLeftView.setText("Time left:\n" + countDown);
+		    		if(playerId == null)
+		    			playerId = gamePanel.getArena().getActivePlayer().getPlayerId();
+		    		score = gamePanel.getArena().scores.get(playerId);
+		    		scoreView.setText("Score:\n" + score);
+		    		//Log.d("ACTIVITY", "PlayerId " + playerId + " Score: " + score);
+		    	}
 		    }
 		};
 		

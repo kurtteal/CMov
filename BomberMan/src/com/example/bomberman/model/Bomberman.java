@@ -76,6 +76,9 @@ public class Bomberman {
 	
 	public Bomberman(){} //is needed so that Robot can extend this class
 	
+	public String getPlayerId(){
+		return myself+"";
+	}
 	//for collision checks
 	public int getWidth(){
 		//return spriteWidth;
