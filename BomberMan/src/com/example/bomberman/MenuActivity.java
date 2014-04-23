@@ -11,15 +11,15 @@ import android.widget.TextView;
 
 public class MenuActivity extends Activity {
 
-	ArrayList<String> users;
+	ArrayList<String> localUsers;
 	TextView activeUser;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_menu);
-		users = new ArrayList<String>();
-		users.add("Kurt");
+		localUsers = new ArrayList<String>();
+		localUsers.add("Kurt");
 		activeUser = ((TextView) findViewById(R.id.activeTV));
 	}
 
@@ -40,29 +40,30 @@ public class MenuActivity extends Activity {
 		case RESULT_OK:
 			String active = intent.getStringExtra("activeUser");
 
-			if (!users.contains(active))
-				users.add(0, active);
+			if (!localUsers.contains(active))
+				localUsers.add(0, active);
 			activeUser.setText(active);
 			break;
 		}
 	}
 
-	public void selectLevel(View v) {
+	public void singlePlayer(View v) {
 		Intent intent = new Intent(MenuActivity.this, SelectMapActivity.class);
 		// Pass the player name to the next activities.
     	intent.putExtra("playerName", activeUser.getText());
 		startActivity(intent);
 	}
 
-	public void joinGame(View v) {
-		// Intent intent = new Intent(CreateNoteActivity.this,
-		// MainActivity.class);
-		// startActivity(intent);
+	public void multiPlayer(View v) {
+		Intent intent = new Intent(MenuActivity.this, MultiplayerMenuActivity.class);
+		// Pass the player name to the next activities.
+    	intent.putExtra("playerName", activeUser.getText());
+		startActivity(intent);
 	}
 
 	public void openSettings(View v) {
 		Intent intent = new Intent(MenuActivity.this, SelectUserActivity.class);
-		intent.putExtra("users", users);
+		intent.putExtra("users", localUsers);
 		startActivityForResult(intent, 1);
 	}
 

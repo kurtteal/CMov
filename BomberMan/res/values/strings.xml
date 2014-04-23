@@ -3,17 +3,23 @@
 
     <string name="app_name">Bomberman</string>
     <string name="action_settings">Settings</string>
+    
     <string name="newgame_button">New Game</string>
     <string name="joingame_button">Join Game</string>
+    <string name="singleplayer_button">Single Player</string>
+    <string name="multiplayer_button">Multiplayer</string>
     <string name="startgame_button">Start Game</string>
     <string name="settings_button">Settings</string>
     <string name="leave_button">Leave</string>
     <string name="adduser_button">Add User</string>
+    
     <string name="adduser_hint">New User</string>
     <string name="title_activity_select_user">SelectUserActivity</string>
     <string name="title_activity_select_map">SelectMapActivity</string>
     <string name="title_activity_game">GameActivity</string>
     <string name="title_activity_scores">ScoresActivity</string>
+    <string name="title_activity_multiplayer_menu">MultiplayerMenuActivity</string>
+    
     <string name="activity_select_map_level_name">Level name: </string>
     <string name="activity_select_map_game_duration">Game duration: </string>
     <string name="activity_select_map_explosion_timeout">Explosion timeout: </string>

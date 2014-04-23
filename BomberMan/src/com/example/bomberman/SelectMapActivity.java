@@ -116,6 +116,8 @@ public class SelectMapActivity extends Activity implements OnItemSelectedListene
 		Intent intent = new Intent(SelectMapActivity.this, GameActivity.class);
 		intent.putExtra("gc", gc); //get number from select_map layout (the one selected)
 		intent.putExtra("playerName", playerName);
+		intent.putExtra("playerId", "1");
+		intent.putExtra("singleplayer", true);
 		startActivity(intent);
 	}
 

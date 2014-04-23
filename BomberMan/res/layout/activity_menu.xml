@@ -21,22 +21,22 @@
         android:src="@drawable/bomberman_logo" />
 
     <Button
-        android:id="@+id/newgame_button"
+        android:id="@+id/singleplayer_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="20dp"
         android:layout_weight="1"
-        android:onClick="selectLevel"
-        android:text="@string/newgame_button" />
+        android:onClick="singlePlayer"
+        android:text="@string/singleplayer_button" />
 
     <Button
-        android:id="@+id/joingame_button"
+        android:id="@+id/multiplayer_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="20dp"
         android:layout_weight="1"
-        android:onClick="joinGame"
-        android:text="@string/joingame_button" />
+        android:onClick="multiPlayer"
+        android:text="@string/multiplayer_button" />
 
     <Button
         android:id="@+id/settings_button"

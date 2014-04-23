@@ -3,6 +3,7 @@ package com.example.bomberman.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.bomberman.GameActivity;
 import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.util.GameConfigs;
 import com.example.bomberman.util.ScoreBoard;
@@ -31,6 +32,7 @@ public class Arena {
 	// e o chao tem q ser desenhado por baixo deles, antes de estes serem
 	// desenhados
 	private Bomberman activePlayer;
+	public char playerId = '1';
 	private Resources resources;
 
 	private boolean firstUpdate = true;
@@ -50,9 +52,26 @@ public class Arena {
 	public Bomberman getActivePlayer(){
 		return activePlayer;
 	}
+	
+	public Bomberman getPlayer(char id){
+		for(Bomberman b : players)
+			if(b.myself == id)
+				return b;
+		return null;
+	}
+
+	
+//	public void setActivePlayer(char id){
+//		playerId = id;
+//		for(Bomberman b : players){
+//			if(b.myself == playerId)
+//				activePlayer = b;
+//		}
+//	}
 
 	private void fillDrawableMatrix() {
-
+		
+		playerId = panel.activity.playerId.charAt(0);
 		int numLines = gc.getNumLines();
 		int numColumns = gc.getNumColumns();
 		pixelMatrix = new IDrawable[numLines][numColumns];
@@ -106,7 +125,7 @@ public class Arena {
 					Bomberman player = new Bomberman(resources, previousRightBorder,
 							previousBottomBorder, gameRightMargin, gameBottomMargin, panel, gc.matrix[i][j],
 							numColumns, numLines);
-					if(gc.matrix[i][j] == '1')
+					if(gc.matrix[i][j] == playerId)
 						activePlayer = player;
 					players.add(player);
 					String playerId = "" + gc.matrix[i][j];

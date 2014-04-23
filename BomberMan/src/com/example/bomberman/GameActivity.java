@@ -12,12 +12,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.bomberman.csclient.ClientService;
 import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
 import com.example.bomberman.util.GameConfigs;
 import com.example.bomberman.util.ScoreBoard;
 
-public class GameActivity extends Activity {
+public class GameActivity extends Activity implements IGameActivity {
 	/** Called when the activity is first created. */
 
 	private static final String TAG = GameActivity.class.getSimpleName();
@@ -28,12 +29,15 @@ public class GameActivity extends Activity {
 	private TextView scoreView;
 	
 	private String playerName;
-	private String playerId;
+	public String playerId; //visivel para a arena
 	
 	private Timer timeUpdater;
 	private Handler mHandler;
 	private int countDown;
 	private int score;
+	
+	protected ClientService service;
+	private boolean singleplayer = true;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -47,7 +51,11 @@ public class GameActivity extends Activity {
 
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
 	    playerName = getIntent().getStringExtra("playerName");
-
+	    playerId = getIntent().getStringExtra("playerId");
+	    singleplayer = getIntent().getExtras().getBoolean("singleplayer");
+	    service = new ClientService();
+	    service.setGameActivity(this);
+	    
 		setContentView(R.layout.activity_game);
 		
 		TextView playerNameView = (TextView)findViewById(R.id.activity_game_player_name);
@@ -70,8 +78,10 @@ public class GameActivity extends Activity {
 		    		endGame();
 		    	else{
 		    		timeLeftView.setText("Time left:\n" + countDown);
-		    		if(playerId == null)
-		    			playerId = gamePanel.getArena().getActivePlayer().getPlayerId();
+//		    		if(firstTick){
+//		    			gamePanel.getArena().setActivePlayer(playerId.charAt(0));
+//		    			firstTick = false;
+//		    		}
 		    		score = gamePanel.getArena().scores.get(playerId);
 		    		scoreView.setText("Score:\n" + score);
 		    		//Log.d("ACTIVITY", "PlayerId " + playerId + " Score: " + score);
@@ -101,33 +111,53 @@ public class GameActivity extends Activity {
 
 	
 	public void movePlayerUp(View v){
-		Arena arena = gamePanel.getArena();
-		Bomberman bman = arena.getActivePlayer();
-		bman.oneSquareUp();
+		if(singleplayer){
+			Arena arena = gamePanel.getArena();
+			Bomberman bman = arena.getActivePlayer();
+			bman.oneSquareUp();
+		}else{
+			service.goUp();
+		}
 	}
 
 	public void movePlayerLeft(View v){
-		Arena arena = gamePanel.getArena();
-		Bomberman bman = arena.getActivePlayer();
-		bman.oneSquareLeft();
+		if(singleplayer){
+			Arena arena = gamePanel.getArena();
+			Bomberman bman = arena.getActivePlayer();
+			bman.oneSquareLeft();
+		}else{
+			service.goLeft();
+		}
 	}
 	
 	public void movePlayerDown(View v){
-		Arena arena = gamePanel.getArena();
-		Bomberman bman = arena.getActivePlayer();
-		bman.oneSquareDown();
+		if(singleplayer){
+			Arena arena = gamePanel.getArena();
+			Bomberman bman = arena.getActivePlayer();
+			bman.oneSquareDown();
+		}else{
+			service.goDown();
+		}
 	}
 	
 	public void movePlayerRight(View v){
-		Arena arena = gamePanel.getArena();
-		Bomberman bman = arena.getActivePlayer();
-		bman.oneSquareRight();
+		if(singleplayer){
+			Arena arena = gamePanel.getArena();
+			Bomberman bman = arena.getActivePlayer();
+			bman.oneSquareRight();
+		}else{
+			service.goRight();
+		}
 	}
 	
 	public void dropBomb(View v){
-		Arena arena = gamePanel.getArena();
-		Bomberman bman = arena.getActivePlayer();
-		bman.plantBomb();
+		if(singleplayer){
+			Arena arena = gamePanel.getArena();
+			Bomberman bman = arena.getActivePlayer();
+			bman.plantBomb();
+		}else{
+			service.plantBomb();
+		}
 	}
 	
 	protected void startTimer() {
@@ -157,5 +187,34 @@ public class GameActivity extends Activity {
 		gamePanel.thread.setRunning(false);
 		startActivity(intent);
 	}
+	
+	//Callback methods for the client service
+	//=======================================
+	public void goLeft(char id){
+		Arena arena = gamePanel.getArena();
+		Bomberman bman = arena.getPlayer(id);
+		bman.oneSquareLeft();
+	}
+	public void goRight(char id){
+		Arena arena = gamePanel.getArena();
+		Bomberman bman = arena.getPlayer(id);
+		bman.oneSquareRight();
+	}
+	public void goUp(char id){
+		Arena arena = gamePanel.getArena();
+		Bomberman bman = arena.getPlayer(id);
+		bman.oneSquareUp();
+	}
+	public void goDown(char id){
+		Arena arena = gamePanel.getArena();
+		Bomberman bman = arena.getPlayer(id);
+		bman.oneSquareDown();
+	}
+	public void plantBomb(char id){
+		Arena arena = gamePanel.getArena();
+		Bomberman bman = arena.getPlayer(id);
+		bman.plantBomb();
+	}
+	
 	
 }
