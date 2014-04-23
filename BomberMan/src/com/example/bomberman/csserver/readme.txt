@@ -1,1 +1,2 @@
-Criar 1 projecto java e colocar estes 2 ficheiros la dentro para correr.
+Como o Server tem de ser um projeto Java à parte, temos o server na Dropbox
+(é ir lá sacar, na pasta 'Project Server', e importar para o eclipse)
