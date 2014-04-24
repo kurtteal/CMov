@@ -2,7 +2,7 @@ package com.example.bomberman;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,8 +10,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
-
 import com.example.bomberman.csclient.ClientService;
 import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
@@ -27,6 +27,12 @@ public class GameActivity extends Activity implements IGameActivity {
 	private MainGamePanel gamePanel;
 	private TextView timeLeftView;
 	private TextView scoreView;
+	private Button toggleStateButton;
+	private Button upButton;
+	private Button leftButton;
+	private Button rightButton;
+	private Button downButton;
+	private Button bombButton;
 	
 	private String playerName;
 	public String playerId; //visivel para a arena
@@ -39,7 +45,7 @@ public class GameActivity extends Activity implements IGameActivity {
 	protected ClientService service;
 	private boolean singleplayer = true;
 	
-	@Override
+	@SuppressLint("HandlerLeak") @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// requesting to turn the title OFF
@@ -62,6 +68,12 @@ public class GameActivity extends Activity implements IGameActivity {
 		scoreView = (TextView)findViewById(R.id.activity_game_score);
 		timeLeftView = (TextView)findViewById(R.id.activity_game_time_left);
 		TextView playerCountView = (TextView)findViewById(R.id.activity_game_player_count);
+		toggleStateButton = (Button)findViewById(R.id.toggleStateBtn);
+		upButton = (Button)findViewById(R.id.up);
+		leftButton = (Button)findViewById(R.id.left);
+		rightButton = (Button)findViewById(R.id.right);
+		downButton = (Button)findViewById(R.id.down);
+		bombButton = (Button)findViewById(R.id.bomb);
 		
 		playerNameView.setText("Player:\n" + playerName);
 		scoreView.setText("Score:\n0");
@@ -70,7 +82,6 @@ public class GameActivity extends Activity implements IGameActivity {
 		
 		// Timer setup, it will only start when the game starts.
 		// The handler gets the message from the timer thread to update the UI.
-		timeUpdater = new Timer();
 		countDown = gc.gameDuration;
 		mHandler = new Handler() {
 		    public void handleMessage(Message msg) {
@@ -112,56 +123,47 @@ public class GameActivity extends Activity implements IGameActivity {
 	
 	public void movePlayerUp(View v){
 		if(singleplayer){
-			Arena arena = gamePanel.getArena();
-			Bomberman bman = arena.getActivePlayer();
-			bman.oneSquareUp();
+			this.goUp('1');
 		}else{
 			service.goUp();
 		}
 	}
-
+	
 	public void movePlayerLeft(View v){
 		if(singleplayer){
-			Arena arena = gamePanel.getArena();
-			Bomberman bman = arena.getActivePlayer();
-			bman.oneSquareLeft();
-		}else{
+			this.goLeft('1');
+		} else{
 			service.goLeft();
 		}
 	}
 	
 	public void movePlayerDown(View v){
 		if(singleplayer){
-			Arena arena = gamePanel.getArena();
-			Bomberman bman = arena.getActivePlayer();
-			bman.oneSquareDown();
-		}else{
+			this.goDown('1');
+		} else{
 			service.goDown();
 		}
 	}
 	
 	public void movePlayerRight(View v){
 		if(singleplayer){
-			Arena arena = gamePanel.getArena();
-			Bomberman bman = arena.getActivePlayer();
-			bman.oneSquareRight();
-		}else{
+			this.goRight('1');
+		} else{
 			service.goRight();
 		}
 	}
 	
 	public void dropBomb(View v){
 		if(singleplayer){
-			Arena arena = gamePanel.getArena();
-			Bomberman bman = arena.getActivePlayer();
-			bman.plantBomb();
-		}else{
+			this.plantBomb('1');
+		} else{
 			service.plantBomb();
 		}
 	}
 	
 	protected void startTimer() {
 		// Start the time left timer.
+		timeUpdater = new Timer();
 		timeUpdater.scheduleAtFixedRate(new TimerTask() {
 			  @Override
 			  public void run() {
@@ -171,8 +173,35 @@ public class GameActivity extends Activity implements IGameActivity {
 		}, 1000, 1000);
 	}
 	
-	public void updateTimeLeft() {
-		
+	public void toggleGameState(View v){
+		boolean isPaused = gamePanel.thread.getPaused();
+		if(isPaused){
+			toggleStateButton.setText("Pause");
+			enableButtons();
+			startTimer();
+			gamePanel.thread.resumeThread();
+		} else {
+			toggleStateButton.setText("Play");
+			disableButtons();
+			timeUpdater.cancel();
+			gamePanel.thread.pauseThread();
+		}
+	}
+	
+	private void enableButtons(){
+			upButton.setEnabled(true);
+			leftButton.setEnabled(true);
+			rightButton.setEnabled(true);
+			downButton.setEnabled(true);
+			bombButton.setEnabled(true);
+	}		
+	
+	private void disableButtons(){		
+			upButton.setEnabled(false);
+			leftButton.setEnabled(false);
+			rightButton.setEnabled(false);
+			downButton.setEnabled(false);
+			bombButton.setEnabled(false);
 	}
 	
 	public void quitGame(View v){
@@ -190,31 +219,34 @@ public class GameActivity extends Activity implements IGameActivity {
 	
 	//Callback methods for the client service
 	//=======================================
-	public void goLeft(char id){
-		Arena arena = gamePanel.getArena();
-		Bomberman bman = arena.getPlayer(id);
-		bman.oneSquareLeft();
-	}
-	public void goRight(char id){
-		Arena arena = gamePanel.getArena();
-		Bomberman bman = arena.getPlayer(id);
-		bman.oneSquareRight();
-	}
 	public void goUp(char id){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
 		bman.oneSquareUp();
 	}
+	
 	public void goDown(char id){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
 		bman.oneSquareDown();
 	}
+	
+	public void goLeft(char id){
+		Arena arena = gamePanel.getArena();
+		Bomberman bman = arena.getPlayer(id);
+		bman.oneSquareLeft();
+	}
+	
+	public void goRight(char id){
+		Arena arena = gamePanel.getArena();
+		Bomberman bman = arena.getPlayer(id);
+		bman.oneSquareRight();
+	}
+
 	public void plantBomb(char id){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
 		bman.plantBomb();
 	}
-	
 	
 }

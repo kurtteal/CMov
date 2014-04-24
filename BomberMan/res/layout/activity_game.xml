@@ -78,10 +78,10 @@
             android:orientation="vertical" >
 
             <Button
-                android:id="@+id/pause"
+                android:id="@+id/toggleStateBtn"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:onClick="pauseClick"
+                android:onClick="toggleGameState"
                 android:text="Pause"
                 tools:ignore="HardcodedText" />
 
@@ -106,16 +106,18 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginLeft="40dp"
+                android:background="@drawable/arrow_orange_up"
                 android:onClick="movePlayerUp"
-                android:text="U" />
+                android:text="@string/white_space" />
 
             <Button
                 android:id="@+id/left"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="20dp"
+                android:background="@drawable/arrow_orange_left"
                 android:onClick="movePlayerLeft"
-                android:text="L" />
+                android:text="@string/white_space" />
 
             <Button
                 android:id="@+id/right"
@@ -123,8 +125,9 @@
                 android:layout_height="40dp"
                 android:layout_marginLeft="80dp"
                 android:layout_marginTop="20dp"
+                android:background="@drawable/arrow_orange_right"
                 android:onClick="movePlayerRight"
-                android:text="R" />
+                android:text="@string/white_space" />
 
             <Button
                 android:id="@+id/down"
@@ -132,17 +135,19 @@
                 android:layout_height="40dp"
                 android:layout_marginLeft="40dp"
                 android:layout_marginTop="40dp"
+                android:background="@drawable/arrow_orange_down"
                 android:onClick="movePlayerDown"
-                android:text="D" />
+                android:text="@string/white_space" />
 
             <Button
                 android:id="@+id/bomb"
-                android:layout_width="80dp"
+                android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginLeft="120dp"
+                android:layout_marginLeft="140dp"
                 android:layout_marginTop="20dp"
+                android:background="@drawable/bomb_icon"
                 android:onClick="dropBomb"
-                android:text="Bomb" />
+                android:text="@string/white_space" />
         </RelativeLayout>
     </LinearLayout>
 

@@ -12,6 +12,7 @@
     <string name="settings_button">Settings</string>
     <string name="leave_button">Leave</string>
     <string name="adduser_button">Add User</string>
+    <string name="white_space"> </string>
     
     <string name="adduser_hint">New User</string>
     <string name="title_activity_select_user">SelectUserActivity</string>

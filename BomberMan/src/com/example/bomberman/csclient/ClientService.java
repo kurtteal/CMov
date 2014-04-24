@@ -4,15 +4,13 @@ import java.util.TreeMap;
 
 import com.example.bomberman.IGameActivity;
 import com.example.bomberman.IMenuActivity;
-
-import android.app.Activity;
 import android.util.Log;
 
 //Classe que encapsula o protocolo de comunicacao do lado do cliente.
 //Vai chamar os asyncTasks necessarios para fazer connect e enviar os varios comandos
 //mantem o playerId e a activity actual em que se encontra (do ultimo metodo que foi chamado)
 //O asyncTask mantem 1 referencia para esta classe. E esta classe eh passada de activity em activity
-//isolando o asyncTask, tanto do protocolo usado como de interações com várias activities.
+//isolando o asyncTask, tanto do protocolo usado como de interaï¿½ï¿½es com vï¿½rias activities.
 public class ClientService {
 
 	private static char playerId = '#';
@@ -109,7 +107,7 @@ public class ClientService {
 	
 	//Invocado pelo botao
 	public void goRight(){
-		String message = "Cright" + playerId; //client command left
+		String message = "Cright" + playerId; //client command right
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
@@ -118,7 +116,7 @@ public class ClientService {
 	
 	//Invocado pelo botao
 	public void goUp(){
-		String message = "Cup" + playerId; //client command left
+		String message = "Cup" + playerId; //client command up
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
@@ -127,7 +125,7 @@ public class ClientService {
 	
 	//Invocado pelo botao
 	public void goDown(){
-		String message = "Cdown" + playerId; //client command left
+		String message = "Cdown" + playerId; //client command down
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
@@ -136,7 +134,7 @@ public class ClientService {
 	
 	//Invocado pelo botao
 	public void plantBomb(){
-		String message = "Cbomb" + playerId; //client command left
+		String message = "Cbomb" + playerId; //client command bomb
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);

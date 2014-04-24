@@ -11,7 +11,7 @@ import android.view.SurfaceHolder;
  * the surface view and holder to trigger events every game tick.
  */
 public class GameThread extends Thread {
-	
+
 	private static final String TAG = GameThread.class.getSimpleName();
 
 	// Surface holder that can access the physical surface
@@ -19,24 +19,60 @@ public class GameThread extends Thread {
 	// The actual view that handles inputs
 	// and draws to the surface
 	private MainGamePanel gamePanel;
+	private Object pauseLock;
 
 	// flag to hold game state 
-	private boolean running;
+	private boolean running;		// boolean for the whole game
+	private boolean paused;			// boolean for pause/resume
+
 	public void setRunning(boolean running) {
 		this.running = running;
+	}
+
+	public boolean getPaused(){
+		return this.paused;
 	}
 
 	public GameThread(SurfaceHolder surfaceHolder, MainGamePanel gamePanel) {
 		super();
 		this.surfaceHolder = surfaceHolder;
 		this.gamePanel = gamePanel;
+		this.pauseLock = new Object();
+		this.paused = false;
 	}
+
+	public void pauseThread(){
+		//synchronized (pauseLock) {
+		this.paused = true;
+		//}
+	}
+
+	public void resumeThread(){
+		synchronized (pauseLock) {
+			this.paused = false;
+			this.pauseLock.notifyAll();
+		}
+	}
+
 
 	@Override
 	public void run() {
+
 		Canvas canvas;
 		Log.d(TAG, "Starting game loop");
 		while (running) {
+			
+			synchronized (pauseLock) {
+				if (paused) {
+					try {
+						pauseLock.wait();
+					} catch (InterruptedException e) {
+						System.out.println("CAUGHT InterruptedException IN PAUSE THREAD");
+						e.printStackTrace();
+					}
+				}
+			}
+			
 			canvas = null;
 			// try locking the canvas for exclusive pixel editing in the surface
 			try {
@@ -53,8 +89,8 @@ public class GameThread extends Thread {
 				if (canvas != null) 
 					surfaceHolder.unlockCanvasAndPost(canvas);	
 			}
-			
+
 		}
 	}
-	
+
 }

@@ -2,15 +2,11 @@ package com.example.bomberman.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.example.bomberman.GameActivity;
 import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.util.GameConfigs;
 import com.example.bomberman.util.ScoreBoard;
-
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.util.Log;
 
 //The arena is updated and drawn here
 public class Arena {

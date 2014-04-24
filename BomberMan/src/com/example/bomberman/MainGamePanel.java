@@ -94,6 +94,9 @@ public class MainGamePanel extends SurfaceView implements
 		Log.d(TAG, "Thread was shut down cleanly");
 	}
 	
+	
+	
+	
 //	@Override
 //	public boolean onTouchEvent(MotionEvent event) {
 //		if (event.getAction() == MotionEvent.ACTION_DOWN) {
