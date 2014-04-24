@@ -33,8 +33,9 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 	MyAdapter adapter;
 	String localUser;
 	
-	private GameConfigs gc;
+	private static GameConfigs gc;
 	private char playerId;
+	private String mapSelected;
 	
     private boolean connected;
     private ClientService service;
@@ -93,7 +94,7 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 	}
 	
 
-	
+	//Choosing the map will call this method
     public void onItemSelected(AdapterView<?> parent, View view, 
             int pos, long id) {
     	CharSequence mSelected = (CharSequence) parent.getItemAtPosition(pos);
@@ -189,7 +190,7 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 					Button b2 = (Button) findViewById(R.id.startgame_button);
 					b2.setVisibility(View.VISIBLE);
 					Button b3 = (Button) findViewById(R.id.joingame_button);
-					b3.setClickable(false); 
+					b3.setEnabled(false); 
 		        }
 		    });
 		}
@@ -205,7 +206,7 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 					TextView tv = (TextView) findViewById(R.id.level_name);
 					tv.setVisibility(View.VISIBLE);
 					Button b = (Button) findViewById(R.id.newgame_button);
-					b.setClickable(false); 
+					b.setEnabled(false); 
 		        }
 		    });
 		}
@@ -217,38 +218,37 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		updateItemsList();
 	}
 	
-	public void updateMap(char mapNumber){
-		String mapSelected;
+	public void updateMap(char mapNumber){  
 		switch(mapNumber){
-		case 1:
+		case '1':
 			mapSelected = new String("map1");
 			break;
-		case 2:
+		case '2':
 			mapSelected = new String("map2");
 			break;
-		case 3:
+		case '3':
 			mapSelected = new String("map3");
 			break;
-		case 4:
+		case '4':
 			mapSelected = new String("map4");
 			break;
 		default:
 			mapSelected = new String("map1");	
 		}
-		
+
 		gc = new GameConfigs();
         AssetManager am = getAssets();
         try {
 			InputStream is = am.open(mapSelected);
 			gc.loadConfigs(is); //loads up the matrix from the map file
+			//Log.i("Updating Map", "" + gc.levelName + " " + mapSelected);
 		} catch (IOException e) { e.printStackTrace(); }
-		runOnUiThread(new Runnable() {
-	        public void run() {
-	            TextView t = (TextView)findViewById(R.id.level_name);
-	            t.setText("Level name: "+gc.levelName);
-
-	        }
-	    });
+		runOnUiThread(new Runnable(){
+			public void run() {
+				TextView t = (TextView) findViewById(R.id.level_name);
+				t.setText("Level name: " + gc.levelName);
+			}
+		});
 	}
 
 	public void startGameOrder() {

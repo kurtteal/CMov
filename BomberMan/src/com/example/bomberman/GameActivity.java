@@ -11,6 +11,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import com.example.bomberman.csclient.ClientService;
 import com.example.bomberman.model.Arena;
@@ -177,31 +178,43 @@ public class GameActivity extends Activity implements IGameActivity {
 		boolean isPaused = gamePanel.thread.getPaused();
 		if(isPaused){
 			toggleStateButton.setText("Pause");
-			enableButtons();
+			enableControlButtons();
 			startTimer();
 			gamePanel.thread.resumeThread();
 		} else {
 			toggleStateButton.setText("Play");
-			disableButtons();
+			disableControlButtons();
 			timeUpdater.cancel();
 			gamePanel.thread.pauseThread();
 		}
 	}
 	
-	private void enableButtons(){
+	private void enableControlButtons(){
 			upButton.setEnabled(true);
 			leftButton.setEnabled(true);
 			rightButton.setEnabled(true);
 			downButton.setEnabled(true);
 			bombButton.setEnabled(true);
-	}		
+	}
 	
-	private void disableButtons(){		
-			upButton.setEnabled(false);
-			leftButton.setEnabled(false);
-			rightButton.setEnabled(false);
-			downButton.setEnabled(false);
-			bombButton.setEnabled(false);
+	public void disableControlButtons(){	
+    	upButton.setEnabled(false);
+		leftButton.setEnabled(false);
+		rightButton.setEnabled(false);
+		downButton.setEnabled(false);
+		bombButton.setEnabled(false);
+	}
+
+	//After the local player dies, we disable all
+	//buttons except quit
+	public void disableControlsAfterDeath(){
+		runOnUiThread(new Runnable() {
+	        public void run() {
+	        	disableControlButtons();
+	        	//disable pause button as well
+	        	toggleStateButton.setEnabled(false);
+	        }
+	    });
 	}
 	
 	public void quitGame(View v){

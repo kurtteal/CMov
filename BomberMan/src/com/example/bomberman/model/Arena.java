@@ -206,6 +206,9 @@ public class Arena {
 			else
 				scores.update(planter, gc.ptsPerPlayer);
 		}
+		if(deadBomberId == playerId){
+			panel.activity.disableControlsAfterDeath();
+		}
 		//Log.d("MORREU", "Morreu: " + deadBomberId + " nas coords[i][j]: " + i + " " + j);
 		//Log.d("DEAD", "Score do " + planter + " is: " + scores.get(planter));
 	}
