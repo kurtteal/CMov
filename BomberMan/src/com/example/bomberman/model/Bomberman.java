@@ -138,7 +138,7 @@ public class Bomberman {
 			speed.goLeft(); 
 			targetX = xMapMargin + getPositionInMatrix()[0]*getWidth() - getWidth(); 
 		}
-		else 
+		else
 			nextMove = 'L';
 	}
 
@@ -157,7 +157,7 @@ public class Bomberman {
 			speed.goUp();
 			targetY = yMapMargin + getPositionInMatrix()[1] * getHeight() - getHeight();
 		}
-		else	
+		else
 			nextMove = 'U';
 	}
 	

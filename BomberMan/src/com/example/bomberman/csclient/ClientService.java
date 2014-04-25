@@ -145,6 +145,42 @@ public class ClientService {
 		//TODO chamar 1 excepcao na activity a explciar que o socket foi fechado no servidor
 	}
 	
+	//Chamado pelos robots
+	public void robotLeft(int robotId){
+		String message = "Rleft" + robotId; //robot left
+		try{
+			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
+			new ClientAsyncTask("send").execute(message);
+		}catch(Exception e){	e.printStackTrace();	}
+	}
+	
+	//Chamado pelos robots
+	public void robotRight(int robotId){
+		String message = "Rright" + robotId; //robot left
+		try{
+			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
+			new ClientAsyncTask("send").execute(message);
+		}catch(Exception e){	e.printStackTrace();	}
+	}
+	
+	//Chamado pelos robots
+	public void robotUp(int robotId){
+		String message = "Rup" + robotId; //robot left
+		try{
+			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
+			new ClientAsyncTask("send").execute(message);
+		}catch(Exception e){	e.printStackTrace();	}
+	}
+	
+	//Chamado pelos robots
+	public void robotDown(int robotId){
+		String message = "Rdown" + robotId; //robot left
+		try{
+			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
+			new ClientAsyncTask("send").execute(message);
+		}catch(Exception e){	e.printStackTrace();	}
+	}
+	
 	//Metodo invocado pelo ClientListener depois da resposta do servidor:	
 	protected void processMessage(String message){
 		//verificar que tipo de mensagem se trata	
@@ -176,6 +212,9 @@ public class ClientService {
 			break;
 		case 'C': //comando de outro jogador (ou do proprio)
 			playerAction(message.substring(1));
+			break;
+		case 'R': //comando de um robot
+			robotAction(message.substring(1));
 			break;
 		default:
 			break;	
@@ -236,5 +275,17 @@ public class ClientService {
 			gameActivity.goRight(executerId);
 		else if(command.startsWith("bomb"))
 			gameActivity.plantBomb(executerId);
+	}
+	
+	private void robotAction(String command){
+		int executerId = Integer.parseInt(command.substring(command.length()-1));
+		if(command.startsWith("up"))
+			gameActivity.robotGoUp(executerId);
+		else if(command.startsWith("down"))
+			gameActivity.robotGoDown(executerId);
+		else if(command.startsWith("left"))
+			gameActivity.robotGoLeft(executerId);
+		else if(command.startsWith("right"))
+			gameActivity.robotGoRight(executerId);
 	}
 }

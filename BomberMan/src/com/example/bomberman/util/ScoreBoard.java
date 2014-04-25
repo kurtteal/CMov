@@ -28,8 +28,8 @@ public class ScoreBoard implements Serializable {
 		scores.put(playerId, scores.get(playerId) + score);
 	}
 	
-	public Integer get(String playerId){
-		return scores.get(playerId);
+	public Integer get(char playerId){
+		return scores.get(playerId+"");
 	}
 	
 	public Set<Entry<String, Integer>> entrySet(){

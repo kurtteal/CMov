@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.example.bomberman.csclient.ClientService;
 import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
+import com.example.bomberman.model.Robot;
 import com.example.bomberman.util.GameConfigs;
 import com.example.bomberman.util.ScoreBoard;
 
@@ -36,7 +37,7 @@ public class GameActivity extends Activity implements IGameActivity {
 	private Button bombButton;
 	
 	private String playerName;
-	public String playerId; //visivel para a arena
+	public char playerId; //visivel para a arena
 	
 	private Timer timeUpdater;
 	private Handler mHandler;
@@ -44,7 +45,7 @@ public class GameActivity extends Activity implements IGameActivity {
 	private int score;
 	
 	protected ClientService service;
-	private boolean singleplayer = true;
+	public boolean singleplayer = true; //visivel para os robots
 	
 	@SuppressLint("HandlerLeak") @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -58,7 +59,7 @@ public class GameActivity extends Activity implements IGameActivity {
 
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
 	    playerName = getIntent().getStringExtra("playerName");
-	    playerId = getIntent().getStringExtra("playerId");
+	    playerId = getIntent().getStringExtra("playerId").charAt(0);
 	    singleplayer = getIntent().getExtras().getBoolean("singleplayer");
 	    service = new ClientService();
 	    service.setGameActivity(this);
@@ -260,6 +261,30 @@ public class GameActivity extends Activity implements IGameActivity {
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
 		bman.plantBomb();
+	}
+	
+	public void robotGoUp(int id){
+		Arena arena = gamePanel.getArena();
+		Robot bman = arena.getRobot(id);
+		bman.oneSquareUp();
+	}
+	
+	public void robotGoDown(int id){
+		Arena arena = gamePanel.getArena();
+		Robot bman = arena.getRobot(id);
+		bman.oneSquareDown();
+	}
+	
+	public void robotGoLeft(int id){
+		Arena arena = gamePanel.getArena();
+		Robot bman = arena.getRobot(id);
+		bman.oneSquareLeft();
+	}
+	
+	public void robotGoRight(int id){
+		Arena arena = gamePanel.getArena();
+		Robot bman = arena.getRobot(id);
+		bman.oneSquareRight();
 	}
 	
 }

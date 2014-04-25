@@ -30,6 +30,7 @@ public class Arena {
 	private Bomberman activePlayer;
 	public char playerId = '1';
 	private Resources resources;
+	private int robotIdCounter = 0; //used to attribute an id to each robot (useful for multiplayer)
 
 	private boolean firstUpdate = true;
 
@@ -55,6 +56,13 @@ public class Arena {
 				return b;
 		return null;
 	}
+	
+	public Robot getRobot(int id){
+		for(Robot b : robots)
+			if(b.robotId == id)
+				return b;
+		return null;
+	}
 
 	
 //	public void setActivePlayer(char id){
@@ -67,7 +75,7 @@ public class Arena {
 
 	private void fillDrawableMatrix() {
 		
-		playerId = panel.activity.playerId.charAt(0);
+		playerId = panel.activity.playerId;
 		int numLines = gc.getNumLines();
 		int numColumns = gc.getNumColumns();
 		pixelMatrix = new IDrawable[numLines][numColumns];
@@ -112,7 +120,7 @@ public class Arena {
 				case 'R':
 					robots.add(new Robot(resources, previousRightBorder,
 							previousBottomBorder, gameRightMargin, gameBottomMargin, panel, gc.matrix[i][j],
-							gc.robotSpeed, numColumns, numLines));
+							gc.robotSpeed, numColumns, numLines, robotIdCounter++));
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
 							PathState.FLOOR, i, j, numColumns, numLines, panel);

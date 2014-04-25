@@ -8,4 +8,9 @@ public interface IGameActivity {
 	public void goDown(char id);
 	public void plantBomb(char id);
 	
+	public void robotGoUp(int id);
+	public void robotGoDown(int id);
+	public void robotGoLeft(int id);
+	public void robotGoRight(int id);
+	
 }
