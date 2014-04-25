@@ -141,6 +141,14 @@ public class ClientService {
 		}catch(Exception e){	e.printStackTrace();	}
 	}
 	
+	public void startTime(){
+		String message = "T" + playerId; //start the timer
+		try{
+			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
+			new ClientAsyncTask("send").execute(message);
+		}catch(Exception e){	e.printStackTrace();	}
+	}
+	
 	protected void socketWasClosed(){
 		//TODO chamar 1 excepcao na activity a explciar que o socket foi fechado no servidor
 	}
@@ -215,6 +223,9 @@ public class ClientService {
 			break;
 		case 'R': //comando de um robot
 			robotAction(message.substring(1));
+			break;
+		case 'T': //comando de um robot
+			gameActivity.startTimeOrder();
 			break;
 		default:
 			break;	

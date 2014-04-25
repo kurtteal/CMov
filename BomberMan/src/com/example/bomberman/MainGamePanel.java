@@ -68,14 +68,17 @@ public class MainGamePanel extends SurfaceView implements
 			int height) {
 	}
 
+	//Timer no longer starts when surface is created, especially for multiplayer,
+	//it starts when the instance who created the game signals the start. See GameActivity.startTimer()
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		// at this point the surface is created and
 		// we can safely start the game loop
 		thread.setRunning(true);
 		thread.start();
-		activity.startTimer();
+		
 	}
+
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {

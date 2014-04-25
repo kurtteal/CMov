@@ -91,10 +91,6 @@ public class GameActivity extends Activity implements IGameActivity {
 		    		endGame();
 		    	else{
 		    		timeLeftView.setText("Time left:\n" + countDown);
-//		    		if(firstTick){
-//		    			gamePanel.getArena().setActivePlayer(playerId.charAt(0));
-//		    			firstTick = false;
-//		    		}
 		    		score = gamePanel.getArena().scores.get(playerId);
 		    		scoreView.setText("Score:\n" + score);
 		    		//Log.d("ACTIVITY", "PlayerId " + playerId + " Score: " + score);
@@ -104,7 +100,6 @@ public class GameActivity extends Activity implements IGameActivity {
 		
 		Log.d(TAG, "View added");
 	}
-
 
 	public void setGamePanel(MainGamePanel gPanel) {
 		this.gamePanel = gPanel;
@@ -122,6 +117,30 @@ public class GameActivity extends Activity implements IGameActivity {
 		super.onStop();
 	}
 
+	//The arena will call this on its first update
+	public void startTime(){
+		if(singleplayer){
+			startTimer();
+		}else{
+			//in multiplayer buttons become disabled until timer starts
+			disableControlButtons();
+			toggleStateButton.setEnabled(false);
+			//Quem inicia o jogo (id=1) atrasa-s 2 secs propositadamente
+			//e so depois envia a ordem de inicio do jogo (isto eh feito para dar
+			//tempo aos outros participantes de fazerem o seu load do jogo e estarem
+			//prontos a comunicar)
+			if(playerId == '1'){
+				Timer waitBeforeStart = new Timer();
+				waitBeforeStart.schedule(new TimerTask() {			
+					@Override
+					public void run() {
+						service.startTime();
+					}
+					
+				}, 2000);
+			}
+		}
+	}
 	
 	public void movePlayerUp(View v){
 		if(singleplayer){
@@ -163,7 +182,7 @@ public class GameActivity extends Activity implements IGameActivity {
 		}
 	}
 	
-	protected void startTimer() {
+	public void startTimer() {
 		// Start the time left timer.
 		timeUpdater = new Timer();
 		timeUpdater.scheduleAtFixedRate(new TimerTask() {
@@ -285,6 +304,16 @@ public class GameActivity extends Activity implements IGameActivity {
 		Arena arena = gamePanel.getArena();
 		Robot bman = arena.getRobot(id);
 		bman.oneSquareRight();
+	}
+	
+	public void startTimeOrder(){
+		runOnUiThread(new Runnable() {
+	        public void run() {
+	    		enableControlButtons();
+	        	toggleStateButton.setEnabled(true);
+	        }
+	    });
+		startTimer();
 	}
 	
 }

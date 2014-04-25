@@ -118,7 +118,7 @@ public class Robot extends Bomberman{
 		//Single ou multi, a instancia de jogo com playerId = 1 eh quem envia comandos.
 		//Se tiver em multi e nao for o playerId 1 os robots vao-s mexer com comandos
 		//vindos do servidor
-		Log.i("Robot:", "playerId= " + playerId + " robotId= " + robotId);
+		//Log.i("Robot:", "playerId= " + playerId + " robotId= " + robotId);
 		if(playerId == '1'){ 
 			char above = surroundings[0];
 			char below = surroundings[1];
@@ -193,23 +193,26 @@ public class Robot extends Bomberman{
 			x = targetX;
 			targetX = 0;
 			speed.setXStationary();
-			//check surroundings
-			char[] surroundings = checkSurroundings();
-			decideNewPath(surroundings);
-			//checkIfPlanted();
-			//will plant a bomb with a given probability if it is at an intersection
-			//decideIfPlant();
-			
+			if(!checkIfNextMove()){
+				//check surroundings
+				char[] surroundings = checkSurroundings();
+				decideNewPath(surroundings);
+				//checkIfPlanted();
+				//will plant a bomb with a given probability if it is at an intersection
+				//decideIfPlant();
+			}
 		} else if(targetY != 0 && Math.abs(targetY - y) < movementMargin){
 			y = targetY; 
 			targetY = 0;
 			speed.setYStationary();
-			//check surroundings
-			char[] surroundings = checkSurroundings();
-			decideNewPath(surroundings);
-			//checkIfPlanted();
-			//will plant a bomb with a given probability if it is at an intersection
-			//decideIfPlant();
+			if(!checkIfNextMove()){
+				//check surroundings
+				char[] surroundings = checkSurroundings();
+				decideNewPath(surroundings);
+				//checkIfPlanted();
+				//will plant a bomb with a given probability if it is at an intersection
+				//decideIfPlant();
+			}
 		}else{
 			x += (speed.getVelocity() * speed.getxDirection()); 
 			y += (speed.getVelocity() * speed.getyDirection());

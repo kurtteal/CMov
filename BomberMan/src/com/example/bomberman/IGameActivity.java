@@ -13,4 +13,6 @@ public interface IGameActivity {
 	public void robotGoLeft(int id);
 	public void robotGoRight(int id);
 	
+	public void startTimeOrder();
+	
 }

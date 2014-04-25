@@ -20,6 +20,7 @@ public class MenuActivity extends Activity {
 		setContentView(R.layout.activity_menu);
 		localUsers = new ArrayList<String>();
 		localUsers.add("Kurt");
+		localUsers.add("b0x1");
 		activeUser = ((TextView) findViewById(R.id.activeTV));
 	}
 

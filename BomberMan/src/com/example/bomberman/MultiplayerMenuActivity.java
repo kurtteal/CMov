@@ -120,17 +120,17 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 	
 	//Internal method
 	private void updateItemsList(){
-		items.clear();
-		
-		items.add("Number          Name");
-	    Iterator it = users.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry pairs = (Map.Entry)it.next();
-	        items.add("Player " + pairs.getKey() + "          " + pairs.getValue());
-	        it.remove(); 
-	    }
 	    runOnUiThread(new Runnable() {
 	        public void run() {
+	    		items.clear();
+	    		
+	    		items.add("Number          Name");
+	    	    Iterator it = users.entrySet().iterator();
+	    	    while (it.hasNext()) {
+	    	        Map.Entry pairs = (Map.Entry)it.next();
+	    	        items.add("Player " + pairs.getKey() + "          " + pairs.getValue());
+	    	        it.remove(); 
+	    	    }
 	            // faz refresh ah ListView para mostrar o conteudo actualizado
 	    	    if(adapter != null)
 	    	    	adapter.notifyDataSetChanged();

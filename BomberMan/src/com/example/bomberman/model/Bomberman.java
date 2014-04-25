@@ -299,7 +299,7 @@ public class Bomberman {
 	}
 	
 	//Verifica se existe um nextMove para fazer
-	private void checkIfNextMove(){
+	protected boolean checkIfNextMove(){
 		if(nextMove != ' '){
 			switch(nextMove){
 				case 'U':
@@ -316,7 +316,9 @@ public class Bomberman {
 					break;
 			}
 			nextMove = ' ';
+			return true;
 		}
+		return false;
 	}
 	
 	//If player is close to targetX or Y he moves automatically there

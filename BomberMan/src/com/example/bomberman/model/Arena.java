@@ -228,6 +228,7 @@ public class Arena {
 
 		if (firstUpdate) {
 			fillDrawableMatrix();
+			panel.activity.startTime();
 			firstUpdate = false;
 		}
 		// Removes any dead players/robots from the list, these wont be updated
