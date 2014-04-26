@@ -147,12 +147,9 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 			service.setMenuActivity(this);
 			Log.d("Multi", "Im trying to connect");
 			service.connect();
-			service.createGame(localUser);
 			connected = true;
-		} else
-			Toast.makeText(this,
-					"Already connected to the server!",
-					Toast.LENGTH_LONG).show();
+		}
+		service.createGame(localUser);
 	}
 
 	//Button method
@@ -161,12 +158,9 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 			service = new ClientService();
 			service.setMenuActivity(this);
 			service.connect();
-			service.joinGame(localUser);
 			connected = true;
-		} else
-			Toast.makeText(this,
-					"Already connected to the server!",
-					Toast.LENGTH_LONG).show();
+		} 
+		service.joinGame(localUser);
 	}
 	
 	//Button method
@@ -194,8 +188,16 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		        }
 		    });
 		}
-		else
+		else{
 			Log.d("Creation failed", " ");
+			runOnUiThread(new Runnable() {
+		        public void run() {
+					Toast.makeText(MultiplayerMenuActivity.this,
+							"There's a game running already!",
+							Toast.LENGTH_LONG).show();
+		        }
+			});
+		}
 	}
 	public void joinResponse(boolean result, char playerId){
 		if(result){
@@ -210,8 +212,16 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		        }
 		    });
 		}
-		else
+		else{
 			Log.d("Join failed", " ");
+			runOnUiThread(new Runnable() {
+		        public void run() {
+					Toast.makeText(MultiplayerMenuActivity.this,
+							"There's no game to join, create one yourself!",
+							Toast.LENGTH_LONG).show();
+		        }
+			});
+		}
 	}
 	public void updatePlayerList(TreeMap<Integer, String> clientsNames){
 		users = clientsNames;
