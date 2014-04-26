@@ -19,8 +19,10 @@ public class Bomberman {
 	private int numLines;
 	protected int movementMargin = 3;
 	
-	protected Bitmap bitmapRight;	// the actual bitmap (or the animation sequence)
+	protected Bitmap bitmapUp; // the actual bitmap (or the animation sequence)
+	protected Bitmap bitmapDown;
 	protected Bitmap bitmapLeft;
+	protected Bitmap bitmapRight;
 	protected int x;			// the X coordinate (top left of the image)
 	protected int y;			// the Y coordinate (top left of the image)
 	protected int xMapMargin;
@@ -29,11 +31,11 @@ public class Bomberman {
 	
 	protected static final String TAG = Bomberman.class.getSimpleName();
 	protected Rect sourceRect; // the rectangle to be drawn from the animation bitmap
-	protected int frameNr = 5; // number of frames in animation
+	protected int frameNr = 3; // number of frames in animation
 	protected int currentFrame; // the current frame
 	protected long frameTicker; // the time of the last frame update
 
-	protected int fps = 5; //da animacao, n eh do jogo
+	protected int fps = 3; //da animacao, n eh do jogo
 	protected int framePeriod = 1000 / fps; // milliseconds between each frame (1000/fps)
 	protected int spriteWidth; // the width of the sprite to calculate the cut out rectangle
 	protected int spriteHeight;   // the height of the sprite
@@ -51,8 +53,10 @@ public class Bomberman {
 		this.myself = myself;
 		this.panel = panel;
 		this.gc = panel.getArena().gc;
-		this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.walking_right);
-		this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.walking_left);
+		this.bitmapUp = BitmapFactory.decodeResource(resources, R.drawable.white_back);
+		this.bitmapDown = BitmapFactory.decodeResource(resources, R.drawable.white_front);
+		this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.white_left);
+		this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.white_right);
 		xMapMargin = xMargin;
 		yMapMargin = yMargin;
 		
@@ -391,6 +395,8 @@ public class Bomberman {
 	private void expandBitmaps(){
 		//expansao do bitmap para ocupar td o mapa
 		//Log.d("ONUPDATE", "panelWidth, newWidth = " + panel.getWidth() + "," + frameNr*panel.getWidth()/19);
+		bitmapUp = Bitmap.createScaledBitmap(bitmapUp, frameNr*panel.getWidth()/numColumns, panel.getHeight()/numLines, false);
+		bitmapDown = Bitmap.createScaledBitmap(bitmapDown, frameNr*panel.getWidth()/numColumns, panel.getHeight()/numLines, false);
 		bitmapRight = Bitmap.createScaledBitmap(bitmapRight, frameNr*panel.getWidth()/numColumns, panel.getHeight()/numLines, false);
 		bitmapLeft = Bitmap.createScaledBitmap(bitmapLeft, frameNr*panel.getWidth()/numColumns, panel.getHeight()/numLines, false);
 		spriteWidth = bitmapRight.getWidth() / frameNr;
@@ -442,7 +448,12 @@ public class Bomberman {
 		// where to draw the sprite
 		Rect destRect = new Rect(getX(), getY(), getX() + spriteWidth, getY() + spriteHeight);
 		// pega no bitmap, corta pelo sourceRect e coloca em destRect
-		Bitmap bitmap = speed.getxDirection() == Speed.DIRECTION_RIGHT ? bitmapRight : bitmapLeft;
+		Bitmap bitmap = bitmapDown; //default virado para a frente
+		if(speed.getxDirection() != 0){
+			bitmap = speed.getxDirection() == Speed.DIRECTION_RIGHT ? bitmapRight : bitmapLeft;
+		}else if(speed.getyDirection() == -1){ //ir para cima
+			bitmap = bitmapUp;
+		}
 		canvas.drawBitmap(bitmap, sourceRect, destRect, null);
 	}
 	
