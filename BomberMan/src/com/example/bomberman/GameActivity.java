@@ -123,8 +123,13 @@ public class GameActivity extends Activity implements IGameActivity {
 			startTimer();
 		}else{
 			//in multiplayer buttons become disabled until timer starts
-			disableControlButtons();
-			toggleStateButton.setEnabled(false);
+			runOnUiThread(new Runnable() {
+		        public void run() {
+		        	disableControlButtons();
+					toggleStateButton.setEnabled(false);
+		        }
+		    });
+			
 			//Quem inicia o jogo (id=1) atrasa-s 2 secs propositadamente
 			//e so depois envia a ordem de inicio do jogo (isto eh feito para dar
 			//tempo aos outros participantes de fazerem o seu load do jogo e estarem
@@ -137,7 +142,7 @@ public class GameActivity extends Activity implements IGameActivity {
 						service.startTime();
 					}
 					
-				}, 2000);
+				}, 100);
 			}
 		}
 	}
