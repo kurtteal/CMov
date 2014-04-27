@@ -30,7 +30,7 @@ public class Path implements IDrawable{
 	
 	private int floorFrameNr = 1;
 	private int obstacleFrameNr = 1;
-	private int bombFrameNr = 2;
+	private int bombFrameNr = 3;
 	private int explosionFrameNr = 4;
 	
 	private int x; // the X coordinate (top left of the image)

@@ -3,9 +3,13 @@ package com.example.bomberman.model;
 import java.util.Random;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.util.Log;
 
 import com.example.bomberman.MainGamePanel;
+import com.example.bomberman.R;
 import com.example.bomberman.csclient.ClientService;
 
 public class Robot extends Bomberman{
@@ -33,6 +37,11 @@ public class Robot extends Bomberman{
 		
 		if(!singleplayer)
 			service = new ClientService();
+		
+		this.bitmapUp = BitmapFactory.decodeResource(resources, R.drawable.robot_back);
+		this.bitmapDown = BitmapFactory.decodeResource(resources, R.drawable.robot_front);
+		this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.robot_left);
+		this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.robot_right);
 		
 		//this.speed.goUp(); //initial behaviour for robots
 		startMoving();

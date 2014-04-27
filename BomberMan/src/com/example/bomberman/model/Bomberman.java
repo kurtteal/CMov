@@ -35,7 +35,7 @@ public class Bomberman {
 	protected int currentFrame; // the current frame
 	protected long frameTicker; // the time of the last frame update
 
-	protected int fps = 3; //da animacao, n eh do jogo
+	protected int fps = 6; //da animacao, n eh do jogo
 	protected int framePeriod = 1000 / fps; // milliseconds between each frame (1000/fps)
 	protected int spriteWidth; // the width of the sprite to calculate the cut out rectangle
 	protected int spriteHeight;   // the height of the sprite
@@ -53,10 +53,22 @@ public class Bomberman {
 		this.myself = myself;
 		this.panel = panel;
 		this.gc = panel.getArena().gc;
-		this.bitmapUp = BitmapFactory.decodeResource(resources, R.drawable.white_back);
-		this.bitmapDown = BitmapFactory.decodeResource(resources, R.drawable.white_front);
-		this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.white_left);
-		this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.white_right);
+		if(myself == '1'){
+			this.bitmapUp = BitmapFactory.decodeResource(resources, R.drawable.white_back);
+			this.bitmapDown = BitmapFactory.decodeResource(resources, R.drawable.white_front);
+			this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.white_left);
+			this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.white_right);
+		}else if(myself == '2'){
+			this.bitmapUp = BitmapFactory.decodeResource(resources, R.drawable.blue_back);
+			this.bitmapDown = BitmapFactory.decodeResource(resources, R.drawable.blue_front);
+			this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.blue_left);
+			this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.blue_right);
+		}else{
+			this.bitmapUp = BitmapFactory.decodeResource(resources, R.drawable.red_back);
+			this.bitmapDown = BitmapFactory.decodeResource(resources, R.drawable.red_front);
+			this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.red_left);
+			this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.red_right);
+		}
 		xMapMargin = xMargin;
 		yMapMargin = yMargin;
 		
