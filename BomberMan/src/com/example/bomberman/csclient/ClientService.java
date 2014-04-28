@@ -17,22 +17,23 @@ public class ClientService {
 	private static IMenuActivity menuActivity;
 	private static IGameActivity gameActivity;
 	private static TreeMap<Integer, String> clientsNames = new TreeMap<Integer, String>();
-	
+	private static TreeMap<Integer, String> participantsReady = new TreeMap<Integer, String>();
+
 	public void setMenuActivity(IMenuActivity act){
 		menuActivity = act;
 	}
-	
+
 	public void setGameActivity(IGameActivity act){
 		gameActivity = act;
 	}
-	
+
 	public void setPlayerId(char id){
 		playerId = id;
 	}
 	public char getPlayerId(){
 		return playerId;
 	}
-	
+
 	//Vai abrir o socket po servidor, na asyncTask ficam guardados (static), o socket,
 	//e os buffers de entrada e saida para comunicacao
 	public void connect(){
@@ -41,7 +42,7 @@ public class ClientService {
 			new ClientAsyncTask("connect", this).execute("");
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Metodo para teste
 	public void send(String message){
 		try{
@@ -49,7 +50,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message + playerId);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Invocado pelo botao
 	public void createGame(String playerName){
 		String message = "create " + playerName + playerId;
@@ -59,7 +60,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Invocado pelo botao
 	public void joinGame(String playerName){
 		String message = "join " + playerName + playerId;
@@ -68,7 +69,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Invocado pelo botao
 	public void startGame(){
 		String message = "start " + playerId;
@@ -77,7 +78,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Invocado pelo botao
 	public void leaveGame(){
 		String message = "leave_game" + playerId;
@@ -86,7 +87,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Invocado pelo botao
 	public void setMap(int mapNumber){
 		String message = "set_map " + mapNumber + " " + playerId;
@@ -95,7 +96,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Invocado pelo botao
 	public void goLeft(){
 		String message = "Cleft" + playerId; //client command left
@@ -104,7 +105,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Invocado pelo botao
 	public void goRight(){
 		String message = "Cright" + playerId; //client command right
@@ -113,7 +114,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Invocado pelo botao
 	public void goUp(){
 		String message = "Cup" + playerId; //client command up
@@ -122,7 +123,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Invocado pelo botao
 	public void goDown(){
 		String message = "Cdown" + playerId; //client command down
@@ -131,7 +132,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Invocado pelo botao
 	public void plantBomb(){
 		String message = "Cbomb" + playerId; //client command bomb
@@ -140,7 +141,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	public void startTime(){
 		String message = "T" + playerId; //start the timer
 		try{
@@ -148,11 +149,11 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	protected void socketWasClosed(){
 		//TODO chamar 1 excepcao na activity a explciar que o socket foi fechado no servidor
 	}
-	
+
 	//Chamado pelos robots
 	public void robotLeft(int robotId){
 		String message = "Rleft" + robotId; //robot left
@@ -161,7 +162,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Chamado pelos robots
 	public void robotRight(int robotId){
 		String message = "Rright" + robotId; //robot left
@@ -170,7 +171,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Chamado pelos robots
 	public void robotUp(int robotId){
 		String message = "Rup" + robotId; //robot left
@@ -179,7 +180,7 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
 	//Chamado pelos robots
 	public void robotDown(int robotId){
 		String message = "Rdown" + robotId; //robot left
@@ -188,7 +189,16 @@ public class ClientService {
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
-	
+
+	public void imSet(){
+		String message = "S" + playerId; 
+		try{
+			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
+			new ClientAsyncTask("send").execute(message);
+		}catch(Exception e){ e.printStackTrace(); }
+	}
+
+
 	//Metodo invocado pelo ClientListener depois da resposta do servidor:	
 	protected void processMessage(String message){
 		//verificar que tipo de mensagem se trata	
@@ -227,34 +237,37 @@ public class ClientService {
 		case 'T': //comando de um robot
 			gameActivity.startTimeOrder();
 			break;
+		case 'S':
+			checkIfAllReady(message.charAt(1));
+			break;
 		default:
 			break;	
 		}
 	}
-	
+
 	//Metodos internos
 	private void createSuccessful(){
 		setPlayerId('1'); //quem criou eh o 1
 		//avisar a activity
 		menuActivity.createResponse(true);
 	}
-	
+
 	private void createNotSuccessful(){
 		//avisar a activity
 		menuActivity.createResponse(false);
 	}
-	
+
 	private void joinSuccessful(char playerId){
 		setPlayerId(playerId);
 		//avisar a activity
 		menuActivity.joinResponse(true, playerId);
 	}
-	
+
 	private void joinNotSuccessful(){
 		//avisar a activity
 		menuActivity.joinResponse(false, ' ');
 	}
-	
+
 	private void updatePlayerList(String[] players){
 		for(String player : players){
 			String[] data = player.split("="); 
@@ -265,15 +278,15 @@ public class ClientService {
 		//http://stackoverflow.com/questions/4369537/update-ui-from-thread
 		//new ResponseAsyncTask(activity, clientsNames).execute(" ");
 	}
-	
+
 	private void updateMap(char mapNumber){
 		menuActivity.updateMap(mapNumber);
 	}
-	
+
 	private void startGameOrder(){
 		menuActivity.startGameOrder();
 	}
-	
+
 	private void playerAction(String command){
 		char executerId = command.charAt(command.length()-1);
 		if(command.startsWith("up"))
@@ -287,7 +300,7 @@ public class ClientService {
 		else if(command.startsWith("bomb"))
 			gameActivity.plantBomb(executerId);
 	}
-	
+
 	private void robotAction(String command){
 		int executerId = Integer.parseInt(command.substring(command.length()-1));
 		if(command.startsWith("up"))
@@ -299,4 +312,21 @@ public class ClientService {
 		else if(command.startsWith("right"))
 			gameActivity.robotGoRight(executerId);
 	}
+
+	private void checkIfAllReady(int id){
+		Log.d("Participants | playerId", participantsReady.size()+" "+playerId);
+		if(gameActivity.getStartedTime()){
+			if(playerId == '1'){
+				//juntar este id a uma lista
+				//a string eh irrelevante, so nos interessa o facto d n haverem repetidos
+				participantsReady.put(id, ""); 
+
+				//verificar se a lista ja tem o tamanh certo
+				if(participantsReady.size() == (gameActivity.getNumPlayers() - 1)){
+					startTime(); //envia o inicio do jogo pa tds
+				}
+			}
+		}
+	}
+
 }

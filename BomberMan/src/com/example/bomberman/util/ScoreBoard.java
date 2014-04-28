@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import android.util.Log;
+
 public class ScoreBoard implements Serializable {
 
 	private static final long serialVersionUID = -8749964416361074903L;
@@ -25,10 +27,13 @@ public class ScoreBoard implements Serializable {
 	}
 	
 	public void update(String playerId, int score){
+		Log.d("UPDATE SCOREBOARD", "PLAYER ID:" + playerId);
 		scores.put(playerId, scores.get(playerId) + score);
 	}
 	
 	public Integer get(char playerId){
+		
+		Log.d("GET SCOREBOARD", "PLAYER ID:" + playerId);
 		return scores.get(playerId+"");
 	}
 	

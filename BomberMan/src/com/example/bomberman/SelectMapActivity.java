@@ -118,6 +118,7 @@ public class SelectMapActivity extends Activity implements OnItemSelectedListene
 		intent.putExtra("playerName", playerName);
 		intent.putExtra("playerId", "1");
 		intent.putExtra("singleplayer", true);
+		intent.putExtra("numPlayers", 1);
 		startActivity(intent);
 	}
 

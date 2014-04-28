@@ -39,6 +39,7 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 	
     private boolean connected;
     private ClientService service;
+    private static int numUsers;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -225,6 +226,7 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 	}
 	public void updatePlayerList(TreeMap<Integer, String> clientsNames){
 		users = clientsNames;
+		numUsers = clientsNames.size();
 		updateItemsList();
 	}
 	
@@ -267,6 +269,7 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		intent.putExtra("playerName", localUser);
 		intent.putExtra("playerId", playerId + "");
 		intent.putExtra("singleplayer", false);
+		intent.putExtra("numPlayers", numUsers);
 		startActivity(intent);
 	}
 	

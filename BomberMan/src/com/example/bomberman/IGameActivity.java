@@ -14,5 +14,7 @@ public interface IGameActivity {
 	public void robotGoRight(int id);
 	
 	public void startTimeOrder();
+	public int getNumPlayers();
+	public boolean getStartedTime();
 	
 }

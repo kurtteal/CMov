@@ -2,11 +2,14 @@ package com.example.bomberman.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.util.GameConfigs;
 import com.example.bomberman.util.ScoreBoard;
+
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.util.Log;
 
 //The arena is updated and drawn here
 public class Arena {
@@ -142,6 +145,7 @@ public class Arena {
 			}
 			System.out.println("");
 		}
+		
 	}
 
 	public void plantBomb(int i, int j, char myself){
@@ -215,6 +219,7 @@ public class Arena {
 				scores.update(planter, gc.ptsPerPlayer);
 		}
 		if(deadBomberId == playerId){
+			Log.d("IN DEAD", "IN DEADDDDDD");
 			panel.activity.disableControlsAfterDeath();
 		}
 		//Log.d("MORREU", "Morreu: " + deadBomberId + " nas coords[i][j]: " + i + " " + j);

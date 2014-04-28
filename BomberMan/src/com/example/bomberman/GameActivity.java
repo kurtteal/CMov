@@ -25,7 +25,7 @@ public class GameActivity extends Activity implements IGameActivity {
 
 	private static final String TAG = GameActivity.class.getSimpleName();
 	protected GameConfigs gc;
-	
+
 	private MainGamePanel gamePanel;
 	private TextView timeLeftView;
 	private TextView scoreView;
@@ -35,18 +35,21 @@ public class GameActivity extends Activity implements IGameActivity {
 	private Button rightButton;
 	private Button downButton;
 	private Button bombButton;
-	
+
 	private String playerName;
 	public char playerId; //visivel para a arena
-	
+
 	private Timer timeUpdater;
+	private Timer sendImSetTimer;
 	private Handler mHandler;
 	private int countDown;
 	private int score;
-	
+	private int numPlayers;
+
 	protected ClientService service;
 	public boolean singleplayer = true; //visivel para os robots
-	
+	private boolean startedTime = false;
+
 	@SuppressLint("HandlerLeak") @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,14 +61,15 @@ public class GameActivity extends Activity implements IGameActivity {
 		//setContentView(new MainGamePanel(this));
 
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
-	    playerName = getIntent().getStringExtra("playerName");
-	    playerId = getIntent().getStringExtra("playerId").charAt(0);
-	    singleplayer = getIntent().getExtras().getBoolean("singleplayer");
-	    service = new ClientService();
-	    service.setGameActivity(this);
-	    
+		playerName = getIntent().getStringExtra("playerName");
+		playerId = getIntent().getStringExtra("playerId").charAt(0);
+		singleplayer = getIntent().getExtras().getBoolean("singleplayer");
+		numPlayers = getIntent().getExtras().getInt("numPlayers");
+		service = new ClientService();
+		service.setGameActivity(this);
+
 		setContentView(R.layout.activity_game);
-		
+
 		TextView playerNameView = (TextView)findViewById(R.id.activity_game_player_name);
 		scoreView = (TextView)findViewById(R.id.activity_game_score);
 		timeLeftView = (TextView)findViewById(R.id.activity_game_time_left);
@@ -75,34 +79,46 @@ public class GameActivity extends Activity implements IGameActivity {
 		leftButton = (Button)findViewById(R.id.left);
 		rightButton = (Button)findViewById(R.id.right);
 		downButton = (Button)findViewById(R.id.down);
-		bombButton = (Button)findViewById(R.id.bomb);
-		
+		bombButton = (Button)findViewById(R.id.bomb);	
+
 		playerNameView.setText("Player:\n" + playerName);
 		scoreView.setText("Score:\n0");
 		timeLeftView.setText("Time left:\n" + gc.gameDuration);
-		playerCountView.setText("# Players:\n" + "(todo)");
-		
+		playerCountView.setText("# Players:\n" + numPlayers);
+
 		// Timer setup, it will only start when the game starts.
 		// The handler gets the message from the timer thread to update the UI.
 		countDown = gc.gameDuration;
 		mHandler = new Handler() {
-		    public void handleMessage(Message msg) {
-		    	if(countDown == 0)
-		    		endGame();
-		    	else{
-		    		timeLeftView.setText("Time left:\n" + countDown);
-		    		score = gamePanel.getArena().scores.get(playerId);
-		    		scoreView.setText("Score:\n" + score);
-		    		//Log.d("ACTIVITY", "PlayerId " + playerId + " Score: " + score);
-		    	}
-		    }
+			public void handleMessage(Message msg) {
+				if(countDown == 0)
+					endGame();
+				else{
+					timeLeftView.setText("Time left:\n" + countDown);
+					Arena arna= gamePanel.getArena();
+					ScoreBoard scb = arna.scores;
+					Log.d("SCORE SCB", "PLAYER ID:" + playerId);
+					score = scb.get(playerId);
+					Log.d("SCORE DEPOIS DO SCB", "SCORE:" + score);
+					scoreView.setText("Score:\n" + score);
+					//Log.d("ACTIVITY", "PlayerId " + playerId + " Score: " + score);
+				}
+			}
 		};
-		
+
 		Log.d(TAG, "View added");
 	}
 
 	public void setGamePanel(MainGamePanel gPanel) {
 		this.gamePanel = gPanel;
+	}
+
+	public int getNumPlayers(){
+		return this.numPlayers;
+	}
+	
+	public boolean getStartedTime(){
+		return this.startedTime;
 	}
 
 	@Override
@@ -124,29 +140,41 @@ public class GameActivity extends Activity implements IGameActivity {
 		}else{
 			//in multiplayer buttons become disabled until timer starts
 			runOnUiThread(new Runnable() {
-		        public void run() {
-		        	disableControlButtons();
+				public void run() {
+					disableControlButtons();
 					toggleStateButton.setEnabled(false);
-		        }
-		    });
-			
+				}
+			});
+
 			//Quem inicia o jogo (id=1) atrasa-s 2 secs propositadamente
 			//e so depois envia a ordem de inicio do jogo (isto eh feito para dar
 			//tempo aos outros participantes de fazerem o seu load do jogo e estarem
 			//prontos a comunicar)
-			if(playerId == '1'){
-				Timer waitBeforeStart = new Timer();
-				waitBeforeStart.schedule(new TimerTask() {			
+			//			if(playerId == '1'){
+			//				Timer waitBeforeStart = new Timer();
+			//				waitBeforeStart.schedule(new TimerTask() {			
+			//					@Override
+			//					public void run() {
+			//						service.startTime();
+			//					}
+			//					
+			//				}, 100);
+			//			}
+
+			//each participant will send "im set" to the party leader each sec, until lider starts
+			if(playerId != '1'){
+				sendImSetTimer = new Timer();
+				sendImSetTimer.schedule(new TimerTask() {   
 					@Override
 					public void run() {
-						service.startTime();
+						service.imSet();
 					}
-					
-				}, 100);
+				}, 1500, 1500); 
 			}
+			startedTime = true;
 		}
 	}
-	
+
 	public void movePlayerUp(View v){
 		if(singleplayer){
 			this.goUp('1');
@@ -154,7 +182,7 @@ public class GameActivity extends Activity implements IGameActivity {
 			service.goUp();
 		}
 	}
-	
+
 	public void movePlayerLeft(View v){
 		if(singleplayer){
 			this.goLeft('1');
@@ -162,7 +190,7 @@ public class GameActivity extends Activity implements IGameActivity {
 			service.goLeft();
 		}
 	}
-	
+
 	public void movePlayerDown(View v){
 		if(singleplayer){
 			this.goDown('1');
@@ -170,7 +198,7 @@ public class GameActivity extends Activity implements IGameActivity {
 			service.goDown();
 		}
 	}
-	
+
 	public void movePlayerRight(View v){
 		if(singleplayer){
 			this.goRight('1');
@@ -178,7 +206,7 @@ public class GameActivity extends Activity implements IGameActivity {
 			service.goRight();
 		}
 	}
-	
+
 	public void dropBomb(View v){
 		if(singleplayer){
 			this.plantBomb('1');
@@ -186,19 +214,19 @@ public class GameActivity extends Activity implements IGameActivity {
 			service.plantBomb();
 		}
 	}
-	
+
 	public void startTimer() {
 		// Start the time left timer.
 		timeUpdater = new Timer();
 		timeUpdater.scheduleAtFixedRate(new TimerTask() {
-			  @Override
-			  public void run() {
-				  countDown--;
-				  mHandler.obtainMessage().sendToTarget();
-			  }
+			@Override
+			public void run() {
+				countDown--;
+				mHandler.obtainMessage().sendToTarget();
+			}
 		}, 1000, 1000);
 	}
-	
+
 	public void toggleGameState(View v){
 		boolean isPaused = gamePanel.thread.getPaused();
 		if(isPaused){
@@ -213,17 +241,17 @@ public class GameActivity extends Activity implements IGameActivity {
 			gamePanel.thread.pauseThread();
 		}
 	}
-	
+
 	private void enableControlButtons(){
-			upButton.setEnabled(true);
-			leftButton.setEnabled(true);
-			rightButton.setEnabled(true);
-			downButton.setEnabled(true);
-			bombButton.setEnabled(true);
+		upButton.setEnabled(true);
+		leftButton.setEnabled(true);
+		rightButton.setEnabled(true);
+		downButton.setEnabled(true);
+		bombButton.setEnabled(true);
 	}
-	
+
 	public void disableControlButtons(){	
-    	upButton.setEnabled(false);
+		upButton.setEnabled(false);
 		leftButton.setEnabled(false);
 		rightButton.setEnabled(false);
 		downButton.setEnabled(false);
@@ -234,19 +262,19 @@ public class GameActivity extends Activity implements IGameActivity {
 	//buttons except quit
 	public void disableControlsAfterDeath(){
 		runOnUiThread(new Runnable() {
-	        public void run() {
-	        	disableControlButtons();
-	        	//disable pause button as well
-	        	toggleStateButton.setEnabled(false);
-	        }
-	    });
+			public void run() {
+				disableControlButtons();
+				//disable pause button as well
+				toggleStateButton.setEnabled(false);
+			}
+		});
 	}
-	
+
 	public void quitGame(View v){
 		gamePanel.thread.setRunning(false);
 		this.finish();
 	}
-	
+
 	public void endGame(){
 		ScoreBoard scores = gamePanel.getArena().scores;
 		Intent intent = new Intent(GameActivity.this, ScoresActivity.class);
@@ -254,7 +282,7 @@ public class GameActivity extends Activity implements IGameActivity {
 		gamePanel.thread.setRunning(false);
 		startActivity(intent);
 	}
-	
+
 	//Callback methods for the client service
 	//=======================================
 	public void goUp(char id){
@@ -262,19 +290,19 @@ public class GameActivity extends Activity implements IGameActivity {
 		Bomberman bman = arena.getPlayer(id);
 		bman.oneSquareUp();
 	}
-	
+
 	public void goDown(char id){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
 		bman.oneSquareDown();
 	}
-	
+
 	public void goLeft(char id){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
 		bman.oneSquareLeft();
 	}
-	
+
 	public void goRight(char id){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
@@ -286,39 +314,55 @@ public class GameActivity extends Activity implements IGameActivity {
 		Bomberman bman = arena.getPlayer(id);
 		bman.plantBomb();
 	}
-	
+
 	public void robotGoUp(int id){
 		Arena arena = gamePanel.getArena();
 		Robot bman = arena.getRobot(id);
-		bman.oneSquareUp();
+		if (bman != null)
+			bman.oneSquareUp();
 	}
-	
+
 	public void robotGoDown(int id){
 		Arena arena = gamePanel.getArena();
 		Robot bman = arena.getRobot(id);
-		bman.oneSquareDown();
+		if (bman != null)
+			bman.oneSquareDown();
 	}
-	
+
 	public void robotGoLeft(int id){
 		Arena arena = gamePanel.getArena();
 		Robot bman = arena.getRobot(id);
-		bman.oneSquareLeft();
+		if (bman != null)
+			bman.oneSquareLeft();
 	}
-	
+
 	public void robotGoRight(int id){
 		Arena arena = gamePanel.getArena();
 		Robot bman = arena.getRobot(id);
-		bman.oneSquareRight();
+		if (bman != null)
+			bman.oneSquareRight();
 	}
-	
+
+	//	public void startTimeOrder(){
+	//		runOnUiThread(new Runnable() {
+	//			public void run() {
+	//				enableControlButtons();
+	//				toggleStateButton.setEnabled(true);
+	//				startTimer();
+	//			}
+	//		});
+
 	public void startTimeOrder(){
+		if(playerId != '1'){
+			sendImSetTimer.cancel(); //stop spamming msg
+		}
 		runOnUiThread(new Runnable() {
-	        public void run() {
-	    		enableControlButtons();
-	        	toggleStateButton.setEnabled(true);
-	        }
-	    });
-		startTimer();
+			public void run() {
+				enableControlButtons();
+				toggleStateButton.setEnabled(true);
+				startTimer();
+			}
+		});
 	}
-	
+
 }

@@ -1,10 +1,10 @@
 13,19
 WWWWWWWWWWWWWWWWWWW
-W-----------------W
+W----------------2W
 WW-W1W-W-W-W-W-W-WW
 W-----------------W
 WW-W-W-W-W-W-W-W-WW
-W---------B-------W
+W-----------------W
 WW-W-W-W-W-W-W-W-WW
 W-----------------W
 WW-W-W-W-W-W-W-W-WW
@@ -17,6 +17,6 @@ Lecrap/Level Name
 10/Explosion timeout (s)
 1/Explosion duration
 1/Explosion range
-6/Robot speed
+3/Robot speed
 12/Points per robot killed
 15/Points per opponent killed
