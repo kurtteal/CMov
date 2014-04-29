@@ -13,8 +13,8 @@ public interface IGameActivity {
 	public void robotGoLeft(int id);
 	public void robotGoRight(int id);
 	
-	public void startTimeOrder();
+	public void startGameOrder();
 	public int getNumPlayers();
-	public boolean getStartedTime();
+	public boolean masterIsReady();
 	
 }

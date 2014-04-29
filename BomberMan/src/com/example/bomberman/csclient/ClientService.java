@@ -70,8 +70,8 @@ public class ClientService {
 		}catch(Exception e){	e.printStackTrace();	}
 	}
 
-	//Invocado pelo botao
-	public void startGame(){
+	//Invocado pelo botao (todos fazem load da arena e esperam pela ordem de start)
+	public void preStartGame(){
 		String message = "start " + playerId;
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
@@ -142,7 +142,7 @@ public class ClientService {
 		}catch(Exception e){	e.printStackTrace();	}
 	}
 
-	public void startTime(){
+	public void startGame(){
 		String message = "T" + playerId; //start the timer
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
@@ -225,20 +225,20 @@ public class ClientService {
 		case 'M': //mapa escolhido
 			updateMap(message.charAt(1));
 			break;
-		case 'X': //mapa escolhido
-			startGameOrder();
+		case 'X': //preStartGame (gameActivity loading arena)
+			preStartGameOrder();
+			break;
+		case 'S': //other participants sending 'im set' msgs to the game master
+			checkIfAllReady(message.charAt(1));
+			break;
+		case 'T': //startGame
+			gameActivity.startGameOrder();
 			break;
 		case 'C': //comando de outro jogador (ou do proprio)
 			playerAction(message.substring(1));
 			break;
 		case 'R': //comando de um robot
 			robotAction(message.substring(1));
-			break;
-		case 'T': //comando de um robot
-			gameActivity.startTimeOrder();
-			break;
-		case 'S':
-			checkIfAllReady(message.charAt(1));
 			break;
 		default:
 			break;	
@@ -283,8 +283,8 @@ public class ClientService {
 		menuActivity.updateMap(mapNumber);
 	}
 
-	private void startGameOrder(){
-		menuActivity.startGameOrder();
+	private void preStartGameOrder(){
+		menuActivity.preStartGameOrder();
 	}
 
 	private void playerAction(String command){
@@ -315,17 +315,14 @@ public class ClientService {
 
 	private void checkIfAllReady(int id){
 		Log.d("Participants | playerId", participantsReady.size()+" "+playerId);
-		if(gameActivity.getStartedTime()){
-			if(playerId == '1'){
-				//juntar este id a uma lista
-				//a string eh irrelevante, so nos interessa o facto d n haverem repetidos
-				participantsReady.put(id, ""); 
+		if(playerId == '1' && gameActivity.masterIsReady()){
+			//juntar este id a uma lista
+			//a string eh irrelevante, so nos interessa o facto d n haverem repetidos
+			participantsReady.put(id, ""); 
 
-				//verificar se a lista ja tem o tamanh certo
-				if(participantsReady.size() == (gameActivity.getNumPlayers() - 1)){
-					startTime(); //envia o inicio do jogo pa tds
-				}
-			}
+			//verificar se ja recebi o set de todos os outros participantes
+			if(participantsReady.size() == (gameActivity.getNumPlayers() - 1))
+				startGame(); //envia o inicio do jogo pa tds
 		}
 	}
 

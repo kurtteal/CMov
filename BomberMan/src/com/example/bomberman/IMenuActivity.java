@@ -10,5 +10,5 @@ public interface IMenuActivity {
 	void joinResponse(boolean result, char playerId);
 	void updatePlayerList(TreeMap<Integer, String> clientsNames);
 	void updateMap(char mapNumber);
-	void startGameOrder();
+	void preStartGameOrder();
 }

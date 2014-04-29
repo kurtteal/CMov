@@ -50,6 +50,7 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		//create the list of players, and add the local player
 		users = new TreeMap<Integer, String>(); //treemap orders by key, by default
 		users.put(1, localUser);
+		numUsers = 1;
 		//arraylist that will display the player list
 		items = new ArrayList<String>();
 		items.add("Number          Name");
@@ -166,7 +167,7 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 	
 	//Button method
 	public void startGame(View v) {
-		service.startGame();
+		service.preStartGame();
 	}
 	
 	
@@ -263,7 +264,8 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		});
 	}
 
-	public void startGameOrder() {
+	//Goes to gameActivity
+	public void preStartGameOrder() {
 		Intent intent = new Intent(MultiplayerMenuActivity.this, GameActivity.class);
 		intent.putExtra("gc", gc); //get number from select_map layout (the one selected)
 		intent.putExtra("playerName", localUser);

@@ -48,7 +48,7 @@ public class GameActivity extends Activity implements IGameActivity {
 
 	protected ClientService service;
 	public boolean singleplayer = true; //visivel para os robots
-	private boolean startedTime = false;
+	private boolean gameMasterIsReady = false;
 
 	@SuppressLint("HandlerLeak") @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -117,8 +117,8 @@ public class GameActivity extends Activity implements IGameActivity {
 		return this.numPlayers;
 	}
 	
-	public boolean getStartedTime(){
-		return this.startedTime;
+	public boolean masterIsReady(){
+		return this.gameMasterIsReady;
 	}
 
 	@Override
@@ -134,8 +134,9 @@ public class GameActivity extends Activity implements IGameActivity {
 	}
 
 	//The arena will call this on its first update
-	public void startTime(){
-		if(singleplayer){
+	//This method starts the timer and enables the control buttons, effectively starting the game!
+	public void startGame(){
+		if(singleplayer){ //em single ou multiplayer (eu posso começar 1 jogo multi sozinho)
 			startTimer();
 		}else{
 			//in multiplayer buttons become disabled until timer starts
@@ -145,23 +146,12 @@ public class GameActivity extends Activity implements IGameActivity {
 					toggleStateButton.setEnabled(false);
 				}
 			});
+			if(numPlayers == 1){//nao tenho que esperar pela resposta de ninguem
+				startGameOrder();
+				return;
+			}
 
-			//Quem inicia o jogo (id=1) atrasa-s 2 secs propositadamente
-			//e so depois envia a ordem de inicio do jogo (isto eh feito para dar
-			//tempo aos outros participantes de fazerem o seu load do jogo e estarem
-			//prontos a comunicar)
-			//			if(playerId == '1'){
-			//				Timer waitBeforeStart = new Timer();
-			//				waitBeforeStart.schedule(new TimerTask() {			
-			//					@Override
-			//					public void run() {
-			//						service.startTime();
-			//					}
-			//					
-			//				}, 100);
-			//			}
-
-			//each participant will send "im set" to the party leader each sec, until lider starts
+			//each participant will send "im set" to the party leader every 2 secs, until lider starts
 			if(playerId != '1'){
 				sendImSetTimer = new Timer();
 				sendImSetTimer.schedule(new TimerTask() {   
@@ -169,9 +159,11 @@ public class GameActivity extends Activity implements IGameActivity {
 					public void run() {
 						service.imSet();
 					}
-				}, 1500, 1500); 
+				}, 2000, 2000); 
 			}
-			startedTime = true;
+			//From this point onwards, when player 1 receives the 'im set' messages from all participants
+			//he will start the game, as everyone is ready by then. (This is done on the service!)
+			gameMasterIsReady = true;
 		}
 	}
 
@@ -343,18 +335,9 @@ public class GameActivity extends Activity implements IGameActivity {
 			bman.oneSquareRight();
 	}
 
-	//	public void startTimeOrder(){
-	//		runOnUiThread(new Runnable() {
-	//			public void run() {
-	//				enableControlButtons();
-	//				toggleStateButton.setEnabled(true);
-	//				startTimer();
-	//			}
-	//		});
-
-	public void startTimeOrder(){
+	public void startGameOrder(){
 		if(playerId != '1'){
-			sendImSetTimer.cancel(); //stop spamming msg
+			sendImSetTimer.cancel(); //stop spamming 'im set' msgs
 		}
 		runOnUiThread(new Runnable() {
 			public void run() {
