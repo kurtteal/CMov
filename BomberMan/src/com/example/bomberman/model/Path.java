@@ -75,7 +75,7 @@ public class Path implements IDrawable{
 		bombBitmap = BitmapFactory.decodeResource(resources, R.drawable.bomb);
 		explosionBitmap = BitmapFactory.decodeResource(resources, R.drawable.explosion);
 		
-		bombOwner = '1'; //owner default de alguma bomba que ja vinha desenhada no mapa inicial
+		bombOwner = '#'; //path que nao eh bomba ou explosao tem sempre este valor!
 		
 		this.x = x;
 		this.y = y;
@@ -139,6 +139,9 @@ public class Path implements IDrawable{
 			bitmap = floorBitmap;
 			frameNr = floorFrameNr;
 			gc.writeLogicPosition(iArena, jArena, '-');
+			//deixa de haver bombOwner (importante para quando um jogador morre neste path!)
+			//ver arena.elementHasDied()
+			bombOwner = '#'; 
 		}
 		else if(state == PathState.OBSTACLE){
 			bitmap = obstacleBitmap;
@@ -152,7 +155,7 @@ public class Path implements IDrawable{
 			//se o owner eh player, avisa a arena que este ja pode por mais 1 bomba
 			bombOwner = owner;
 			if(bombOwner != 'R')
-				panel.getArena().updatePlayerBomb(bombOwner);
+				panel.getArena().bombExploded(bombOwner); //when this bomb explodes, the player is allowed to put another 1
 		}
 		else if(state == PathState.BOMB){
 			bitmap = bombBitmap;

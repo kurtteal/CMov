@@ -180,7 +180,8 @@ public class Arena {
 		}
 	}
 	
-	protected void updatePlayerBomb(char owner){
+	//Removes the playerId from the list of playerIds who had put a bomb
+	protected void bombExploded(char owner){
 		String planter = "" + owner;
 		if(bombs.contains(planter))
 			bombs.remove(planter);
@@ -210,22 +211,28 @@ public class Arena {
 	}
 
 	public void elementHasDied(Bomberman bomber) {
-		// marca este elemento como morto
-		deadElements.add(bomber);
-		char deadBomberId = bomber.myself;
 		//vou ah procura do dono da explosao que matou este elemento, e aumento o score se for player
 		int[] coords = bomber.getPositionInMatrix();
 		int i = coords[1];
 		int j = coords[0];
-		char bombOwnerId = ((Path)pixelMatrix[i][j]).getOwner();
-		String planter = "" + bombOwnerId;
-		if(bombOwnerId != 'R' && deadBomberId != bombOwnerId){ //suicide doesnt count
-			if(deadBomberId == 'R')
-				scores.update(planter, gc.ptsPerRobot);
-			else
-				scores.update(planter, gc.ptsPerPlayer);
+		//updates immediately the overlay to say this player died
+		gc.writeOverlayPosition(i,j,'-');
+		// marca este elemento como morto
+		deadElements.add(bomber);
+		char victimId = bomber.myself;
+		char killerId = ((Path)pixelMatrix[i][j]).getOwner();
+		//Se nao foi morte por contacto com robot, vai actualizar o score de algum player
+		if(killerId != '#'){
+			String planter = "" + killerId;
+			if(killerId != 'R' && victimId != killerId){ //suicide doesnt count
+				if(victimId == 'R')
+					scores.update(planter, gc.ptsPerRobot);
+				else
+					scores.update(planter, gc.ptsPerPlayer);
+			}
 		}
-		if(deadBomberId == playerId){
+		//Se o jogador local morreu, deixa de poder usar os controlos!
+		if(victimId == playerId){
 			Log.d("IN DEAD", "IN DEADDDDDD");
 			panel.activity.disableControlsAfterDeath();
 		}
