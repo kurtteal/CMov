@@ -49,6 +49,13 @@ public class Arena {
 		bombs = new ArrayList<String>();
 	}
 	
+	//Used in multiplayer: the game master starts the robot behaviour locally that will start their movement in other
+	//instances
+	public void startRobots(){
+		for(Robot r : robots)
+			r.startMoving();
+	}
+	
 	public Bomberman getActivePlayer(){
 		return activePlayer;
 	}

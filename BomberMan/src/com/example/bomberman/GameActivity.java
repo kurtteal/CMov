@@ -361,6 +361,7 @@ public class GameActivity extends Activity implements IGameActivity {
 				enableControlButtons();
 				toggleStateButton.setEnabled(true);
 				startTimer();
+				gamePanel.getArena().startRobots();
 			}
 		});
 	}

@@ -78,7 +78,7 @@ public class SelectMapActivity extends Activity implements OnItemSelectedListene
         t.setText("Points per robot: "+gc.ptsPerRobot);
         
         t = (TextView)findViewById(R.id.pts_per_opponent);
-        t.setText("Ponts per opponent: "+gc.ptsPerPlayer);
+        t.setText("Points per opponent: "+gc.ptsPerPlayer);
     }
 
 	public void onNothingSelected(AdapterView parent) {

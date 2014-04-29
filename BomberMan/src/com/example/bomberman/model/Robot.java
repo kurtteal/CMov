@@ -44,18 +44,11 @@ public class Robot extends Bomberman{
 		this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.robot_right);
 		
 		//this.speed.goUp(); //initial behaviour for robots
-		startMoving();
+		if(singleplayer)
+			startMoving();
 	}
 	
 	public void startMoving(){
-		if(playerId == '1'){
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 		char[] surroundings = checkSurroundings();
 		decideNewPath(surroundings);
 	}
