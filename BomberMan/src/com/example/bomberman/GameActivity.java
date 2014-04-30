@@ -169,41 +169,61 @@ public class GameActivity extends Activity implements IGameActivity {
 
 	public void movePlayerUp(View v){
 		if(singleplayer){
-			this.goUp('1');
+			this.goUpOrder('1', null, null);
 		}else{
-			service.goUp();
+			Bomberman b = gamePanel.getArena().getPlayer(playerId);
+			int[] currentPos = b.getPositionInMatrix();
+			int j = currentPos[0];
+			int i = currentPos[1];
+			service.goUp(i,j);
 		}
 	}
 
 	public void movePlayerLeft(View v){
 		if(singleplayer){
-			this.goLeft('1');
+			this.goLeftOrder('1', null, null);
 		} else{
-			service.goLeft();
+			Bomberman b = gamePanel.getArena().getPlayer(playerId);
+			int[] currentPos = b.getPositionInMatrix();
+			int j = currentPos[0];
+			int i = currentPos[1];
+			service.goLeft(i,j);
 		}
 	}
 
 	public void movePlayerDown(View v){
 		if(singleplayer){
-			this.goDown('1');
+			this.goDownOrder('1', null, null);
 		} else{
-			service.goDown();
+			Bomberman b = gamePanel.getArena().getPlayer(playerId);
+			int[] currentPos = b.getPositionInMatrix();
+			int j = currentPos[0];
+			int i = currentPos[1];
+			service.goDown(i,j);
 		}
 	}
 
 	public void movePlayerRight(View v){
 		if(singleplayer){
-			this.goRight('1');
+			this.goRightOrder('1', null, null);
 		} else{
-			service.goRight();
+			Bomberman b = gamePanel.getArena().getPlayer(playerId);
+			int[] currentPos = b.getPositionInMatrix();
+			int j = currentPos[0];
+			int i = currentPos[1];
+			service.goRight(i,j);
 		}
 	}
 
 	public void dropBomb(View v){
 		if(singleplayer){
-			this.plantBomb('1');
+			this.plantBombOrder('1', null, null);
 		} else{
-			service.plantBomb();
+			Bomberman b = gamePanel.getArena().getPlayer(playerId);
+			int[] currentPos = b.getPositionInMatrix();
+			int j = currentPos[0];
+			int i = currentPos[1];
+			service.plantBomb(i,j);
 		}
 	}
 
@@ -277,62 +297,62 @@ public class GameActivity extends Activity implements IGameActivity {
 
 	//Callback methods for the client service
 	//=======================================
-	public void goUp(char id){
+	public void goUpOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
-		bman.oneSquareUp();
+		bman.oneSquareUp(i, j);
 	}
 
-	public void goDown(char id){
+	public void goDownOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
-		bman.oneSquareDown();
+		bman.oneSquareDown(i, j);
 	}
 
-	public void goLeft(char id){
+	public void goLeftOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
-		bman.oneSquareLeft();
+		bman.oneSquareLeft(i, j);
 	}
 
-	public void goRight(char id){
+	public void goRightOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
-		bman.oneSquareRight();
+		bman.oneSquareRight(i, j);
 	}
 
-	public void plantBomb(char id){
+	public void plantBombOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
-		bman.plantBomb();
+		bman.plantBomb(i, j);
 	}
 
-	public void robotGoUp(int id){
+	public void robotGoUp(int id, String i, String j){
 		Arena arena = gamePanel.getArena();
-		Robot bman = arena.getRobot(id);
-		if (bman != null)
-			bman.oneSquareUp();
+		Robot robot = arena.getRobot(id);
+		if (robot != null)
+			robot.oneSquareUp(i, j);
 	}
 
-	public void robotGoDown(int id){
+	public void robotGoDown(int id, String i, String j){
 		Arena arena = gamePanel.getArena();
-		Robot bman = arena.getRobot(id);
-		if (bman != null)
-			bman.oneSquareDown();
+		Robot robot = arena.getRobot(id);
+		if (robot != null)
+			robot.oneSquareDown(i, j);
 	}
 
-	public void robotGoLeft(int id){
+	public void robotGoLeft(int id, String i, String j){
 		Arena arena = gamePanel.getArena();
-		Robot bman = arena.getRobot(id);
-		if (bman != null)
-			bman.oneSquareLeft();
+		Robot robot = arena.getRobot(id);
+		if (robot != null)
+			robot.oneSquareLeft(i, j);
 	}
 
-	public void robotGoRight(int id){
+	public void robotGoRight(int id, String i, String j){
 		Arena arena = gamePanel.getArena();
-		Robot bman = arena.getRobot(id);
-		if (bman != null)
-			bman.oneSquareRight();
+		Robot robot = arena.getRobot(id);
+		if (robot != null)
+			robot.oneSquareRight(i, j);
 	}
 
 	public void startGameOrder(){

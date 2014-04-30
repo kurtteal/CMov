@@ -98,8 +98,8 @@ public class ClientService {
 	}
 
 	//Invocado pelo botao
-	public void goLeft(){
-		String message = "Cleft" + playerId; //client command left
+	public void goUp(int i, int j){
+		String message = "Cup" + "/" + playerId + "/" + i + "/" + j; //client command up
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
@@ -107,8 +107,17 @@ public class ClientService {
 	}
 
 	//Invocado pelo botao
-	public void goRight(){
-		String message = "Cright" + playerId; //client command right
+	public void goDown(int i, int j){
+		String message = "Cdown" + "/" + playerId + "/" + i + "/" + j;//client command down
+		try{
+			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
+			new ClientAsyncTask("send").execute(message);
+		}catch(Exception e){	e.printStackTrace();	}
+	}
+	
+	//Invocado pelo botao
+	public void goLeft(int i, int j){
+		String message = "Cleft" + "/" + playerId + "/" + i + "/" + j; //client command left
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
@@ -116,8 +125,8 @@ public class ClientService {
 	}
 
 	//Invocado pelo botao
-	public void goUp(){
-		String message = "Cup" + playerId; //client command up
+	public void goRight(int i, int j){
+		String message = "Cright" + "/" + playerId + "/" + i + "/" + j; //client command right
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
@@ -125,17 +134,8 @@ public class ClientService {
 	}
 
 	//Invocado pelo botao
-	public void goDown(){
-		String message = "Cdown" + playerId; //client command down
-		try{
-			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
-			new ClientAsyncTask("send").execute(message);
-		}catch(Exception e){	e.printStackTrace();	}
-	}
-
-	//Invocado pelo botao
-	public void plantBomb(){
-		String message = "Cbomb" + playerId; //client command bomb
+	public void plantBomb(int i, int j){
+		String message = "Cbomb" + "/" + playerId + "/" + i + "/" + j; //client command bomb
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
@@ -155,8 +155,8 @@ public class ClientService {
 	}
 
 	//Chamado pelos robots
-	public void robotLeft(int robotId){
-		String message = "Rleft" + robotId; //robot left
+	public void robotUp(int robotId, int i, int j){
+		String message = "Rup" + "/" + robotId + "/" + i + "/" + j; //robot left
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
@@ -164,8 +164,17 @@ public class ClientService {
 	}
 
 	//Chamado pelos robots
-	public void robotRight(int robotId){
-		String message = "Rright" + robotId; //robot left
+	public void robotDown(int robotId, int i, int j){
+		String message = "Rdown" + "/" + robotId + "/" + i + "/" + j; //robot left
+		try{
+			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
+			new ClientAsyncTask("send").execute(message);
+		}catch(Exception e){	e.printStackTrace();	}
+	}
+	
+	//Chamado pelos robots
+	public void robotLeft(int robotId, int i, int j){
+		String message = "Rleft" + "/" + robotId + "/" + i + "/" + j; //robot left
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
@@ -173,23 +182,16 @@ public class ClientService {
 	}
 
 	//Chamado pelos robots
-	public void robotUp(int robotId){
-		String message = "Rup" + robotId; //robot left
+	public void robotRight(int robotId, int i, int j){
+		String message = "Rright" + "/" + robotId + "/" + i + "/" + j; //robot left
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
 		}catch(Exception e){	e.printStackTrace();	}
 	}
 
-	//Chamado pelos robots
-	public void robotDown(int robotId){
-		String message = "Rdown" + robotId; //robot left
-		try{
-			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
-			new ClientAsyncTask("send").execute(message);
-		}catch(Exception e){	e.printStackTrace();	}
-	}
-
+	//Chamado pelos participantes que nao sao game master, enquanto o master nao
+	//esta pronto
 	public void imSet(){
 		String message = "S" + playerId; 
 		try{
@@ -287,30 +289,36 @@ public class ClientService {
 		menuActivity.preStartGameOrder();
 	}
 
-	private void playerAction(String command){
-		char executerId = command.charAt(command.length()-1);
+	private void playerAction(String command){ //ex: up/3/13/42
+		String[] params = command.split("/");
+		char executerId = params[1].charAt(0);
+		String iPos = params[2];
+		String jPos = params[3];
 		if(command.startsWith("up"))
-			gameActivity.goUp(executerId);
+			gameActivity.goUpOrder(executerId, iPos, jPos);
 		else if(command.startsWith("down"))
-			gameActivity.goDown(executerId);
+			gameActivity.goDownOrder(executerId, iPos, jPos);
 		else if(command.startsWith("left"))
-			gameActivity.goLeft(executerId);
+			gameActivity.goLeftOrder(executerId, iPos, jPos);
 		else if(command.startsWith("right"))
-			gameActivity.goRight(executerId);
+			gameActivity.goRightOrder(executerId, iPos, jPos);
 		else if(command.startsWith("bomb"))
-			gameActivity.plantBomb(executerId);
+			gameActivity.plantBombOrder(executerId, iPos, jPos);
 	}
 
 	private void robotAction(String command){
-		int executerId = Integer.parseInt(command.substring(command.length()-1));
+		String[] params = command.split("/");
+		int executerId = Integer.parseInt(params[1]);
+		String iPos = params[2];
+		String jPos = params[3];
 		if(command.startsWith("up"))
-			gameActivity.robotGoUp(executerId);
+			gameActivity.robotGoUp(executerId, iPos, jPos);
 		else if(command.startsWith("down"))
-			gameActivity.robotGoDown(executerId);
+			gameActivity.robotGoDown(executerId, iPos, jPos);
 		else if(command.startsWith("left"))
-			gameActivity.robotGoLeft(executerId);
+			gameActivity.robotGoLeft(executerId, iPos, jPos);
 		else if(command.startsWith("right"))
-			gameActivity.robotGoRight(executerId);
+			gameActivity.robotGoRight(executerId, iPos, jPos);
 	}
 
 	private void checkIfAllReady(int id){

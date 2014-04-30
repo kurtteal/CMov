@@ -76,22 +76,22 @@ public class Robot extends Bomberman{
 		char toTheRight = gc.readOverlayPosition(i, j+1);
 		
 		if(above != '-'){
-			Bomberman bman = panel.getArena().getPlayerById(above);
+			Bomberman bman = panel.getArena().getPlayer(above);
 			if(bman != null)
 				bman.die();
 		}
 		if(below != '-'){
-			Bomberman bman = panel.getArena().getPlayerById(below);
+			Bomberman bman = panel.getArena().getPlayer(below);
 			if(bman != null)
 				bman.die();
 		}
 		if(toTheLeft != '-'){
-			Bomberman bman = panel.getArena().getPlayerById(toTheLeft);
+			Bomberman bman = panel.getArena().getPlayer(toTheLeft);
 			if(bman != null)
 				bman.die();
 		}
 		if(toTheRight != '-'){
-			Bomberman bman = panel.getArena().getPlayerById(toTheRight);
+			Bomberman bman = panel.getArena().getPlayer(toTheRight);
 			if(bman != null)
 				bman.die();
 		}
@@ -155,30 +155,46 @@ public class Robot extends Bomberman{
 				case 'U':
 					//speed.goUp();
 					if(singleplayer)
-						oneSquareUp();
-					else
-						service.robotUp(robotId);
+						oneSquareUp(null, null);
+					else{
+						int[] coords = getPositionInMatrix();
+						int i = coords[1];
+						int j = coords[0];
+						service.robotUp(robotId, i, j);
+					}
 					break;
 				case 'D':
 					//speed.goDown();
 					if(singleplayer)
-						oneSquareDown();
-					else
-						service.robotDown(robotId);
+						oneSquareDown(null, null);
+					else{
+						int[] coords = getPositionInMatrix();
+						int i = coords[1];
+						int j = coords[0];
+						service.robotDown(robotId, i, j);
+					}
 					break;
 				case 'L':
 					//speed.goLeft();
 					if(singleplayer)
-						oneSquareLeft();
-					else
-						service.robotLeft(robotId);
+						oneSquareLeft(null, null);
+					else{
+						int[] coords = getPositionInMatrix();
+						int i = coords[1];
+						int j = coords[0];
+						service.robotLeft(robotId, i, j);
+					}
 					break;
 				case 'R':
 					//speed.goRight();
 					if(singleplayer)
-						oneSquareRight();
-					else
-						service.robotRight(robotId);
+						oneSquareRight(null, null);
+					else{
+						int[] coords = getPositionInMatrix();
+						int i = coords[1];
+						int j = coords[0];
+						service.robotRight(robotId, i, j);
+					}
 					break;
 				default:
 					break;

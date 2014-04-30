@@ -136,10 +136,34 @@ public class Bomberman {
 		return speed.isNotZero();
 	}
 	
-	public void plantBomb(){
+	//Receives the actual and sent coordinates, and if different updates the position
+	//(in pixel map: x, y) to the sent values
+	protected boolean checkForLag(int i, int j, int newI, int newJ){
+		if(newI != i || newJ != j){//there was lag, and we need to set new positions
+			x = newJ*getWidth() + xMapMargin;
+			y = newI*getHeight() + yMapMargin;
+			return true;
+		}
+		return false;
+	}
+	
+	public void plantBomb(String iPos, String jPos){
+
 		int[] coords = getPositionInMatrix();
 		int i = coords[1];
 		int j = coords[0];
+		if(iPos != null && jPos != null){
+			int newI = Integer.parseInt(iPos);
+			int newJ = Integer.parseInt(jPos);
+			if(checkForLag(i, j, newI, newJ)){
+				gc.writeOverlayPosition(i, i, '-');
+				gc.writeOverlayPosition(newI, newJ, myself);
+				speed.stayStill();
+				i = newI;
+				j = newJ;
+			}
+		}
+
 		panel.getArena().plantBomb(i, j, myself);
 		justPlanted = true;
 		iBomb = i;
@@ -149,7 +173,20 @@ public class Bomberman {
 	
 	//PLAYER MOVEMENT BEHAVIOUR
 	//Move one square to the left
-	public void oneSquareLeft(){ 
+	public void oneSquareLeft(String iPos, String jPos){
+		if(iPos != null && jPos != null){
+			int[] coords = getPositionInMatrix();
+			int i = coords[1];
+			int j = coords[0];
+			int newI = Integer.parseInt(iPos);
+			int newJ = Integer.parseInt(jPos);
+			boolean lagged = checkForLag(i, j, newI, newJ);
+			if(lagged){
+				gc.writeOverlayPosition(i, i, '-');
+				gc.writeOverlayPosition(newI, newJ, myself);
+				speed.stayStill();
+			}
+		}
 		if(!isMoving() || speed.getxDirection() == Speed.DIRECTION_RIGHT){
 			speed.goLeft(); 
 			targetX = xMapMargin + getPositionInMatrix()[0]*getWidth() - getWidth(); 
@@ -158,7 +195,20 @@ public class Bomberman {
 			nextMove = 'L';
 	}
 
-	public void oneSquareRight() {
+	public void oneSquareRight(String iPos, String jPos){
+		if(iPos != null && jPos != null){
+			int[] coords = getPositionInMatrix();
+			int i = coords[1];
+			int j = coords[0];
+			int newI = Integer.parseInt(iPos);
+			int newJ = Integer.parseInt(jPos);
+			boolean lagged = checkForLag(i, j, newI, newJ);
+			if(lagged){
+				gc.writeOverlayPosition(i, i, '-');
+				gc.writeOverlayPosition(newI, newJ, myself);
+				speed.stayStill();
+			}
+		}
 		if (!isMoving() || speed.getxDirection() == Speed.DIRECTION_LEFT) {
 			speed.goRight();
 			targetX = xMapMargin + getPositionInMatrix()[0] * getWidth() + getWidth();
@@ -167,7 +217,20 @@ public class Bomberman {
 			nextMove = 'R';
 	}
 
-	public void oneSquareUp() {
+	public void oneSquareUp(String iPos, String jPos){
+		if(iPos != null && jPos != null){
+			int[] coords = getPositionInMatrix();
+			int i = coords[1];
+			int j = coords[0];
+			int newI = Integer.parseInt(iPos);
+			int newJ = Integer.parseInt(jPos);
+			boolean lagged = checkForLag(i, j, newI, newJ);
+			if(lagged){
+				gc.writeOverlayPosition(i, i, '-');
+				gc.writeOverlayPosition(newI, newJ, myself);
+				speed.stayStill();
+			}
+		}
 		//se tiver parado ou a ir na direcao oposta muda de direcao
 		if (!isMoving() || speed.getyDirection() == Speed.DIRECTION_DOWN) {
 			speed.goUp();
@@ -177,7 +240,20 @@ public class Bomberman {
 			nextMove = 'U';
 	}
 	
-	public void oneSquareDown(){ 
+	public void oneSquareDown(String iPos, String jPos){
+		if(iPos != null && jPos != null){
+			int[] coords = getPositionInMatrix();
+			int i = coords[1];
+			int j = coords[0];
+			int newI = Integer.parseInt(iPos);
+			int newJ = Integer.parseInt(jPos);
+			boolean lagged = checkForLag(i, j, newI, newJ);
+			if(lagged){
+				gc.writeOverlayPosition(i, i, '-');
+				gc.writeOverlayPosition(newI, newJ, myself);
+				speed.stayStill();
+			}
+		} 
 		if (!isMoving() || speed.getyDirection() == Speed.DIRECTION_UP) {
 			speed.goDown();
 			targetY = yMapMargin + getPositionInMatrix()[1] * getHeight() + getHeight();
@@ -319,16 +395,16 @@ public class Bomberman {
 		if(nextMove != ' '){
 			switch(nextMove){
 				case 'U':
-					oneSquareUp();
+					oneSquareUp(null, null);
 					break;
 				case 'D':
-					oneSquareDown();
+					oneSquareDown(null, null);
 					break;
 				case 'L':
-					oneSquareLeft();
+					oneSquareLeft(null, null);
 					break;
 				case 'R':
-					oneSquareRight();
+					oneSquareRight(null, null);
 					break;
 			}
 			nextMove = ' ';

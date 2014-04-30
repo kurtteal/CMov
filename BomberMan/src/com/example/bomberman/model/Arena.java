@@ -60,10 +60,11 @@ public class Arena {
 		return activePlayer;
 	}
 	
-	public Bomberman getPlayer(char id){
-		for(Bomberman b : players)
-			if(b.myself == id)
-				return b;
+	public Bomberman getPlayer(char playerId){
+		for(Bomberman player : players){
+			if(player.myself == playerId)
+				return player;
+		}
 		return null;
 	}
 	
@@ -193,14 +194,6 @@ public class Arena {
 		synchronized (pixelMatrix) {
 			pixelMatrix[i][j].setState(state, owner);
 		}
-	}
-	
-	public Bomberman getPlayerById(char playerId){
-		for(Bomberman player : players){
-			if(player.myself == playerId)
-				return player;
-		}
-		return null;
 	}
 
 	public void removeElement(Bomberman bomber) {

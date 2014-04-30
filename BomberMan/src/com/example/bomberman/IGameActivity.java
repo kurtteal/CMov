@@ -2,16 +2,16 @@ package com.example.bomberman;
 
 public interface IGameActivity {
 
-	public void goLeft(char id);
-	public void goRight(char id);
-	public void goUp(char id);
-	public void goDown(char id);
-	public void plantBomb(char id);
+	public void goUpOrder(char id, String i, String j);
+	public void goDownOrder(char id, String i, String j);
+	public void goLeftOrder(char id, String i, String j);
+	public void goRightOrder(char id, String i, String j);
+	public void plantBombOrder(char id, String i, String j);
 	
-	public void robotGoUp(int id);
-	public void robotGoDown(int id);
-	public void robotGoLeft(int id);
-	public void robotGoRight(int id);
+	public void robotGoUp(int id, String i, String j);
+	public void robotGoDown(int id, String i, String j);
+	public void robotGoLeft(int id, String i, String j);
+	public void robotGoRight(int id, String i, String j);
 	
 	public void startGameOrder();
 	public int getNumPlayers();
