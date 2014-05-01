@@ -89,8 +89,8 @@ public class ClientService {
 	}
 
 	//Invocado pelo botao
-	public void setMap(int mapNumber){
-		String message = "set_map " + mapNumber + " " + playerId;
+	public void setMap(int mapNumber, int maxPlayers){
+		String message = "set_map " + mapNumber + " " + playerId + " " + maxPlayers;
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
@@ -144,6 +144,25 @@ public class ClientService {
 
 	public void startGame(){
 		String message = "T" + playerId; //start the timer
+		try{
+			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
+			new ClientAsyncTask("send").execute(message);
+		}catch(Exception e){	e.printStackTrace();	}
+	}
+	
+	//Quem se joina a meio, envia
+	public void midJoin(){
+		String message = "mid_join_ready " + playerId;
+		try{
+			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
+			new ClientAsyncTask("send").execute(message);
+		}catch(Exception e){	e.printStackTrace();	}
+	}
+	
+	//O game master depois de receber um join a meio, envia o clock atual
+	//para o ultimo que entrou ficar atualizado
+	private void sendCurrentClock(char newPlayerId, int clock){
+		String message = "clock " + clock + newPlayerId;
 		try{
 			//out = (new ClientConnectorTask("send", out, MainActivity.this).execute(message)).get();
 			new ClientAsyncTask("send").execute(message);
@@ -217,7 +236,10 @@ public class ClientService {
 			joinSuccessful(playerId);
 			break;
 		case '3': 
-			joinNotSuccessful();
+			joinNotSuccessful('3');
+			break;
+		case '4': 
+			joinNotSuccessful('4');
 			break;
 		case 'L': //lista de jogadores actualizada
 			String[] players = message.substring(2, message.length()-1).split(",");
@@ -228,7 +250,7 @@ public class ClientService {
 			updateMap(message.charAt(1));
 			break;
 		case 'X': //preStartGame (gameActivity loading arena)
-			preStartGameOrder();
+			preStartGameOrder(message);
 			break;
 		case 'S': //other participants sending 'im set' msgs to the game master
 			checkIfAllReady(message.charAt(1));
@@ -241,6 +263,12 @@ public class ClientService {
 			break;
 		case 'R': //comando de um robot
 			robotAction(message.substring(1));
+			break;
+		case 'N': //new player N <playerId>
+			newPlayer(message.substring(1));
+			break;
+		case 'Y': //Y <clock> remaining in secs
+			updateClock(message.substring(1));
 			break;
 		default:
 			break;	
@@ -265,9 +293,9 @@ public class ClientService {
 		menuActivity.joinResponse(true, playerId);
 	}
 
-	private void joinNotSuccessful(){
+	private void joinNotSuccessful(char cause){
 		//avisar a activity
-		menuActivity.joinResponse(false, ' ');
+		menuActivity.joinResponse(false, cause);
 	}
 
 	private void updatePlayerList(String[] players){
@@ -285,8 +313,9 @@ public class ClientService {
 		menuActivity.updateMap(mapNumber);
 	}
 
-	private void preStartGameOrder(){
-		menuActivity.preStartGameOrder();
+	private void preStartGameOrder(String message){
+		char mode = message.charAt(1);
+		menuActivity.preStartGameOrder(mode);
 	}
 
 	private void playerAction(String command){ //ex: up/3/13/42
@@ -319,19 +348,36 @@ public class ClientService {
 			gameActivity.robotGoLeft(executerId, iPos, jPos);
 		else if(command.startsWith("right"))
 			gameActivity.robotGoRight(executerId, iPos, jPos);
+
 	}
 
-	private void checkIfAllReady(int id){
+	private void checkIfAllReady(char id){
 		Log.d("Participants | playerId", participantsReady.size()+" "+playerId);
 		if(playerId == '1' && gameActivity.masterIsReady()){
 			//juntar este id a uma lista
 			//a string eh irrelevante, so nos interessa o facto d n haverem repetidos
-			participantsReady.put(id, ""); 
+			participantsReady.put(Character.getNumericValue(id), ""); 
 
 			//verificar se ja recebi o set de todos os outros participantes
 			if(participantsReady.size() == (gameActivity.getNumPlayers() - 1))
 				startGame(); //envia o inicio do jogo pa tds
 		}
+	}
+	
+	//Quando um novo player entra, eh pq o servidor deixou (ainda havia lugares vagos)
+	//Os unicos que recebem esta msg sao todos menos o que entra
+	private void newPlayer(String id){
+		char newPlayerId = id.charAt(0);
+		gameActivity.newPlayer(newPlayerId);
+		if(playerId == '1'){
+			//TODO enviar msg com o clock actual para o newPlayerId
+			int currentCount = gameActivity.getCountDown();
+			sendCurrentClock(newPlayerId, currentCount); //metodo do proprio servico
+		}
+	}
+	
+	private void updateClock(String clock){
+		gameActivity.setCountDown(Integer.parseInt(clock));
 	}
 
 }

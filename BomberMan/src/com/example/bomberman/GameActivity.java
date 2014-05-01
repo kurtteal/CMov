@@ -27,8 +27,10 @@ public class GameActivity extends Activity implements IGameActivity {
 	protected GameConfigs gc;
 
 	private MainGamePanel gamePanel;
+	private TextView playerNameView;
 	private TextView timeLeftView;
 	private TextView scoreView;
+	private TextView playerCountView;
 	private Button toggleStateButton;
 	private Button upButton;
 	private Button leftButton;
@@ -45,10 +47,12 @@ public class GameActivity extends Activity implements IGameActivity {
 	private int countDown;
 	private int score;
 	private int numPlayers;
+	private int maxPlayers;
 
 	protected ClientService service;
 	public boolean singleplayer = true; //visivel para os robots
 	private boolean gameMasterIsReady = false;
+	private boolean gameOngoing = false;
 
 	@SuppressLint("HandlerLeak") @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -65,15 +69,20 @@ public class GameActivity extends Activity implements IGameActivity {
 		playerId = getIntent().getStringExtra("playerId").charAt(0);
 		singleplayer = getIntent().getExtras().getBoolean("singleplayer");
 		numPlayers = getIntent().getExtras().getInt("numPlayers");
+		if(!singleplayer){
+			gameOngoing = getIntent().getExtras().getBoolean("gameOngoing");
+			maxPlayers = getIntent().getExtras().getInt("maxPlayers");
+		}
+		
 		service = new ClientService();
 		service.setGameActivity(this);
 
 		setContentView(R.layout.activity_game);
 
-		TextView playerNameView = (TextView)findViewById(R.id.activity_game_player_name);
+		playerNameView = (TextView)findViewById(R.id.activity_game_player_name);
 		scoreView = (TextView)findViewById(R.id.activity_game_score);
 		timeLeftView = (TextView)findViewById(R.id.activity_game_time_left);
-		TextView playerCountView = (TextView)findViewById(R.id.activity_game_player_count);
+		playerCountView = (TextView)findViewById(R.id.activity_game_player_count);
 		toggleStateButton = (Button)findViewById(R.id.toggleStateBtn);
 		upButton = (Button)findViewById(R.id.up);
 		leftButton = (Button)findViewById(R.id.left);
@@ -117,6 +126,21 @@ public class GameActivity extends Activity implements IGameActivity {
 		return this.numPlayers;
 	}
 	
+	public int getMaxPlayers(){
+		return this.maxPlayers;
+	}
+	
+	public int getCountDown(){
+		return countDown;
+	}
+	
+	//O game master responde a um join tardio com o tempo actual do jogo
+	//este jogador vai actualizar o tempo e começar o seu timer
+	public void setCountDown(int clock){
+		countDown = clock;
+		startTimer();
+	}
+	
 	public boolean masterIsReady(){
 		return this.gameMasterIsReady;
 	}
@@ -140,30 +164,40 @@ public class GameActivity extends Activity implements IGameActivity {
 			startTimer();
 		}else{
 			//in multiplayer buttons become disabled until timer starts
-			runOnUiThread(new Runnable() {
-				public void run() {
-					disableControlButtons();
-					toggleStateButton.setEnabled(false);
+			if(gameOngoing){
+				//participantReady = true;
+				service.midJoin();
+				//o timer so vai comecar quando o game master enviar o clock actual do jogo
+			}else{
+				if(numPlayers == 1){//nao tenho que esperar pela resposta de ninguem
+					gameMasterIsReady = true;
+					startTimer();
+					gamePanel.getArena().startRobots();
+					return;
 				}
-			});
-			if(numPlayers == 1){//nao tenho que esperar pela resposta de ninguem
-				startGameOrder();
-				return;
-			}
-
-			//each participant will send "im set" to the party leader every 2 secs, until lider starts
-			if(playerId != '1'){
-				sendImSetTimer = new Timer();
-				sendImSetTimer.schedule(new TimerTask() {   
-					@Override
+				runOnUiThread(new Runnable() {
 					public void run() {
-						service.imSet();
+						disableControlButtons();
+						toggleStateButton.setEnabled(false);
 					}
-				}, 2000, 2000); 
+				});
+			
+				//each participant will send "im set" to the party leader every 2 secs, until lider starts
+				if(playerId != '1'){
+					sendImSetTimer = new Timer();
+					sendImSetTimer.schedule(new TimerTask() {   
+						@Override
+						public void run() {
+							service.imSet();
+						}
+					}, 2000, 2000);
+				}
+				//The game master is now ready to accept 'im set' messages
+				//From this point onwards, when player 1 receives the 'im set' messages from all participants
+				//he will start the game, as everyone is ready by then. (This is done on the service!)
+				else
+					gameMasterIsReady = true;
 			}
-			//From this point onwards, when player 1 receives the 'im set' messages from all participants
-			//he will start the game, as everyone is ready by then. (This is done on the service!)
-			gameMasterIsReady = true;
 		}
 	}
 
@@ -172,9 +206,6 @@ public class GameActivity extends Activity implements IGameActivity {
 			this.goUpOrder('1', null, null);
 		}else{
 			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
-//			int[] currentPos = b.getPositionInMatrix();
-//			int j = currentPos[0];
-//			int i = currentPos[1];
 			service.goUp(bomber.i, bomber.j);
 		}
 	}
@@ -184,9 +215,6 @@ public class GameActivity extends Activity implements IGameActivity {
 			this.goDownOrder('1', null, null);
 		} else{
 			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
-//			int[] currentPos = b.getPositionInMatrix();
-//			int j = currentPos[0];
-//			int i = currentPos[1];
 			service.goDown(bomber.i, bomber.j);
 		}
 	}
@@ -196,9 +224,6 @@ public class GameActivity extends Activity implements IGameActivity {
 			this.goLeftOrder('1', null, null);
 		} else{
 			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
-//			int[] currentPos = b.getPositionInMatrix();
-//			int j = currentPos[0];
-//			int i = currentPos[1];
 			service.goLeft(bomber.i, bomber.j);
 		}
 	}
@@ -208,9 +233,6 @@ public class GameActivity extends Activity implements IGameActivity {
 			this.goRightOrder('1', null, null);
 		} else{
 			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
-//			int[] currentPos = b.getPositionInMatrix();
-//			int j = currentPos[0];
-//			int i = currentPos[1];
 			service.goRight(bomber.i, bomber.j);
 		}
 	}
@@ -220,9 +242,6 @@ public class GameActivity extends Activity implements IGameActivity {
 			this.plantBombOrder('1', null, null);
 		} else{
 			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
-//			int[] currentPos = b.getPositionInMatrix();
-//			int j = currentPos[0];
-//			int i = currentPos[1];
 			service.plantBomb(bomber.i, bomber.j);
 		}
 	}
@@ -233,7 +252,7 @@ public class GameActivity extends Activity implements IGameActivity {
 		timeUpdater.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				countDown--;
+				GameActivity.this.countDown--;
 				mHandler.obtainMessage().sendToTarget();
 			}
 		}, 1000, 1000);
@@ -365,6 +384,17 @@ public class GameActivity extends Activity implements IGameActivity {
 				toggleStateButton.setEnabled(true);
 				startTimer();
 				gamePanel.getArena().startRobots();
+			}
+		});
+	}
+	
+	//Quando entra um jogador a meio
+	public void newPlayer(char newPlayerId){
+		gamePanel.getArena().newPlayer(newPlayerId);
+		runOnUiThread(new Runnable() {
+			public void run() {
+				numPlayers++;
+				playerCountView.setText("# Players:\n" + numPlayers);
 			}
 		});
 	}

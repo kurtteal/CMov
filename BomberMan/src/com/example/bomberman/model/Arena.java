@@ -18,6 +18,7 @@ public class Arena {
 
 	public IDrawable[][] pixelMatrix; // Matrix dos objectos para desenhar
 	private List<Bomberman> players;
+	private List<Bomberman> unjoinedPlayers;
 	private List<Robot> robots;
 	
 	protected GameConfigs gc; // matrix com chars, para verificacao de colisoes
@@ -37,11 +38,14 @@ public class Arena {
 
 	private boolean firstUpdate = true;
 
+	private int numPlayers;
+
 	// Cant draw the arena on the constructor because I need
 	// the panel dimensions... so draw on the first update
 	public Arena(Resources resources, GameConfigs gameConfigs,
 			MainGamePanel panel) {
 		players = new ArrayList<Bomberman>();
+		unjoinedPlayers = new ArrayList<Bomberman>();
 		robots = new ArrayList<Robot>();
 		gc = gameConfigs;
 		this.panel = panel;
@@ -89,6 +93,7 @@ public class Arena {
 		playerId = panel.activity.playerId;
 		int numLines = gc.getNumLines();
 		int numColumns = gc.getNumColumns();
+		numPlayers = panel.activity.getNumPlayers();
 		pixelMatrix = new IDrawable[numLines][numColumns];
 		int i, j;
 //		Log.d("Laaaaa", "test , last*sizeX= " 
@@ -142,9 +147,13 @@ public class Arena {
 							numColumns, numLines);
 					if(gc.matrix[i][j] == playerId)
 						activePlayer = player;
-					players.add(player);
-					String playerId = "" + gc.matrix[i][j];
-					scores.add(playerId);
+					if(Character.getNumericValue(gc.matrix[i][j]) <= numPlayers ){
+						players.add(player);
+						String playerId = "" + gc.matrix[i][j];
+						scores.add(playerId);
+					}else{
+						unjoinedPlayers.add(player);
+					}
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
 							PathState.FLOOR, i, j, numColumns, numLines, panel);
@@ -154,6 +163,21 @@ public class Arena {
 			System.out.println("");
 		}
 		
+	}
+	
+	//A new player enters in the middle of the game
+	public void newPlayer(char newPlayerId){
+		Bomberman joiningBomber = null;
+		for(Bomberman b : unjoinedPlayers){
+			if(b.myself == newPlayerId){
+				joiningBomber = b;
+				break;
+			}
+		}
+		//remove from unjoinedList and add to players list
+		unjoinedPlayers.remove(joiningBomber);
+		players.add(joiningBomber);
+		scores.add(""+newPlayerId);
 	}
 
 	public void plantBomb(int i, int j, char myself){

@@ -15,6 +15,11 @@ public interface IGameActivity {
 	
 	public void startGameOrder();
 	public int getNumPlayers();
+	public int getMaxPlayers();
 	public boolean masterIsReady();
+	
+	public void newPlayer(char newPlayerId);
+	public int getCountDown();
+	public void setCountDown(int clock);
 	
 }

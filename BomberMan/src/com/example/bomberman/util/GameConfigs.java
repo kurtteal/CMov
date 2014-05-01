@@ -24,6 +24,7 @@ public class GameConfigs implements Serializable {
 	public int robotSpeed;
 	public int ptsPerRobot; //	Points per robot killed
 	public int ptsPerPlayer; // Points per opponent killed
+	public int maxPlayers;
 	  
 	
 	public int getNumLines(){
@@ -34,7 +35,11 @@ public class GameConfigs implements Serializable {
 		return numColumns;
 	}
 	
-	public void loadConfigs(InputStream is) throws IOException{
+	public int getMaxPlayers(){
+		return maxPlayers;
+	}
+	
+	public int loadConfigs(InputStream is) throws IOException{
 
 		BufferedReader input = null;
 
@@ -102,7 +107,12 @@ public class GameConfigs implements Serializable {
 		array = line.split("/");
 		ptsPerPlayer = Integer.parseInt(array[0]);
 		
+		line = input.readLine();
+		array = line.split("/");
+		maxPlayers = Integer.parseInt(array[0]);
+		
 		input.close();
+		return maxPlayers;
 	}
 	
 	//Protecao contra acessos concorrentes

@@ -127,8 +127,10 @@ public class MainGamePanel extends SurfaceView implements
 	//Aqui eh qdo sao desenhados, a ordem interessa, os ultimos ficam "por cima"
 	protected void render(Canvas canvas) {
 		// fills the canvas with black
-		canvas.drawColor(Color.BLACK);
-		arena.draw(canvas);
+		if(canvas != null){ //ha um bug em que ha umas (raras) vezes em q o canvas vem a null...lol
+			canvas.drawColor(Color.BLACK);
+			arena.draw(canvas);
+		}
 //		bomberman.draw(canvas);
 	}
 	

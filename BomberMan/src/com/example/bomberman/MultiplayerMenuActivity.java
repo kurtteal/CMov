@@ -106,7 +106,15 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		int selected = Integer.parseInt(selection.substring(4));
 		//Log.i("SELECTED:", selection.substring(4));
 
-		service.setMap(selected);
+        AssetManager am = getAssets();
+        int maxPlayers = 0;
+        try {
+			InputStream is = am.open("map"+selected);
+			maxPlayers = new GameConfigs().loadConfigs(is); //loads up the matrix from the map file
+			//Log.i("Updating Map", "" + gc.levelName + " " + mapSelected);
+		} catch (IOException e) { e.printStackTrace(); }
+		
+		service.setMap(selected, maxPlayers);
     }
     
 	public void onNothingSelected(AdapterView parent) {
@@ -215,14 +223,25 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		    });
 		}
 		else{
+			//se falhou o campo playerId eh reciclado para indicar a causa da falha
+			char cause = playerId; 
 			Log.d("Join failed", " ");
-			runOnUiThread(new Runnable() {
-		        public void run() {
-					Toast.makeText(MultiplayerMenuActivity.this,
-							"There's no game to join, create one yourself!",
-							Toast.LENGTH_LONG).show();
-		        }
-			});
+			if(cause == '3')
+				runOnUiThread(new Runnable() {
+			        public void run() {
+						Toast.makeText(MultiplayerMenuActivity.this,
+								"There's no game to join, create one yourself!",
+								Toast.LENGTH_LONG).show();
+			        }
+				});
+			else
+				runOnUiThread(new Runnable() {
+			        public void run() {
+						Toast.makeText(MultiplayerMenuActivity.this,
+								"The game is full, you can't join :(",
+								Toast.LENGTH_LONG).show();
+			        }
+				});
 		}
 	}
 	public void updatePlayerList(TreeMap<Integer, String> clientsNames){
@@ -265,13 +284,21 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 	}
 
 	//Goes to gameActivity
-	public void preStartGameOrder() {
+	public void preStartGameOrder(char mode) {
+		boolean gameOngoing = false;
+		if(mode == '#'){ //se estou a entrar a meio
+			gameOngoing = true;
+			//o meu num define o num d jogadores, pq acabei de entrar
+			numUsers = Character.getNumericValue(playerId); 
+		}
 		Intent intent = new Intent(MultiplayerMenuActivity.this, GameActivity.class);
 		intent.putExtra("gc", gc); //get number from select_map layout (the one selected)
 		intent.putExtra("playerName", localUser);
 		intent.putExtra("playerId", playerId + "");
 		intent.putExtra("singleplayer", false);
 		intent.putExtra("numPlayers", numUsers);
+		intent.putExtra("gameOngoing", gameOngoing);
+		intent.putExtra("maxPlayers", gc.getMaxPlayers());
 		startActivity(intent);
 	}
 	

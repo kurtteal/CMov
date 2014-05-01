@@ -10,7 +10,7 @@ W---------------W
 WW-W-W-W-W-W-W-WW
 WO-O-O-O-O-O----W
 WW-W-W-W-W-W-W-WW
-WO1O2ORO-O-O----W
+WO1O2ORO3O-O----W
 WWWWWWWWWWWWWWWWW
 Teste do tamanho do mapa
 120/Game duration (min)
@@ -20,3 +20,4 @@ Teste do tamanho do mapa
 6/Robot speed
 12/Points per robot killed
 15/Points per opponent killed
+3/Max players
