@@ -97,9 +97,9 @@ public class GameActivity extends Activity implements IGameActivity {
 					timeLeftView.setText("Time left:\n" + countDown);
 					Arena arna= gamePanel.getArena();
 					ScoreBoard scb = arna.scores;
-					Log.d("SCORE SCB", "PLAYER ID:" + playerId);
+					//Log.d("SCORE SCB", "PLAYER ID:" + playerId);
 					score = scb.get(playerId);
-					Log.d("SCORE DEPOIS DO SCB", "SCORE:" + score);
+					//Log.d("SCORE DEPOIS DO SCB", "SCORE:" + score);
 					scoreView.setText("Score:\n" + score);
 					//Log.d("ACTIVITY", "PlayerId " + playerId + " Score: " + score);
 				}
@@ -136,7 +136,7 @@ public class GameActivity extends Activity implements IGameActivity {
 	//The arena will call this on its first update
 	//This method starts the timer and enables the control buttons, effectively starting the game!
 	public void startGame(){
-		if(singleplayer){ //em single ou multiplayer (eu posso começar 1 jogo multi sozinho)
+		if(singleplayer){
 			startTimer();
 		}else{
 			//in multiplayer buttons become disabled until timer starts
@@ -171,23 +171,11 @@ public class GameActivity extends Activity implements IGameActivity {
 		if(singleplayer){
 			this.goUpOrder('1', null, null);
 		}else{
-			Bomberman b = gamePanel.getArena().getPlayer(playerId);
-			int[] currentPos = b.getPositionInMatrix();
-			int j = currentPos[0];
-			int i = currentPos[1];
-			service.goUp(i,j);
-		}
-	}
-
-	public void movePlayerLeft(View v){
-		if(singleplayer){
-			this.goLeftOrder('1', null, null);
-		} else{
-			Bomberman b = gamePanel.getArena().getPlayer(playerId);
-			int[] currentPos = b.getPositionInMatrix();
-			int j = currentPos[0];
-			int i = currentPos[1];
-			service.goLeft(i,j);
+			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
+//			int[] currentPos = b.getPositionInMatrix();
+//			int j = currentPos[0];
+//			int i = currentPos[1];
+			service.goUp(bomber.i, bomber.j);
 		}
 	}
 
@@ -195,11 +183,23 @@ public class GameActivity extends Activity implements IGameActivity {
 		if(singleplayer){
 			this.goDownOrder('1', null, null);
 		} else{
-			Bomberman b = gamePanel.getArena().getPlayer(playerId);
-			int[] currentPos = b.getPositionInMatrix();
-			int j = currentPos[0];
-			int i = currentPos[1];
-			service.goDown(i,j);
+			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
+//			int[] currentPos = b.getPositionInMatrix();
+//			int j = currentPos[0];
+//			int i = currentPos[1];
+			service.goDown(bomber.i, bomber.j);
+		}
+	}
+	
+	public void movePlayerLeft(View v){
+		if(singleplayer){
+			this.goLeftOrder('1', null, null);
+		} else{
+			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
+//			int[] currentPos = b.getPositionInMatrix();
+//			int j = currentPos[0];
+//			int i = currentPos[1];
+			service.goLeft(bomber.i, bomber.j);
 		}
 	}
 
@@ -207,11 +207,11 @@ public class GameActivity extends Activity implements IGameActivity {
 		if(singleplayer){
 			this.goRightOrder('1', null, null);
 		} else{
-			Bomberman b = gamePanel.getArena().getPlayer(playerId);
-			int[] currentPos = b.getPositionInMatrix();
-			int j = currentPos[0];
-			int i = currentPos[1];
-			service.goRight(i,j);
+			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
+//			int[] currentPos = b.getPositionInMatrix();
+//			int j = currentPos[0];
+//			int i = currentPos[1];
+			service.goRight(bomber.i, bomber.j);
 		}
 	}
 
@@ -219,11 +219,11 @@ public class GameActivity extends Activity implements IGameActivity {
 		if(singleplayer){
 			this.plantBombOrder('1', null, null);
 		} else{
-			Bomberman b = gamePanel.getArena().getPlayer(playerId);
-			int[] currentPos = b.getPositionInMatrix();
-			int j = currentPos[0];
-			int i = currentPos[1];
-			service.plantBomb(i,j);
+			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
+//			int[] currentPos = b.getPositionInMatrix();
+//			int j = currentPos[0];
+//			int i = currentPos[1];
+			service.plantBomb(bomber.i, bomber.j);
 		}
 	}
 

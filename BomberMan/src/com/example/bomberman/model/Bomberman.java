@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.util.Log;
+
 import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.R;
 import com.example.bomberman.model.components.Speed;
@@ -27,6 +29,8 @@ public class Bomberman {
 	protected int y;			// the Y coordinate (top left of the image)
 	protected int xMapMargin;
 	protected int yMapMargin;
+	public int i;	//overlay matrix coordinates
+	public int j; //visivel na gameActivity
 	protected Speed speed;	// the speed with its directions
 	
 	protected static final String TAG = Bomberman.class.getSimpleName();
@@ -74,6 +78,7 @@ public class Bomberman {
 		
 		this.x = x;
 		this.y = y;
+		
 		this.numColumns = numColumns;
 		this.numLines = numLines;
 		
@@ -136,31 +141,25 @@ public class Bomberman {
 		return speed.isNotZero();
 	}
 	
-	//Receives the actual and sent coordinates, and if different updates the position
-	//(in pixel map: x, y) to the sent values
-	protected boolean checkForLag(int i, int j, int newI, int newJ){
-		if(newI != i || newJ != j){//there was lag, and we need to set new positions
-			x = newJ*getWidth() + xMapMargin;
-			y = newI*getHeight() + yMapMargin;
-			return true;
-		}
-		return false;
+	//Receives the sent coordinates, and updates the position
+	//(in pixel map: x, y) to the sent values, the overlay and the i, j
+	protected void correctThePosition(int newI, int newJ){
+		x = newJ*getWidth() + xMapMargin;
+		y = newI*getHeight() + yMapMargin;
+		gc.writeOverlayPosition(i, j, '-');
+		gc.writeOverlayPosition(newI, newJ, myself);
+		i = newI;
+		j = newJ;
 	}
 	
 	public void plantBomb(String iPos, String jPos){
 
-		int[] coords = getPositionInMatrix();
-		int i = coords[1];
-		int j = coords[0];
 		if(iPos != null && jPos != null){
 			int newI = Integer.parseInt(iPos);
 			int newJ = Integer.parseInt(jPos);
-			if(checkForLag(i, j, newI, newJ)){
-				gc.writeOverlayPosition(i, i, '-');
-				gc.writeOverlayPosition(newI, newJ, myself);
+			if(newI != i || newJ != j){ //there was lag, and we need to set new positions
+				correctThePosition(newI, newJ);
 				speed.stayStill();
-				i = newI;
-				j = newJ;
 			}
 		}
 
@@ -175,21 +174,16 @@ public class Bomberman {
 	//Move one square to the left
 	public void oneSquareLeft(String iPos, String jPos){
 		if(iPos != null && jPos != null){
-			int[] coords = getPositionInMatrix();
-			int i = coords[1];
-			int j = coords[0];
-			int newI = Integer.parseInt(iPos);
-			int newJ = Integer.parseInt(jPos);
-			boolean lagged = checkForLag(i, j, newI, newJ);
-			if(lagged){
-				gc.writeOverlayPosition(i, i, '-');
-				gc.writeOverlayPosition(newI, newJ, myself);
+			int iSent = Integer.parseInt(iPos);
+			int jSent = Integer.parseInt(jPos);
+			if(iSent != i || jSent != j){ //there was lag, and we need to set new positions 
+				correctThePosition(iSent, jSent);
 				speed.stayStill();
 			}
 		}
 		if(!isMoving() || speed.getxDirection() == Speed.DIRECTION_RIGHT){
 			speed.goLeft(); 
-			targetX = xMapMargin + getPositionInMatrix()[0]*getWidth() - getWidth(); 
+			targetX = xMapMargin + j*getWidth() - getWidth(); 
 		}
 		else
 			nextMove = 'L';
@@ -197,21 +191,17 @@ public class Bomberman {
 
 	public void oneSquareRight(String iPos, String jPos){
 		if(iPos != null && jPos != null){
-			int[] coords = getPositionInMatrix();
-			int i = coords[1];
-			int j = coords[0];
-			int newI = Integer.parseInt(iPos);
-			int newJ = Integer.parseInt(jPos);
-			boolean lagged = checkForLag(i, j, newI, newJ);
-			if(lagged){
-				gc.writeOverlayPosition(i, i, '-');
-				gc.writeOverlayPosition(newI, newJ, myself);
+			int iSent = Integer.parseInt(iPos);
+			int jSent = Integer.parseInt(jPos);
+			if(iSent != i || jSent != j){ //there was lag, and we need to set new positions 
+				correctThePosition(iSent, jSent);
 				speed.stayStill();
 			}
 		}
 		if (!isMoving() || speed.getxDirection() == Speed.DIRECTION_LEFT) {
 			speed.goRight();
-			targetX = xMapMargin + getPositionInMatrix()[0] * getWidth() + getWidth();
+			targetX = xMapMargin + j * getWidth() + getWidth();
+			Log.d("Myself targetx x:",myself +" " + targetX+ " "+x);
 		}
 		else
 			nextMove = 'R';
@@ -219,22 +209,17 @@ public class Bomberman {
 
 	public void oneSquareUp(String iPos, String jPos){
 		if(iPos != null && jPos != null){
-			int[] coords = getPositionInMatrix();
-			int i = coords[1];
-			int j = coords[0];
-			int newI = Integer.parseInt(iPos);
-			int newJ = Integer.parseInt(jPos);
-			boolean lagged = checkForLag(i, j, newI, newJ);
-			if(lagged){
-				gc.writeOverlayPosition(i, i, '-');
-				gc.writeOverlayPosition(newI, newJ, myself);
+			int iSent = Integer.parseInt(iPos);
+			int jSent = Integer.parseInt(jPos);
+			if(iSent != i || jSent != j){ //there was lag, and we need to set new positions 
+				correctThePosition(iSent, jSent);
 				speed.stayStill();
 			}
 		}
 		//se tiver parado ou a ir na direcao oposta muda de direcao
 		if (!isMoving() || speed.getyDirection() == Speed.DIRECTION_DOWN) {
 			speed.goUp();
-			targetY = yMapMargin + getPositionInMatrix()[1] * getHeight() - getHeight();
+			targetY = yMapMargin + i * getHeight() - getHeight();
 		}
 		else
 			nextMove = 'U';
@@ -242,21 +227,16 @@ public class Bomberman {
 	
 	public void oneSquareDown(String iPos, String jPos){
 		if(iPos != null && jPos != null){
-			int[] coords = getPositionInMatrix();
-			int i = coords[1];
-			int j = coords[0];
-			int newI = Integer.parseInt(iPos);
-			int newJ = Integer.parseInt(jPos);
-			boolean lagged = checkForLag(i, j, newI, newJ);
-			if(lagged){
-				gc.writeOverlayPosition(i, i, '-');
-				gc.writeOverlayPosition(newI, newJ, myself);
+			int iSent = Integer.parseInt(iPos);
+			int jSent = Integer.parseInt(jPos);
+			if(iSent != i || jSent != j){ //there was lag, and we need to set new positions 
+				correctThePosition(iSent, jSent);
 				speed.stayStill();
 			}
 		} 
 		if (!isMoving() || speed.getyDirection() == Speed.DIRECTION_UP) {
 			speed.goDown();
-			targetY = yMapMargin + getPositionInMatrix()[1] * getHeight() + getHeight();
+			targetY = yMapMargin + i * getHeight() + getHeight();
 			//Log.d("GODOWN", "targetY,y,newPos = " + targetY + "," + y + getPositionInMatrix()[1] * getHeight());
 		}
 		else
@@ -268,6 +248,8 @@ public class Bomberman {
 	}
 
 	public void die(){
+		//updates immediately the overlay to say this player died
+		gc.writeOverlayPosition(i,j,'-');
 		//Avisar a arena que este elemento esta fora de jogo
 		panel.getArena().elementHasDied(this);
 	}
@@ -277,7 +259,7 @@ public class Bomberman {
 	public void checkCollision(){
 
 		boolean collision = false;
-		int i,j;
+		int collisionI, collisionJ;
 		int width = getWidth();
 		int height = getHeight();
 		//Log.d("COORDS", "x,y = "+x+","+y+", width,height ="+width+","+height);
@@ -286,79 +268,79 @@ public class Bomberman {
 		//da direccao em que o boneco viaja. Nao ha colisoes entre players, ou
 		//entre players e robots (ha deps a condicao de morte se estiver perto do robot)
 		if(speed.getxDirection() == Speed.DIRECTION_RIGHT){ 
-			i=(x-xMapMargin)/width;
-			if((x-xMapMargin)%width != 0) i++;
-			j=(y-yMapMargin)/height;
+			collisionJ=(x-xMapMargin)/width;
+			if((x-xMapMargin)%width != 0) collisionJ++;
+			collisionI=(y-yMapMargin)/height;
 			//Log.d("UPDATE", "i,j = "+i+","+j+", matrix[i,j] ="+gm.matrix[i][j]);
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			char block = gc.readLogicPosition(j, i);
+			char block = gc.readLogicPosition(collisionI, collisionJ);
 //			if(myself == '1') //PROBLEMA ESTA A ESCREVER 1 POR CIMA DO B TODO
 //				Log.d("BLOCK", "block = " + block);
-			int[] coords = getPositionInMatrix();
-			int iCurrent = coords[1];
-			int jCurrent = coords[0];
-			if(block == 'B' && justPlanted && iBomb == iCurrent && jBomb == jCurrent){ 
+//			int[] coords = getPositionInMatrix();
+//			int iCurrent = coords[1];
+//			int jCurrent = coords[0];
+			if(block == 'B' && justPlanted && iBomb == i && jBomb == j){ 
 				//Se eu acabei de por a bomba e estou em cima dela, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
 				x = xMapMargin + ((x-xMapMargin)/width)*width; //divisao inteira!! nao se anulam as operacoes!!
-				y = yMapMargin + j*height;
+				y = yMapMargin + collisionI*height;
 				collision = true;
 			}
 		}
 		else if(speed.getxDirection() == Speed.DIRECTION_LEFT){ 
-			i=(x-xMapMargin)/width;
-			j=(y-yMapMargin)/height;
+			collisionJ=(x-xMapMargin)/width;
+			collisionI=(y-yMapMargin)/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			char block = gc.readLogicPosition(j, i);
-			int[] coords = getPositionInMatrix();
-			int iCurrent = coords[1];
-			int jCurrent = coords[0];
-			if(block == 'B' && justPlanted && iBomb == iCurrent && jBomb == jCurrent){ 
+			char block = gc.readLogicPosition(collisionI, collisionJ);
+//			int[] coords = getPositionInMatrix();
+//			int iCurrent = coords[1];
+//			int jCurrent = coords[0];
+			if(block == 'B' && justPlanted && iBomb == i && jBomb == j){ 
 				//Se eu acabei de por a bomba e estou em cima dela, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
-				x = xMapMargin + (i+1)*width; 
-				y = yMapMargin + j*height;
+				x = xMapMargin + (collisionJ+1)*width; 
+				y = yMapMargin + collisionI*height;
 				collision = true;
 			}
 		}
 		else if(speed.getyDirection() == Speed.DIRECTION_DOWN){ 
-			i=(x-xMapMargin)/width;
-			j=(y-yMapMargin)/height;
-			if((y-yMapMargin)%height != 0) j++;
+			collisionJ=(x-xMapMargin)/width;
+			collisionI=(y-yMapMargin)/height;
+			if((y-yMapMargin)%height != 0) collisionI++;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			char block = gc.readLogicPosition(j, i);
-			int[] coords = getPositionInMatrix();
-			int iCurrent = coords[1];
-			int jCurrent = coords[0];
-			if(block == 'B' && justPlanted && iBomb == iCurrent && jBomb == jCurrent){ 
+			char block = gc.readLogicPosition(collisionI, collisionJ);
+//			int[] coords = getPositionInMatrix();
+//			int iCurrent = coords[1];
+//			int jCurrent = coords[0];
+			if(block == 'B' && justPlanted && iBomb == i && jBomb == j){ 
 				//Se eu acabei de por a bomba e estou em cima dela, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
-				x = xMapMargin + (i)*width; 
+				x = xMapMargin + (collisionJ)*width; 
 				y = yMapMargin + ((y-yMapMargin)/height)*height;
 				collision = true;
 			}
 		}
 		else if(speed.getyDirection() == Speed.DIRECTION_UP){
-			i=(x-xMapMargin)/width;
-			j=(y-yMapMargin)/height;
+			collisionJ=(x-xMapMargin)/width;
+			collisionI=(y-yMapMargin)/height;
 			//teste de colisao: se vai contra blocos, ou se player chegou ao target
-			char block = gc.readLogicPosition(j, i);
-			int[] coords = getPositionInMatrix();
-			int iCurrent = coords[1];
-			int jCurrent = coords[0];
-			if(block == 'B' && justPlanted && iBomb == iCurrent && jBomb == jCurrent){ 
+			char block = gc.readLogicPosition(collisionI, collisionJ);
+//			int[] coords = getPositionInMatrix();
+//			int iCurrent = coords[1];
+//			int jCurrent = coords[0];
+			if(block == 'B' && justPlanted && iBomb == i && jBomb == j){ 
 				//Se eu acabei de por a bomba e estou em cima dela, nao ha colisao
 			}
 			else if(block == 'O' || block == 'W' || block == 'B'){
 				//eh preciso voltar a po-lo numa posicao sem colisao (ligeiramente atras)
-				x = xMapMargin + (i)*width; 
-				y = yMapMargin + (j+1)*height;
+				x = xMapMargin + (collisionJ)*width; 
+				y = yMapMargin + (collisionI+1)*height;
 				collision = true;
 			}
 		}	
@@ -375,19 +357,27 @@ public class Bomberman {
 	}
 	
 	//Se chegou aqui eh porque ja fez deteccao de colisoes
+//	public int[] getPositionInMatrix(){
+//		int[] resultado = new int[2];
+//
+//		//Log.d("getPosMat", "x, x/getWidth() = " + x + x/getWidth());
+//		resultado[0] = (x-xMapMargin)/getWidth();
+//		if((x-xMapMargin)%getWidth() >= getWidth()/2) resultado[0]++;
+//		resultado[1] = (y-yMapMargin)/getHeight();
+//		if((y-yMapMargin)%getHeight() >= getHeight()/2) resultado[1]++;
+//			
+//		return resultado;
+//	}
+	
 	//Converte coordenadas de pixeis, em coords da matriz logica, nao para colisao,
 	//mas para obter a posicao actual na matriz de estados
 	//x,y -> j,i (porque j sao linhas e i colunas)
-	public int[] getPositionInMatrix(){
-		int[] resultado = new int[2];
-
-		//Log.d("getPosMat", "x, x/getWidth() = " + x + x/getWidth());
-		resultado[0]=(x-xMapMargin)/getWidth();
-		if((x-xMapMargin)%getWidth() >= getWidth()/2) resultado[0]++;
-		resultado[1]=(y-yMapMargin)/getHeight();
-		if((y-yMapMargin)%getHeight() >= getHeight()/2) resultado[1]++;
-			
-		return resultado;
+	//se tiver entre 2 blocos, conta o bloco mais proximo
+	public void updateMatrixCoordinates(){
+		i = (y-yMapMargin)/getHeight();
+		if((y-yMapMargin)%getHeight() >= getHeight()/2) i++;
+		j = (x-xMapMargin)/getWidth();
+		if((x-xMapMargin)%getWidth() >= getWidth()/2) j++;
 	}
 	
 	//Verifica se existe um nextMove para fazer
@@ -446,8 +436,8 @@ public class Bomberman {
 	//acabei de por, ate chegar a um novo bloco. Quando chegar ao novo bloco volto a "ligar"
 	//o controlo de colisoes.
 	protected void checkIfPlanted(){
-		int[] coords = getPositionInMatrix();
-		if(justPlanted && (coords[1] != iBomb || coords[0] != jBomb)){
+		//int[] coords = getPositionInMatrix();
+		if(justPlanted && (i != iBomb || j != jBomb)){
 			justPlanted = false;
 			iBomb = 0;
 			jBomb = 0;
@@ -457,24 +447,22 @@ public class Bomberman {
 	//Verifica a sua posicao na matrix logica
 	protected void checkPositionChange(){
 		//Get old coordinate positions from pixel positions
-		int[] oldPositions = getPositionInMatrix();
+		int oldI = i;
+		int oldJ = j;
 		
 		//Update pixel positions
-		updatePixelPosition();
-		
-		//Calculate new coordinate positions from pixel positions
-		int[] newPositions = getPositionInMatrix();
+		updatePixelPosition(); //x,y
+		updateMatrixCoordinates(); //i,j
 		
 		//Se mudou de coords, significa que abandonou o bloco antigo
-		if(oldPositions[0] != newPositions[0] || oldPositions[1] != newPositions[1] ){
-			gc.writeOverlayPosition(oldPositions[1], oldPositions[0], '-'); //antigo bloco agora eh chao
+		if(oldJ != j || oldI != i ){
+			gc.writeOverlayPosition(oldI, oldJ, '-'); //antigo bloco agora eh chao
 			//se a nova posicao eh 1 explosao, morre
-			if(gc.readLogicPosition(newPositions[1], newPositions[0]) == 'E'){
+			if(gc.readLogicPosition(i, j) == 'E')
 				die();
-			}
-			else{ //o novo bloco agora contem o proprio
-				gc.writeOverlayPosition(newPositions[1], newPositions[0], myself); 
-			}
+			//cc, o novo bloco agora contem o proprio
+			else 
+				gc.writeOverlayPosition(i, j, myself); 
 		}
 		
 	}
@@ -500,6 +488,7 @@ public class Bomberman {
 		
 		if(firstUpdate){
 			expandBitmaps();
+			updateMatrixCoordinates(); //inicializacao do i,j
 			firstUpdate = false;
 		}
 		if (isMoving()) {
@@ -523,9 +512,9 @@ public class Bomberman {
 			sourceRect.right = sourceRect.left + spriteWidth;
 		}
 		//ver se alguma explosao nova o atinge (mesmo que esteja parado)
-		int[] currentPos = getPositionInMatrix();
-		int j = currentPos[0];
-		int i = currentPos[1];
+//		int[] currentPos = getPositionInMatrix();
+//		int j = currentPos[0];
+//		int i = currentPos[1];
 		if(gc.readLogicPosition(i,j)=='E')
 			die();
 		
@@ -545,27 +534,4 @@ public class Bomberman {
 		canvas.drawBitmap(bitmap, sourceRect, destRect, null);
 	}
 	
-//	public void draw(Canvas canvas) {
-//		canvas.drawBitmap(bitmap, x - (bitmap.getWidth() / 2), y - (bitmap.getHeight() / 2), null);
-//	}
-	
-	/**
-	 * Handles the {@link MotionEvent.ACTION_DOWN} event. If the event happens on the 
-	 * bitmap surface then the touched state is set to <code>true</code> otherwise to <code>false</code>
-	 * @param eventX - the event's X coordinate
-	 * @param eventY - the event's Y coordinate
-	 */
-//	public void handleActionDown(int eventX, int eventY) {
-//		if (eventX >= (x - bitmap.getWidth() / 2) && (eventX <= (x + bitmap.getWidth()/2))) {
-//			if (eventY >= (y - bitmap.getHeight() / 2) && (y <= (y + bitmap.getHeight() / 2))) {
-//				// droid touched
-//				setTouched(true);
-//			} else {
-//				setTouched(false);
-//			}
-//		} else {
-//			setTouched(false);
-//		}
-//
-//	}
 }

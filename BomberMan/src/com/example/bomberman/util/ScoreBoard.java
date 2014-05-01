@@ -27,13 +27,12 @@ public class ScoreBoard implements Serializable {
 	}
 	
 	public void update(String playerId, int score){
-		Log.d("UPDATE SCOREBOARD", "PLAYER ID:" + playerId);
+		//Log.d("UPDATE SCOREBOARD", "PLAYER ID:" + playerId);
 		scores.put(playerId, scores.get(playerId) + score);
 	}
 	
 	public Integer get(char playerId){
-		
-		Log.d("GET SCOREBOARD", "PLAYER ID:" + playerId);
+		//Log.d("GET SCOREBOARD", "PLAYER ID:" + playerId);
 		return scores.get(playerId+"");
 	}
 	

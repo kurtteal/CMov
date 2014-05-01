@@ -22,6 +22,8 @@ public class Robot extends Bomberman{
 	
 	private ClientService service;
 	
+	private int checkPlayersCounter = 0;
+	
 	public Robot(){
 		super();
 	}
@@ -44,12 +46,17 @@ public class Robot extends Bomberman{
 		this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.robot_right);
 		
 		//this.speed.goUp(); //initial behaviour for robots
-		if(singleplayer)
+		if(singleplayer){
 			startMoving();
+		}
 	}
 	
 	public void startMoving(){
-		char[] surroundings = checkSurroundings();
+		//em multiplayer os robots sao começados depois do first update da arena
+		//onde este metodo ja foi invocado e portanto ja existe i e j, aqui eh preciso
+		//invocar este metodo no construtor antes de mandar mexer os robots
+		updateMatrixCoordinates(); 
+		char[] surroundings = getSurroundings();
 		decideNewPath(surroundings);
 	}
 	
@@ -61,15 +68,9 @@ public class Robot extends Bomberman{
 //		decideNewPath(surroundings);
 //	}
 	
-	//Returns a char[4] with whats in the surroundings on the logic matrix
-	//if I find a player in the surroundings, I kill it immediately!
-	private char[] checkSurroundings(){
-		int[] array = getPositionInMatrix();
-		//Log.i("ARRAY:", array[0]+","+array[1]);
-		int j = array[0];
-		int i = array[1];
-		
-		//check for players in the surroundings
+
+	//check for players in the surroundings, killing them if any was found
+	private void checkForPlayers(){
 		char above = gc.readOverlayPosition(i-1, j);
 		char below = gc.readOverlayPosition(i+1, j);
 		char toTheLeft = gc.readOverlayPosition(i, j-1);
@@ -95,6 +96,15 @@ public class Robot extends Bomberman{
 			if(bman != null)
 				bman.die();
 		}
+	}
+	
+	//Returns a char[4] with whats in the surroundings on the logic matrix
+	//if I find a player in the surroundings, I kill it immediately!
+	private char[] getSurroundings(){
+//		int[] array = getPositionInMatrix();
+//		//Log.i("ARRAY:", array[0]+","+array[1]);
+//		int j = array[0];
+//		int i = array[1];
 		
 		char[] directions = new char[4];
 		
@@ -157,9 +167,9 @@ public class Robot extends Bomberman{
 					if(singleplayer)
 						oneSquareUp(null, null);
 					else{
-						int[] coords = getPositionInMatrix();
-						int i = coords[1];
-						int j = coords[0];
+//						int[] coords = getPositionInMatrix();
+//						int i = coords[1];
+//						int j = coords[0];
 						service.robotUp(robotId, i, j);
 					}
 					break;
@@ -168,9 +178,9 @@ public class Robot extends Bomberman{
 					if(singleplayer)
 						oneSquareDown(null, null);
 					else{
-						int[] coords = getPositionInMatrix();
-						int i = coords[1];
-						int j = coords[0];
+//						int[] coords = getPositionInMatrix();
+//						int i = coords[1];
+//						int j = coords[0];
 						service.robotDown(robotId, i, j);
 					}
 					break;
@@ -179,9 +189,9 @@ public class Robot extends Bomberman{
 					if(singleplayer)
 						oneSquareLeft(null, null);
 					else{
-						int[] coords = getPositionInMatrix();
-						int i = coords[1];
-						int j = coords[0];
+//						int[] coords = getPositionInMatrix();
+//						int i = coords[1];
+//						int j = coords[0];
 						service.robotLeft(robotId, i, j);
 					}
 					break;
@@ -190,9 +200,9 @@ public class Robot extends Bomberman{
 					if(singleplayer)
 						oneSquareRight(null, null);
 					else{
-						int[] coords = getPositionInMatrix();
-						int i = coords[1];
-						int j = coords[0];
+//						int[] coords = getPositionInMatrix();
+//						int i = coords[1];
+//						int j = coords[0];
 						service.robotRight(robotId, i, j);
 					}
 					break;
@@ -205,15 +215,15 @@ public class Robot extends Bomberman{
 	//New positions (pixels) for robots
 	@Override
 	protected void updatePixelPosition(){
-		//Se estiver num cruzamento, obtem a vizinhanca, verifica se ha 
-		//players na vizinhanca e decide aleatoriamente a nova direccao
+		//Se estiver num cruzamento, obtem a vizinhanca, 
+		//e decide aleatoriamente a nova direccao
 		if(targetX != 0 && Math.abs(targetX - x) < movementMargin){ //se chegou ao destino
 			x = targetX;
 			targetX = 0;
 			speed.setXStationary();
 			if(!checkIfNextMove()){
 				//check surroundings
-				char[] surroundings = checkSurroundings();
+				char[] surroundings = getSurroundings();
 				decideNewPath(surroundings);
 				//checkIfPlanted();
 				//will plant a bomb with a given probability if it is at an intersection
@@ -225,16 +235,20 @@ public class Robot extends Bomberman{
 			speed.setYStationary();
 			if(!checkIfNextMove()){
 				//check surroundings
-				char[] surroundings = checkSurroundings();
+				char[] surroundings = getSurroundings();
 				decideNewPath(surroundings);
 				//checkIfPlanted();
 				//will plant a bomb with a given probability if it is at an intersection
 				//decideIfPlant();
 			}
-		}else{
+		}else{ //continua a mexer-se caso contrario
 			x += (speed.getVelocity() * speed.getxDirection()); 
 			y += (speed.getVelocity() * speed.getyDirection());
 		}	
+		//verifica se ha players na vizinhanca
+		checkPlayersCounter++;
+		if(checkPlayersCounter%3 == 0) //faz o check a cada 3 updates
+			checkForPlayers();
 	}
 	
 //	//actualiza a variavel de estado que diz se pos uma bomba recentemente (num bloco anterior)

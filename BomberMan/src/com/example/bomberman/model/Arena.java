@@ -204,16 +204,13 @@ public class Arena {
 	}
 
 	public void elementHasDied(Bomberman bomber) {
-		//vou ah procura do dono da explosao que matou este elemento, e aumento o score se for player
-		int[] coords = bomber.getPositionInMatrix();
-		int i = coords[1];
-		int j = coords[0];
-		//updates immediately the overlay to say this player died
-		gc.writeOverlayPosition(i,j,'-');
+
 		// marca este elemento como morto
 		deadElements.add(bomber);
 		char victimId = bomber.myself;
-		char killerId = ((Path)pixelMatrix[i][j]).getOwner();
+		//vou ah procura do dono da explosao que matou este elemento, e aumento o score se for player
+		char killerId = ((Path)pixelMatrix[bomber.i][bomber.j]).getOwner();
+		Log.d("Killer id:", "" + killerId);
 		//Se nao foi morte por contacto com robot, vai actualizar o score de algum player
 		if(killerId != '#'){
 			String planter = "" + killerId;
