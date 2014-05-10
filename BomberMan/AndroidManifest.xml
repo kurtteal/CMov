@@ -20,13 +20,12 @@
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.bomberman.SelectUserActivity"
-            android:label="@string/title_activity_select_user" >
+            android:name="com.example.bomberman.SettingsActivity"
+            android:label="@string/title_activity_settings" >
         </activity>
         <activity
             android:name="com.example.bomberman.GameActivity"
@@ -44,6 +43,9 @@
             android:name="com.example.bomberman.MultiplayerMenuActivity"
             android:label="@string/title_activity_multiplayer_menu" >
         </activity>
+        
+        <service android:name="pt.utl.ist.cmov.wifidirect.service.SimWifiP2pService" />
+        
     </application>
 
 </manifest>

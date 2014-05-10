@@ -3,14 +3,11 @@ package com.example.bomberman.model;
 import java.util.Random;
 
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
-import android.util.Log;
 
 import com.example.bomberman.MainGamePanel;
 import com.example.bomberman.R;
-import com.example.bomberman.csclient.ClientService;
+import com.example.bomberman.network.NetworkService;
 
 public class Robot extends Bomberman{
 	
@@ -20,7 +17,7 @@ public class Robot extends Bomberman{
 	//no caso do multiplayer
 	private char playerId; 
 	
-	private ClientService service;
+	private NetworkService service;
 	
 	private int checkPlayersCounter = 0;
 	
@@ -38,7 +35,7 @@ public class Robot extends Bomberman{
 		this.playerId = panel.activity.playerId;
 		
 		if(!singleplayer)
-			service = new ClientService();
+			service = new NetworkService();
 		
 		this.bitmapUp = BitmapFactory.decodeResource(resources, R.drawable.robot_back);
 		this.bitmapDown = BitmapFactory.decodeResource(resources, R.drawable.robot_front);
@@ -52,7 +49,7 @@ public class Robot extends Bomberman{
 	}
 	
 	public void startMoving(){
-		//em multiplayer os robots sao começados depois do first update da arena
+		//em multiplayer os robots sao comeï¿½ados depois do first update da arena
 		//onde este metodo ja foi invocado e portanto ja existe i e j, aqui eh preciso
 		//invocar este metodo no construtor antes de mandar mexer os robots
 		updateMatrixCoordinates(); 

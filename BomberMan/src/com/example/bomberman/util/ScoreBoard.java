@@ -11,53 +11,47 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import android.util.Log;
-
 public class ScoreBoard implements Serializable {
 
 	private static final long serialVersionUID = -8749964416361074903L;
-	Map<String, Integer> scores;
+	private Map<String, Integer> scores;
 	
-	public ScoreBoard(){
+	public ScoreBoard() {
 		scores = new HashMap<String, Integer>();
 	}
 	
-	public void add(String playerId){
+	public void add(String playerId) {
 		scores.put(playerId, 0);
 	}
 	
-	public void update(String playerId, int score){
-		//Log.d("UPDATE SCOREBOARD", "PLAYER ID:" + playerId);
+	public void update(String playerId, int score) {
 		scores.put(playerId, scores.get(playerId) + score);
 	}
 	
-	public Integer get(char playerId){
-		//Log.d("GET SCOREBOARD", "PLAYER ID:" + playerId);
+	public Integer get(char playerId) {
 		return scores.get(playerId+"");
 	}
 	
-	public Set<Entry<String, Integer>> entrySet(){
+	public Set<Entry<String, Integer>> entrySet() {
 		return scores.entrySet();
 	}
 
 	public Map<String, Integer> getSortedMap() {
-
         List<Entry<String, Integer>> list = new LinkedList<Entry<String, Integer>>(scores.entrySet());
 
         // Sorting the list based on values
-        Collections.sort(list, new Comparator<Entry<String, Integer>>(){
-            public int compare(Entry<String, Integer> o1,Entry<String, Integer> o2){
+        Collections.sort(list, new Comparator<Entry<String, Integer>>() {
+            public int compare(Entry<String, Integer> o1,Entry<String, Integer> o2) {
                     return o2.getValue().compareTo(o1.getValue());
             }
         });
 
         // Maintaining insertion order with the help of LinkedList
         Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
-        for (Entry<String, Integer> entry : list){
+        for (Entry<String, Integer> entry : list) {
             sortedMap.put(entry.getKey(), entry.getValue());
         }
         return sortedMap;
     }
-
 	
 }

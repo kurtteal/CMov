@@ -5,20 +5,29 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import com.example.bomberman.csclient.ClientService;
-import com.example.bomberman.util.GameConfigs;
-
-import android.os.Bundle;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pBroadcast;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pDevice;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pDeviceList;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pInfo;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pManager.GroupInfoListener;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pManager.PeerListListener;
+import pt.utl.ist.cmov.wifidirect.service.SimWifiP2pService;
+import pt.utl.ist.cmov.wifidirect.sockets.SimWifiP2pSocketManager;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.res.AssetManager;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -26,51 +35,58 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MultiplayerMenuActivity extends Activity implements IMenuActivity, OnItemSelectedListener {
+import com.example.bomberman.network.NetworkService;
+import com.example.bomberman.network.WDSimServiceConnection;
+import com.example.bomberman.network.broadcastreceivers.MenuBroadcastReceiver;
+import com.example.bomberman.util.GameConfigs;
+import com.example.bomberman.util.MyAdapter;
 
-	Map<Integer, String> users;
-	ArrayList<String> items;
-	MyAdapter adapter;
-	String localUser;
+public class MultiplayerMenuActivity extends Activity implements OnItemSelectedListener, PeerListListener, GroupInfoListener {
 	
+	private Map<Integer, String> users;
+	private ArrayList<String> items;
+	private MyAdapter adapter;
+	private String localUser;
 	private static GameConfigs gc;
 	private char playerId;
 	private String mapSelected;
-	
     private boolean connected;
-    private ClientService service;
+    private NetworkService service;
     private static int numUsers;
+	
+	private boolean WDSimEnabled = false;
+	private boolean inGroup = true;
+	private boolean isGroupOwner = false;
+	private WDSimServiceConnection servConn = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_multiplayer_menu);
-		localUser = getIntent().getStringExtra("playerName");
 		
-		//create the list of players, and add the local player
+		// create the list of players, and add the local player
+		WDSimEnabled = getIntent().getBooleanExtra("WDState", false);
+		localUser = getIntent().getStringExtra("playerName");
 		users = new TreeMap<Integer, String>(); //treemap orders by key, by default
 		users.put(1, localUser);
 		numUsers = 1;
-		//arraylist that will display the player list
+		
+		// arraylist that will display the player list
 		items = new ArrayList<String>();
 		items.add("Number          Name");
-	    Iterator it = users.entrySet().iterator();
+	    Iterator<Entry<Integer, String>> it = users.entrySet().iterator();
 	    while (it.hasNext()) {
-	        Map.Entry pairs = (Map.Entry)it.next();
+	        Entry<Integer, String> pairs = (Entry<Integer, String>)it.next();
 	        items.add("Player " + pairs.getKey() + "          " + pairs.getValue());
-	        it.remove(); 
+	        it.remove();
 	    }
 		
-	    //create an array adapter to bind the array to list view
+	    // create an array adapter to bind the array to list view
+	    ListView scoreList = (ListView) findViewById(R.id.players_list);
 	    adapter = new MyAdapter(this, items);
-	    
-		ListView scoreList = (ListView)findViewById(R.id.players_list);
-	    /*bind the array adapter to the ListView */
 	    scoreList.setAdapter(adapter);
 	    
-	    connected = false;
-	    
-	    //Spinner
+	    // Spinner
 		Spinner spinner = (Spinner) findViewById(R.id.levels_spinner);
 		// Create an ArrayAdapter using the string array and a default spinner layout
 		ArrayAdapter<CharSequence> spin_adapter = ArrayAdapter.createFromResource(this,
@@ -80,109 +96,131 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		// Apply the adapter to the spinner
 		spinner.setAdapter(spin_adapter);
 		spinner.setOnItemSelectedListener(this);
-	    
-//	    Button newGameButton = (Button) findViewById(R.id.newgame_button);
-//		newGameButton.setOnClickListener(new View.OnClickListener() {
-//			public void onClick(View v) {
-//				newGame();
-//			}
-//		});
-//	    Button joinGameButton = (Button) findViewById(R.id.joingame_button);
-//		joinGameButton.setOnClickListener(new View.OnClickListener() {
-//			public void onClick(View v) {
-//				joinGame();
-//			}
-//		});
+		
+		/*
+		 * Network related code.
+		 */
+		
+		service = new NetworkService();
+		service.setMenuActivity(this);
+		ArrayList<String> addresses = new ArrayList<String>();
+		connected = false;
+		
+		if(WDSimEnabled) {
+			service.enableWDSim();
+			// initialize the WDSim API
+			SimWifiP2pSocketManager.Init(getApplicationContext());
+			
+			// register broadcast receiver
+			IntentFilter filter = new IntentFilter();
+			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
+			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
+			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
+			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
+			MenuBroadcastReceiver receiver = new MenuBroadcastReceiver(this);
+			registerReceiver(receiver, filter);
+			
+			servConn = new WDSimServiceConnection(this);
+			Intent intent = new Intent(this, SimWifiP2pService.class);
+            bindService(intent, (ServiceConnection) servConn, Context.BIND_AUTO_CREATE);
+		}
+		else
+			addresses.add("10.0.2.2");
+		
+		service.setAddresses(addresses);
 	}
 	
-
-	//Choosing the map will call this method
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.menu, menu); 
+		return true;
+	}
+	
+	/*
+	 * Listeners associated to the Spinner.
+	 */
+	
     public void onItemSelected(AdapterView<?> parent, View view, 
             int pos, long id) {
     	CharSequence mSelected = (CharSequence) parent.getItemAtPosition(pos);
 		String selection = mSelected.toString();
-		//Log.i("XXXId:", selection);
-		//ir buscar o mapa correcto conforme o selecionado pelo user
 		int selected = Integer.parseInt(selection.substring(4));
-		//Log.i("SELECTED:", selection.substring(4));
-
+		
         AssetManager am = getAssets();
         int maxPlayers = 0;
         try {
-			InputStream is = am.open("map"+selected);
-			maxPlayers = new GameConfigs().loadConfigs(is); //loads up the matrix from the map file
-			//Log.i("Updating Map", "" + gc.levelName + " " + mapSelected);
-		} catch (IOException e) { e.printStackTrace(); }
-		
+			InputStream is = am.open("map" + selected);
+			maxPlayers = new GameConfigs().loadConfigs(is);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
 		service.setMap(selected, maxPlayers);
     }
     
-	public void onNothingSelected(AdapterView parent) {
+	public void onNothingSelected(AdapterView<?> parent) {
 		Log.i("SelMapView", "Nothing is selected");
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.menu, menu);
-		return true;
-	}
-	
-	//Internal method
 	private void updateItemsList(){
 	    runOnUiThread(new Runnable() {
 	        public void run() {
 	    		items.clear();
-	    		
 	    		items.add("Number          Name");
-	    	    Iterator it = users.entrySet().iterator();
+	    	    Iterator<Entry<Integer, String>> it = users.entrySet().iterator();
 	    	    while (it.hasNext()) {
-	    	        Map.Entry pairs = (Map.Entry)it.next();
+	    	    	Entry<Integer, String> pairs = (Entry<Integer, String>)it.next();
 	    	        items.add("Player " + pairs.getKey() + "          " + pairs.getValue());
 	    	        it.remove(); 
 	    	    }
-	            // faz refresh ah ListView para mostrar o conteudo actualizado
 	    	    if(adapter != null)
 	    	    	adapter.notifyDataSetChanged();
-
 	        }
 	    });
-
 	}
-
-	//Button method
+	
+	/*
+	 * Listeners associate to the Buttons.
+	 */
+	
 	public void newGame(View v) {
+		if(WDSimEnabled) {
+			requestGroupInfo();
+			if(inGroup && isGroupOwner)
+				service.enableServer();
+			else {
+				Toast.makeText(this, "Not in a group or not the GO.",
+        				Toast.LENGTH_SHORT).show();
+				return;
+			}
+		}
 		if (!connected) {
-			service = new ClientService();
-			service.setMenuActivity(this);
-			Log.d("Multi", "Im trying to connect");
 			service.connect();
 			connected = true;
 		}
 		service.createGame(localUser);
 	}
 
-	//Button method
 	public void joinGame(View v) {
 		if (!connected) {
-			service = new ClientService();
-			service.setMenuActivity(this);
 			service.connect();
 			connected = true;
 		} 
 		service.joinGame(localUser);
 	}
 	
-	//Button method
 	public void startGame(View v) {
 		service.preStartGame();
 	}
 	
 	
-	//Callback methods for the client service
-	//=======================================
-	public void createResponse(boolean result){
-		if(result){
+	/*
+	 * Callbacks for the network service.
+	 */
+	
+	public void createResponse(boolean result) {
+		if(result) {
 			playerId = '1';
 			Log.d("Creation success", " ");
 			runOnUiThread(new Runnable() {
@@ -198,7 +236,7 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		        }
 		    });
 		}
-		else{
+		else {
 			Log.d("Creation failed", " ");
 			runOnUiThread(new Runnable() {
 		        public void run() {
@@ -209,8 +247,9 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 			});
 		}
 	}
-	public void joinResponse(boolean result, char playerId){
-		if(result){
+	
+	public void joinResponse(boolean result, char playerId) {
+		if(result) {
 			this.playerId = playerId;
 			Log.d("Join success, playerId: ", playerId+"");
 			runOnUiThread(new Runnable() {
@@ -222,7 +261,7 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		        }
 		    });
 		}
-		else{
+		else {
 			//se falhou o campo playerId eh reciclado para indicar a causa da falha
 			char cause = playerId; 
 			Log.d("Join failed", " ");
@@ -244,37 +283,23 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 				});
 		}
 	}
-	public void updatePlayerList(TreeMap<Integer, String> clientsNames){
+	
+	public void updatePlayerList(TreeMap<Integer, String> clientsNames) {
 		users = clientsNames;
 		numUsers = clientsNames.size();
 		updateItemsList();
 	}
 	
-	public void updateMap(char mapNumber){  
-		switch(mapNumber){
-		case '1':
-			mapSelected = new String("map1");
-			break;
-		case '2':
-			mapSelected = new String("map2");
-			break;
-		case '3':
-			mapSelected = new String("map3");
-			break;
-		case '4':
-			mapSelected = new String("map4");
-			break;
-		default:
-			mapSelected = new String("map1");	
-		}
-
+	public void updateMap(char mapNumber) {
+		mapSelected = "map" + mapNumber;
 		gc = new GameConfigs();
         AssetManager am = getAssets();
         try {
 			InputStream is = am.open(mapSelected);
-			gc.loadConfigs(is); //loads up the matrix from the map file
-			//Log.i("Updating Map", "" + gc.levelName + " " + mapSelected);
-		} catch (IOException e) { e.printStackTrace(); }
+			gc.loadConfigs(is);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		runOnUiThread(new Runnable(){
 			public void run() {
 				TextView t = (TextView) findViewById(R.id.level_name);
@@ -283,7 +308,7 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		});
 	}
 
-	//Goes to gameActivity
+	// Goes to gameActivity
 	public void preStartGameOrder(char mode) {
 		boolean gameOngoing = false;
 		if(mode == '#'){ //se estou a entrar a meio
@@ -291,8 +316,9 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 			//o meu num define o num d jogadores, pq acabei de entrar
 			numUsers = Character.getNumericValue(playerId); 
 		}
+		//unbindService(servConn);
 		Intent intent = new Intent(MultiplayerMenuActivity.this, GameActivity.class);
-		intent.putExtra("gc", gc); //get number from select_map layout (the one selected)
+		intent.putExtra("gc", gc);
 		intent.putExtra("playerName", localUser);
 		intent.putExtra("playerId", playerId + "");
 		intent.putExtra("singleplayer", false);
@@ -300,6 +326,36 @@ public class MultiplayerMenuActivity extends Activity implements IMenuActivity, 
 		intent.putExtra("gameOngoing", gameOngoing);
 		intent.putExtra("maxPlayers", gc.getMaxPlayers());
 		startActivity(intent);
+	}
+
+	
+	
+	/*
+	 * WDSim Listeners callbacks.
+	 */
+	
+	@Override
+	public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
+			SimWifiP2pInfo groupInfo) {
+		inGroup = groupInfo.askIsConnected();
+		isGroupOwner = groupInfo.askIsGO();
+		if(inGroup) {
+			ArrayList<String> addresses = new ArrayList<String>();
+			for(SimWifiP2pDevice d : devices.getDeviceList()) {
+				String[] split = d.virtDeviceAddress.split(":");
+				addresses.add(split[0]);
+				Log.d("IPs", split[0]);
+			}
+			service.setAddresses(addresses);
+		}
+	}
+	
+	public void requestGroupInfo() {
+		servConn.getManager().requestGroupInfo(servConn.getChannel(), (GroupInfoListener) this);
+	}
+
+	@Override
+	public void onPeersAvailable(SimWifiP2pDeviceList peers) {
 	}
 	
 }

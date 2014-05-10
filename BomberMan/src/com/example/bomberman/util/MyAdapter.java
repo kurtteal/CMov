@@ -1,6 +1,10 @@
-package com.example.bomberman;
+package com.example.bomberman.util;
 
 import java.util.ArrayList;
+
+import com.example.bomberman.R;
+import com.example.bomberman.R.id;
+import com.example.bomberman.R.layout;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -15,16 +19,13 @@ public class MyAdapter extends ArrayAdapter<String> {
     private final ArrayList<String> itemsArrayList;
 
     public MyAdapter(Context context, ArrayList<String> itemsArrayList) {
-
         super(context, R.layout.row, itemsArrayList);
-
         this.context = context;
         this.itemsArrayList = itemsArrayList;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
         // 1. Create inflater 
         LayoutInflater inflater = (LayoutInflater) context
             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);

@@ -2,17 +2,18 @@ package com.example.bomberman;
 
 import java.util.ArrayList;
 
-import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
 public class MenuActivity extends Activity {
 
-	ArrayList<String> localUsers;
-	TextView activeUser;
+	private ArrayList<String> localUsers;
+	private TextView activeUser;
+	private boolean WDSimEnabled;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +22,9 @@ public class MenuActivity extends Activity {
 		localUsers = new ArrayList<String>();
 		localUsers.add("Kurt");
 		localUsers.add("b0x1");
+		localUsers.add("Wo0d");
 		activeUser = ((TextView) findViewById(R.id.activeTV));
+		WDSimEnabled = false;
 	}
 
 	@Override
@@ -33,40 +36,38 @@ public class MenuActivity extends Activity {
 
 	// Called when coming here from another activity with startForResults..
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
 		super.onActivityResult(requestCode, resultCode, intent);
-		// Bundle extras = intent.getExtras();
-
-		switch (resultCode) {
-		case RESULT_OK:
+		if(resultCode == RESULT_OK) {
 			String active = intent.getStringExtra("activeUser");
-
 			if (!localUsers.contains(active))
 				localUsers.add(0, active);
 			activeUser.setText(active);
-			break;
+			WDSimEnabled = intent.getBooleanExtra("WDState", false);
 		}
 	}
 
+	/*
+	 * Button methods.
+	 */
+	
 	public void singlePlayer(View v) {
 		Intent intent = new Intent(MenuActivity.this, SelectMapActivity.class);
-		// Pass the player name to the next activities.
     	intent.putExtra("playerName", activeUser.getText());
 		startActivity(intent);
 	}
 
 	public void multiPlayer(View v) {
 		Intent intent = new Intent(MenuActivity.this, MultiplayerMenuActivity.class);
-		// Pass the player name to the next activities.
     	intent.putExtra("playerName", activeUser.getText());
+    	intent.putExtra("WDState", WDSimEnabled);
 		startActivity(intent);
 	}
 
 	public void openSettings(View v) {
-		Intent intent = new Intent(MenuActivity.this, SelectUserActivity.class);
+		Intent intent = new Intent(MenuActivity.this, SettingsActivity.class);
 		intent.putExtra("users", localUsers);
+		intent.putExtra("WDState", WDSimEnabled);
 		startActivityForResult(intent, 1);
 	}
-
 	
 }

@@ -1,27 +1,40 @@
 package com.example.bomberman;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pBroadcast;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pDevice;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pDeviceList;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pInfo;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pManager.GroupInfoListener;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pManager.PeerListListener;
+import pt.utl.ist.cmov.wifidirect.service.SimWifiP2pService;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TextView;
-import com.example.bomberman.csclient.ClientService;
+
 import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
 import com.example.bomberman.model.Robot;
+import com.example.bomberman.network.NetworkService;
+import com.example.bomberman.network.WDSimServiceConnection;
+import com.example.bomberman.network.broadcastreceivers.GameBroadcastReceiver;
 import com.example.bomberman.util.GameConfigs;
 import com.example.bomberman.util.ScoreBoard;
 
-public class GameActivity extends Activity implements IGameActivity {
-	/** Called when the activity is first created. */
+public class GameActivity extends Activity implements PeerListListener, GroupInfoListener {
 
 	private static final String TAG = GameActivity.class.getSimpleName();
 	protected GameConfigs gc;
@@ -49,20 +62,19 @@ public class GameActivity extends Activity implements IGameActivity {
 	private int numPlayers;
 	private int maxPlayers;
 
-	protected ClientService service;
+	protected NetworkService service;
 	public boolean singleplayer = true; //visivel para os robots
 	private boolean gameMasterIsReady = false;
 	private boolean gameOngoing = false;
 
+	private boolean WDSimEnabled = false; // Not yet ready.
+	private boolean inGroup = false;
+	private boolean isGroupOwner = false;
+	private WDSimServiceConnection servConn = null;
+	
 	@SuppressLint("HandlerLeak") @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		// requesting to turn the title OFF
-		//requestWindowFeature(Window.FEATURE_NO_TITLE);
-		// making it full screen
-		//getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		// set our MainGamePanel as the View
-		//setContentView(new MainGamePanel(this));
 
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
 		playerName = getIntent().getStringExtra("playerName");
@@ -74,7 +86,7 @@ public class GameActivity extends Activity implements IGameActivity {
 			maxPlayers = getIntent().getExtras().getInt("maxPlayers");
 		}
 		
-		service = new ClientService();
+		service = new NetworkService();
 		service.setGameActivity(this);
 
 		setContentView(R.layout.activity_game);
@@ -106,16 +118,33 @@ public class GameActivity extends Activity implements IGameActivity {
 					timeLeftView.setText("Time left:\n" + countDown);
 					Arena arna= gamePanel.getArena();
 					ScoreBoard scb = arna.scores;
-					//Log.d("SCORE SCB", "PLAYER ID:" + playerId);
 					score = scb.get(playerId);
-					//Log.d("SCORE DEPOIS DO SCB", "SCORE:" + score);
 					scoreView.setText("Score:\n" + score);
-					//Log.d("ACTIVITY", "PlayerId " + playerId + " Score: " + score);
 				}
 			}
 		};
-
-		Log.d(TAG, "View added");
+		
+		/*
+		 * Network related code.
+		 */
+		
+		service = new NetworkService();
+		service.setGameActivity(this);
+		
+		if(WDSimEnabled) {
+			// register broadcast receiver
+			IntentFilter filter = new IntentFilter();
+			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
+			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
+			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
+			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
+			GameBroadcastReceiver receiver = new GameBroadcastReceiver(this);
+			registerReceiver(receiver, filter);
+			
+			servConn = new WDSimServiceConnection(this);
+			Intent intent = new Intent(this, SimWifiP2pService.class);
+            bindService(intent, (ServiceConnection) servConn, Context.BIND_AUTO_CREATE);
+		}
 	}
 
 	public void setGamePanel(MainGamePanel gPanel) {
@@ -135,7 +164,7 @@ public class GameActivity extends Activity implements IGameActivity {
 	}
 	
 	//O game master responde a um join tardio com o tempo actual do jogo
-	//este jogador vai actualizar o tempo e começar o seu timer
+	//este jogador vai actualizar o tempo e comeï¿½ar o seu timer
 	public void setCountDown(int clock){
 		countDown = clock;
 		startTimer();
@@ -397,6 +426,32 @@ public class GameActivity extends Activity implements IGameActivity {
 				playerCountView.setText("# Players:\n" + numPlayers);
 			}
 		});
+	}
+	
+	/*
+	 * WDSim related code
+	 */
+
+	@Override
+	public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
+			SimWifiP2pInfo groupInfo) {
+		inGroup = groupInfo.askIsConnected();
+		isGroupOwner = groupInfo.askIsGO();
+		if(inGroup) {
+			ArrayList<String> addresses = new ArrayList<String>();
+			for(SimWifiP2pDevice d : devices.getDeviceList()) {
+				String[] split = d.virtDeviceAddress.split(":");
+				addresses.add(split[0]);
+				Log.d("IPs", split[0]);
+			}
+			service.setAddresses(addresses);
+		}
+	}
+
+	@Override
+	public void onPeersAvailable(SimWifiP2pDeviceList arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".SelectUserActivity" >
+    tools:context=".SettingsActivity" >
 
     <EditText
         android:id="@+id/newUserInput"
@@ -32,5 +32,13 @@
         android:layout_height="0dp"
         android:layout_weight="0.40" >
     </ListView>
+
+    <ToggleButton
+        android:id="@+id/WDEnableButton"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:onClick="toggleWifiDirect"
+        android:layout_marginBottom="20dp" />
 
 </LinearLayout>

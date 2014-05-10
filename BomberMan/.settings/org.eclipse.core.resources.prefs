@@ -1,3 +1,8 @@
 eclipse.preferences.version=1
+encoding//src/com/example/bomberman/GameActivity.java=UTF-8
 encoding//src/com/example/bomberman/model/Path.java=UTF-8
+encoding//src/com/example/bomberman/model/Robot.java=UTF-8
+encoding//src/com/example/bomberman/network/ClientAsyncTask.java=UTF-8
+encoding//src/com/example/bomberman/network/NetworkService.java=UTF-8
+encoding//src/com/example/bomberman/network/server/ClientHandler.java=UTF-8
 encoding//src/com/example/bomberman/util/GameConfigs.java=UTF-8
