@@ -67,11 +67,16 @@ public class Bomberman {
 			this.bitmapDown = BitmapFactory.decodeResource(resources, R.drawable.blue_front);
 			this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.blue_left);
 			this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.blue_right);
-		}else{
+		}else if(myself == '3'){
 			this.bitmapUp = BitmapFactory.decodeResource(resources, R.drawable.red_back);
 			this.bitmapDown = BitmapFactory.decodeResource(resources, R.drawable.red_front);
 			this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.red_left);
 			this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.red_right);
+		}else{
+			this.bitmapUp = BitmapFactory.decodeResource(resources, R.drawable.green_back);
+			this.bitmapDown = BitmapFactory.decodeResource(resources, R.drawable.green_front);
+			this.bitmapLeft = BitmapFactory.decodeResource(resources, R.drawable.green_left);
+			this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.green_right);
 		}
 		xMapMargin = xMargin;
 		yMapMargin = yMargin;
