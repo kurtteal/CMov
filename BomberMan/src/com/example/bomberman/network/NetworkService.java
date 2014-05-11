@@ -36,13 +36,10 @@ public class NetworkService {
 	
 	public void enableServer() {
 		NetworkService.isServer = true;
-		if(server == null) {
-			server = new Server();
-			serverThread = new Thread(server);
-			serverThread.start();
-		}
-		else
-			serverThread.run();
+		server = new Server();
+		serverThread = new Thread(server);
+		serverThread.start();
+		Log.d("NetService", "STARTED SERVER THREAD CARALHO");
 	}
 	
 	public boolean usingWDSim() {
@@ -100,6 +97,7 @@ public class NetworkService {
 	public void send(String message) {
 		try {
 			new ClientAsyncTask("send").execute(message);
+			Log.d("NetService", "Client sent" + message);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -187,8 +187,10 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 	public void newGame(View v) {
 		if(WDSimEnabled) {
 			requestGroupInfo();
-			if(inGroup && isGroupOwner)
+			if(inGroup && isGroupOwner) {
+				Log.d("BOMBERMAN", "Enabling bomberman server.");
 				service.enableServer();
+			}
 			else {
 				Toast.makeText(this, "Not in a group or not the GO.",
         				Toast.LENGTH_SHORT).show();

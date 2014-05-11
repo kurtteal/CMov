@@ -50,34 +50,29 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 		}
 		
 		if(mode.equals("connect")) {
-			if(addresses != null) {
-				for(String address : addresses) {
-					Log.d("TRYING", "Trying " + "192.168.0.1");
-					try {
-						if(!service.usingWDSim()) {
-							clientSocket = new Socket(address, serverPort);
-							out = new PrintWriter(clientSocket.getOutputStream(), true);
-							in = new BufferedReader(new InputStreamReader(
-									clientSocket.getInputStream()));
-						}
-						else {
-							clientWDSocket = new SimWifiP2pSocket("192.168.0.1", serverPort);
-							out = new PrintWriter(clientWDSocket.getOutputStream(), true);
-							in = new BufferedReader(new InputStreamReader(
-									clientWDSocket.getInputStream()));
-						}
-						Runnable r = new ClientListener(in, service);
-						new Thread(r).start();
-						Log.d("Connected", "Connected to " + "192.168.0.1");
-						break;
-					} catch (UnknownHostException e) {
-						System.out.println("Error connecting to server - UnknownHostException");
-						e.printStackTrace();
-					} catch (IOException e) {
-						System.out.println("Error connecting to server - IOException");
-						e.printStackTrace();
-					}
+			Log.d("ClientAsyncTask", "Trying " + "192.168.0.1");
+			try {
+				if(!service.usingWDSim()) {
+					clientSocket = new Socket("NOT NOW", serverPort);
+					out = new PrintWriter(clientSocket.getOutputStream(), true);
+					in = new BufferedReader(new InputStreamReader(
+							clientSocket.getInputStream()));
 				}
+				else {
+					clientWDSocket = new SimWifiP2pSocket("192.168.0.1", serverPort);
+					out = new PrintWriter(clientWDSocket.getOutputStream(), true);
+					in = new BufferedReader(new InputStreamReader(
+							clientWDSocket.getInputStream()));
+				}
+				Runnable r = new ClientListener(in, service);
+				new Thread(r).start();
+				Log.d("ClientAsyncTask", "Connected to " + "192.168.0.1");
+			} catch (UnknownHostException e) {
+				System.out.println("Error connecting to server - UnknownHostException");
+				e.printStackTrace();
+			} catch (IOException e) {
+				System.out.println("Error connecting to server - IOException");
+				e.printStackTrace();
 			}
 			return out;
 		}

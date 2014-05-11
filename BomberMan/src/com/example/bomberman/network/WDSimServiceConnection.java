@@ -8,7 +8,6 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Messenger;
 
-import com.example.bomberman.GameActivity;
 import com.example.bomberman.MultiplayerMenuActivity;
 
 public class WDSimServiceConnection implements ServiceConnection {

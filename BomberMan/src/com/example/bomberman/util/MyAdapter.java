@@ -2,16 +2,14 @@ package com.example.bomberman.util;
 
 import java.util.ArrayList;
 
-import com.example.bomberman.R;
-import com.example.bomberman.R.id;
-import com.example.bomberman.R.layout;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.example.bomberman.R;
 
 public class MyAdapter extends ArrayAdapter<String> {
 	 
