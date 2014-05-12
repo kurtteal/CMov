@@ -57,6 +57,7 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 	private boolean WDSimEnabled = false;
 	private boolean inGroup = true;
 	private boolean isGroupOwner = false;
+	private String serverAddress = null;
 	private WDSimServiceConnection servConn = null;
 
 	@Override
@@ -103,7 +104,6 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 		
 		service = new NetworkService();
 		service.setMenuActivity(this);
-		ArrayList<String> addresses = new ArrayList<String>();
 		connected = false;
 		
 		if(WDSimEnabled) {
@@ -123,11 +123,13 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 			servConn = new WDSimServiceConnection(this);
 			Intent intent = new Intent(this, SimWifiP2pService.class);
             bindService(intent, (ServiceConnection) servConn, Context.BIND_AUTO_CREATE);
+            
+            // Temporary solution for the server address.
+            serverAddress = "192.168.0.1";
 		}
-		else
-			addresses.add("10.0.2.2");
-		
-		service.setAddresses(addresses);
+		else {
+			serverAddress = "10.0.2.2";
+		}
 	}
 	
 	@Override
@@ -198,15 +200,22 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 			}
 		}
 		if (!connected) {
-			service.connect();
+			service.connect(serverAddress);
 			connected = true;
 		}
 		service.createGame(localUser);
 	}
 
 	public void joinGame(View v) {
+		if(WDSimEnabled) {
+			if(!inGroup) {
+				Toast.makeText(this, "Join a P2P group first.",
+        				Toast.LENGTH_SHORT).show();
+				return;
+			}
+		}
 		if (!connected) {
-			service.connect();
+			service.connect(serverAddress);
 			connected = true;
 		} 
 		service.joinGame(localUser);
@@ -215,7 +224,6 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 	public void startGame(View v) {
 		service.preStartGame();
 	}
-	
 	
 	/*
 	 * Callbacks for the network service.
@@ -310,8 +318,7 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 		});
 	}
 
-	// Goes to gameActivity
-	public void preStartGameOrder(char mode) {
+	public void startGameOrder(char mode) {
 		boolean gameOngoing = false;
 		if(mode == '#'){ //se estou a entrar a meio
 			gameOngoing = true;
@@ -327,10 +334,9 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 		intent.putExtra("numPlayers", numUsers);
 		intent.putExtra("gameOngoing", gameOngoing);
 		intent.putExtra("maxPlayers", gc.getMaxPlayers());
+		intent.putExtra("WDState", WDSimEnabled);
 		startActivity(intent);
 	}
-
-	
 	
 	/*
 	 * WDSim Listeners callbacks.
@@ -339,6 +345,8 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 	@Override
 	public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
 			SimWifiP2pInfo groupInfo) {
+		// Ler o mail do prof! Talvez se possa obter o endereco do GO a partir do seu nome.
+		// E preciso ver (na API) onde e que posso obter o nome do GO.
 		inGroup = groupInfo.askIsConnected();
 		isGroupOwner = groupInfo.askIsGO();
 		if(inGroup) {
@@ -348,7 +356,6 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 				addresses.add(split[0]);
 				Log.d("IPs", split[0]);
 			}
-			service.setAddresses(addresses);
 		}
 	}
 	

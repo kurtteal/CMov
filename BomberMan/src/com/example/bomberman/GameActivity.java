@@ -67,21 +67,21 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	private boolean gameMasterIsReady = false;
 	private boolean gameOngoing = false;
 
-	private boolean WDSimEnabled = false; // Not yet ready.
+	private boolean WDSimEnabled;
 	private boolean inGroup = false;
-	private boolean isGroupOwner = false;
 	private WDSimServiceConnection servConn = null;
 	
 	@SuppressLint("HandlerLeak") @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		WDSimEnabled = getIntent().getBooleanExtra("WDState", false);
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
 		playerName = getIntent().getStringExtra("playerName");
 		playerId = getIntent().getStringExtra("playerId").charAt(0);
 		singleplayer = getIntent().getExtras().getBoolean("singleplayer");
 		numPlayers = getIntent().getExtras().getInt("numPlayers");
-		if(!singleplayer){
+		if(!singleplayer) {
 			gameOngoing = getIntent().getExtras().getBoolean("gameOngoing");
 			maxPlayers = getIntent().getExtras().getInt("maxPlayers");
 		}
@@ -100,7 +100,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		leftButton = (Button)findViewById(R.id.left);
 		rightButton = (Button)findViewById(R.id.right);
 		downButton = (Button)findViewById(R.id.down);
-		bombButton = (Button)findViewById(R.id.bomb);	
+		bombButton = (Button)findViewById(R.id.bomb);
 
 		playerNameView.setText("Player:\n" + playerName);
 		scoreView.setText("Score:\n0");
@@ -164,7 +164,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	}
 	
 	//O game master responde a um join tardio com o tempo actual do jogo
-	//este jogador vai actualizar o tempo e come�ar o seu timer
+	//este jogador vai actualizar o tempo e comecar o seu timer
 	public void setCountDown(int clock){
 		countDown = clock;
 		startTimer();
@@ -310,7 +310,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		bombButton.setEnabled(true);
 	}
 
-	public void disableControlButtons(){	
+	public void disableControlButtons(){
 		upButton.setEnabled(false);
 		leftButton.setEnabled(false);
 		rightButton.setEnabled(false);
@@ -318,8 +318,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		bombButton.setEnabled(false);
 	}
 
-	//After the local player dies, we disable all
-	//buttons except quit
+	//After the local player dies, we disable all buttons except quit
 	public void disableControlsAfterDeath(){
 		runOnUiThread(new Runnable() {
 			public void run() {
@@ -340,11 +339,14 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		Intent intent = new Intent(GameActivity.this, ScoresActivity.class);
 		intent.putExtra("scores", scores);
 		gamePanel.thread.setRunning(false);
+		service.stopServer();
 		startActivity(intent);
 	}
 
-	//Callback methods for the client service
-	//=======================================
+	/*
+	 * Callbacks for the Network Service.
+	 */
+	
 	public void goUpOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
@@ -436,7 +438,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
 			SimWifiP2pInfo groupInfo) {
 		inGroup = groupInfo.askIsConnected();
-		isGroupOwner = groupInfo.askIsGO();
 		if(inGroup) {
 			ArrayList<String> addresses = new ArrayList<String>();
 			for(SimWifiP2pDevice d : devices.getDeviceList()) {
@@ -444,7 +445,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 				addresses.add(split[0]);
 				Log.d("IPs", split[0]);
 			}
-			service.setAddresses(addresses);
 		}
 	}
 

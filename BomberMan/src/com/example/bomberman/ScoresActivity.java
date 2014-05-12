@@ -19,6 +19,7 @@ public class ScoresActivity extends Activity {
 	private ScoreBoard scores;
 	private ArrayList<String> items;
 	private MyAdapter adapter;
+	private boolean WDSimEnabled;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +27,7 @@ public class ScoresActivity extends Activity {
 		setContentView(R.layout.activity_scores);
 		
 		scores = (ScoreBoard) getIntent().getSerializableExtra("scores");
+		WDSimEnabled = getIntent().getBooleanExtra("WDState", false);
 
 		items = new ArrayList<String>();
 		items.add("Name          Score");
@@ -36,21 +38,20 @@ public class ScoresActivity extends Activity {
 	        it.remove(); 
 	    }
 		
-	    // create an array adapter to bind the array to list view
-		ListView scoreList = (ListView)findViewById(R.id.scores_list);
+	    ListView scoreList = (ListView)findViewById(R.id.scores_list);
 		adapter = new MyAdapter(this, items);
 	    scoreList.setAdapter(adapter);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.menu, menu);
 		return true;
 	}
 
 	public void leave(View v) {		
 		Intent intent = new Intent(ScoresActivity.this, MenuActivity.class);
+		intent.putExtra("WDState", WDSimEnabled);
 		startActivity(intent);
 	}
 	

@@ -1,6 +1,5 @@
 package com.example.bomberman.network;
 
-import java.util.ArrayList;
 import java.util.TreeMap;
 
 import android.util.Log;
@@ -19,7 +18,6 @@ public class NetworkService {
 	private static boolean isServer;
 	private static Thread serverThread = null;
 	private static Server server = null;
-	private static ArrayList<String> addresses = null;
 	private static char playerId = '#';
 	private static MultiplayerMenuActivity menuActivity;
 	private static GameActivity gameActivity;
@@ -77,18 +75,13 @@ public class NetworkService {
 		return playerId;
 	}
 	
-	public void setAddresses(ArrayList<String> addresses) {
-		NetworkService.addresses = addresses;
-	}
-
-	
 	/*
 	 * Communication primitives.
 	 */
 	
-	public void connect() {
+	public void connect(String address) {
 		try {
-			new ClientAsyncTask("connect", this, addresses).execute("");
+			new ClientAsyncTask("connect", this).execute(address);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -112,6 +105,16 @@ public class NetworkService {
 	 */
 	
 	public void createGame(String playerName) {
+		// Active wait for the server to be ready. It's a separate thread so there's
+		// no guarantee that it already ran before the main thread reaches the following
+		// lines of code to send the creation message.
+		if(WDSimEnabled)
+			Log.d("NetService", "Server state is" + Server.ready);
+			while(!Server.ready) {
+				Log.d("NetService", "WAITING");
+				// Active wait for server to be ready.
+				// Passive would be with Thread.sleep (WARNING: this is the main thread)
+			}
 		String message = "create " + playerName + playerId;
 		send(message);
 	}
@@ -145,7 +148,7 @@ public class NetworkService {
 		String message = "set_map " + mapNumber + " " + playerId + " " + maxPlayers;
 		send(message);
 	}
-
+	
 	/*
 	 * Player commands
 	 */
@@ -233,9 +236,9 @@ public class NetworkService {
 		menuActivity.updateMap(mapNumber);
 	}
 
-	private void preStartGameOrder(String message) {
+	private void startGameOrder(String message) {
 		char mode = message.charAt(1);
-		menuActivity.preStartGameOrder(mode);
+		menuActivity.startGameOrder(mode);
 	}
 
 	private void playerAction(String command) { // ex: up/3/13/42
@@ -352,7 +355,7 @@ public class NetworkService {
 			updateMap(message.charAt(1));
 			break;
 		case 'X': // preStartGame (gameActivity loading arena)
-			preStartGameOrder(message);
+			startGameOrder(message);
 			break;
 		case 'S': // other participants sending 'im set' msgs to the game master
 			checkIfAllReady(message.charAt(1));
@@ -375,6 +378,12 @@ public class NetworkService {
 		default:
 			break;
 		}
+	}
+	
+	public void stopServer() {
+		if(isServer && WDSimEnabled)
+			server.running = false;
+		
 	}
 	
 }

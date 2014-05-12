@@ -24,7 +24,10 @@ public class MenuActivity extends Activity {
 		localUsers.add("b0x1");
 		localUsers.add("Wo0d");
 		activeUser = ((TextView) findViewById(R.id.activeTV));
-		WDSimEnabled = false;
+		Intent intent = getIntent();
+		if(intent != null) {
+			WDSimEnabled = intent.getBooleanExtra("WDState", false);
+		}
 	}
 
 	@Override

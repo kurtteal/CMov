@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
 import pt.utl.ist.cmov.wifidirect.sockets.SimWifiP2pSocket;
 import android.os.AsyncTask;
@@ -19,7 +18,6 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 	private static SimWifiP2pSocket clientWDSocket;
     private static BufferedReader in;
 	private int serverPort = 10001;
-	private ArrayList<String> addresses;
 	private String mode;
 	private NetworkService service;
 	
@@ -28,11 +26,10 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
         this.mode = mode;
     }
 	
-	public ClientAsyncTask(String mode, NetworkService service, ArrayList<String> addresses) {
+	public ClientAsyncTask(String mode, NetworkService service) {
         super();
         this.mode = mode;
         this.service = service;
-        this.addresses = addresses;
     }
 	
 	//Metodo que o execute() vai correr: se for com ordem de connect,
@@ -50,16 +47,16 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 		}
 		
 		if(mode.equals("connect")) {
-			Log.d("ClientAsyncTask", "Trying " + "192.168.0.1");
+			Log.d("ClientAsyncTask", "Trying " + strings[0]);
 			try {
 				if(!service.usingWDSim()) {
-					clientSocket = new Socket("NOT NOW", serverPort);
+					clientSocket = new Socket(strings[0], serverPort);
 					out = new PrintWriter(clientSocket.getOutputStream(), true);
 					in = new BufferedReader(new InputStreamReader(
 							clientSocket.getInputStream()));
 				}
 				else {
-					clientWDSocket = new SimWifiP2pSocket("192.168.0.1", serverPort);
+					clientWDSocket = new SimWifiP2pSocket(strings[0], serverPort);
 					out = new PrintWriter(clientWDSocket.getOutputStream(), true);
 					in = new BufferedReader(new InputStreamReader(
 							clientWDSocket.getInputStream()));
