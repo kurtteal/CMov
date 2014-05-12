@@ -1,23 +1,23 @@
 13,19
+WWWWWWWWWWWWWWWWWWW 
+W-2-----R----O----W 
+WWOW-W-W-W-W-W-W-WW 
+W-O--------R------W 
+WWOWOW-W-W-W-WOW-WW 
+W--O--------O-R--3W 
+WWOW-W-W-W-W-W-W-WW 
+W-OOOO---1-------OW 
+WWOWOWOWOW-W-W-W-WW 
+W--OOOO--R--OOO---W 
+WW-W-WOWOW-WOWOWOWW 
+W------OOO--OOO-ORW 
 WWWWWWWWWWWWWWWWWWW
-W----------1-O----W
-WWOW-W-W-W-W-W-W-WW
-W-O---------------W
-WWOWOW-W-W-W-WOW-WW
-W--O-------2O-----W
-WWOW-W-W-W-W-W-W-WW
-W-OOOO-----------OW
-WWOWOWOWOW-W-W-W-WW
-W--OOOO-----OOO-O-W
-WW-W-WOWOW-WOWOW-WW
-WOR----OOO--OOO---W
-WWWWWWWWWWWWWWWWWWW
-Crucible/Level Name
-120/Game duration (min)
-14/Explosion timeout (s)
-7/Explosion duration
-2/Explosion range
-3/Robot speed
-12/Points per robot killed
-15/Points per opponent killed
-2/Max players
+1/Level Name
+120/Game duration (s)
+2/Explosion timeout (s)
+2/Explosion duration (s)
+4/Explosion range (cells)
+0.5/Robot speed (cells/s)
+10/Points per robot killed
+100/Points per opponent killed
+3/Nr. Max. players

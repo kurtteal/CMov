@@ -13,7 +13,7 @@ import com.example.bomberman.network.server.Server;
  * Its subclasses will define how the messages are sent through the network.
  */
 public class NetworkService {
-	
+
 	private static boolean WDSimEnabled;
 	private static boolean isServer;
 	private static Thread serverThread = null;
@@ -23,34 +23,36 @@ public class NetworkService {
 	private static GameActivity gameActivity;
 	private static TreeMap<Integer, String> clientsNames = new TreeMap<Integer, String>();
 	private static TreeMap<Integer, String> participantsReady = new TreeMap<Integer, String>();
-	
+
 	/*
 	 * Getters and Setters
 	 */
-	
+
 	public void enableWDSim() {
 		WDSimEnabled = true; 
 	}
-	
+
 	public void enableServer() {
 		NetworkService.isServer = true;
 		server = new Server();
-		serverThread = new Thread(server);
-		serverThread.start();
+		server.resetServer();
+		server.start();
+//		serverThread = new Thread(server);
+//		serverThread.start();
 		Log.d("NetService", "STARTED SERVER THREAD CARALHO");
 	}
-	
+
 	public boolean usingWDSim() {
 		return WDSimEnabled;
 	}
-	
+
 	public boolean isServer() {
 		if(WDSimEnabled)
 			return isServer;
 		else
 			return false;
 	}
-	
+
 	public void setMenuActivity(MultiplayerMenuActivity act) {
 		menuActivity = act;
 	}
@@ -58,15 +60,15 @@ public class NetworkService {
 	public void setGameActivity(GameActivity act) {
 		gameActivity = act;
 	}
-	
+
 	public void setPlayerId(char id) {
 		playerId = id;
 	}
-	
+
 	public MultiplayerMenuActivity getMenuActivity() {
 		return menuActivity;
 	}
-	
+
 	public GameActivity getGameActivity() {
 		return gameActivity;
 	}
@@ -74,19 +76,30 @@ public class NetworkService {
 	public char getPlayerId() {
 		return playerId;
 	}
-	
+
 	/*
 	 * Communication primitives.
 	 */
-	
+
 	public void connect(String address) {
 		try {
+			// Active wait for the server to be ready. It's a separate thread so there's
+			// no guarantee that it already ran before the main thread reaches the following
+			// lines of code to send the creation message.
+			if(WDSimEnabled && isServer){
+				Log.d("NetService", "Server state is" + Server.ready);
+				while(!Server.ready) {
+					Thread.yield();
+					// Active wait for server to be ready.
+					// Passive would be with Thread.sleep (WARNING: this is the main thread)
+				}
+			}
 			new ClientAsyncTask("connect", this).execute(address);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void send(String message) {
 		try {
 			new ClientAsyncTask("send").execute(message);
@@ -95,64 +108,55 @@ public class NetworkService {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void closeConnection() {
 		// TODO blabla granchinho's shit ...
 	}
-	
+
 	/*
 	 * Button methods, they build the messages and give the send order.
 	 */
-	
+
 	public void createGame(String playerName) {
-		// Active wait for the server to be ready. It's a separate thread so there's
-		// no guarantee that it already ran before the main thread reaches the following
-		// lines of code to send the creation message.
-		if(WDSimEnabled)
-			Log.d("NetService", "Server state is" + Server.ready);
-			while(!Server.ready) {
-				Log.d("NetService", "WAITING");
-				// Active wait for server to be ready.
-				// Passive would be with Thread.sleep (WARNING: this is the main thread)
-			}
+
 		String message = "create " + playerName + playerId;
 		send(message);
 	}
-	
+
 	public void joinGame(String playerName) {
 		String message = "join " + playerName + playerId;
 		send(message);
 	}
-	
+
 	public void preStartGame() {
 		String message = "start " + playerId;
 		send(message);
 	}
-	
+
 	public void startGame() {
 		String message = "T" + getPlayerId();
 		send(message);
 	}
-	
+
 	public void midJoin() {
 		String message = "mid_join_ready " + playerId;
 		send(message);
 	}
-	
+
 	public void leaveGame() {
 		String message = "leave_game" + playerId;
 		send(message);
 	}
-	
+
 	public void setMap(int mapNumber, int maxPlayers) {
 		String message = "set_map " + mapNumber + " " + playerId + " " + maxPlayers;
 		send(message);
 	}
-	
+
 	/*
 	 * Player commands
 	 */
-	
+
 	public void goUp(int i, int j) {
 		String message = "Cup" + "/" + playerId + "/" + i + "/" + j;
 		send(message);
@@ -181,7 +185,7 @@ public class NetworkService {
 	/*
 	 * Robot commands
 	 */
-	
+
 	public void robotUp(int robotId, int i, int j) {
 		String message = "Rup" + "/" + robotId + "/" + i + "/" + j;
 		send(message);
@@ -205,7 +209,7 @@ public class NetworkService {
 	/*
 	 * Internal methods.
 	 */
-	
+
 	private void createSuccessful() {
 		setPlayerId('1'); // quem criou eh o 1
 		menuActivity.createResponse(true);
@@ -286,7 +290,7 @@ public class NetworkService {
 				startGame(); // envia o inicio do jogo pa tds
 		}
 	}
-	
+
 	// Quando um novo player entra, eh pq o servidor deixou (ainda havia lugares
 	// vagos)
 	// Os unicos que recebem esta msg sao todos menos o que entra
@@ -297,32 +301,32 @@ public class NetworkService {
 			// TODO enviar msg com o clock actual para o newPlayerId
 			int currentCount = gameActivity.getCountDown();
 			sendCurrentClock(newPlayerId, currentCount); // metodo do proprio
-															// servico
+			// servico
 		}
 	}
-	
+
 	private void updateClock(String clock) {
 		gameActivity.setCountDown(Integer.parseInt(clock));
 	}
-	
+
 	/*
 	 * Other synchronization methods.
 	 */
-	
+
 	// Chamado pelos participantes que nao sao game master, enquanto o master
 	// nao esta pronto
 	public void imSet() {
 		String message = "S" + playerId;
 		send(message);
 	}
-	
+
 	// O game master depois de receber um join a meio, envia o clock atual
 	// para o ultimo que entrou ficar atualizado
 	private void sendCurrentClock(char newPlayerId, int clock) {
 		String message = "clock " + clock + newPlayerId;
 		send(message);
 	}
-	
+
 	/*
 	 * The message processing method. Invoked after a message is received.
 	 */
@@ -347,7 +351,7 @@ public class NetworkService {
 			break;
 		case 'L': // lista de jogadores actualizada
 			String[] players = message.substring(2, message.length() - 1)
-					.split(",");
+			.split(",");
 			Log.d("Plist updt: ", NetworkService.playerId + " " + players[0]);
 			updatePlayerList(players);
 			break;
@@ -379,11 +383,4 @@ public class NetworkService {
 			break;
 		}
 	}
-	
-	public void stopServer() {
-		if(isServer && WDSimEnabled)
-			server.running = false;
-		
-	}
-	
 }

@@ -7,7 +7,7 @@ import pt.utl.ist.cmov.wifidirect.sockets.SimWifiP2pSocketServer;
 import android.util.Log;
 import android.util.SparseArray;
 
-public class Server implements Runnable {
+public class Server extends Thread {
 	
 	private static SimWifiP2pSocketServer serverSocket;
     private static int serverPort = 10001;
@@ -17,7 +17,6 @@ public class Server implements Runnable {
     public static int clt_id = 1;
     public static boolean gameStarting = false;
     public static boolean gameOngoing = false;
-    public static boolean running = true;
 	public static SparseArray<PrintWriter> clients = new SparseArray<PrintWriter>();
 	public static SparseArray<String> clientsNames = new SparseArray<String>();
 	
@@ -36,6 +35,21 @@ public class Server implements Runnable {
 	public void reply(int clientId, PrintWriter out, String answer) {
 		out.println(answer);
 	}
+	
+	public void resetServer(){
+		try {
+			System.out.println("Resetting the server.");
+			if (serverSocket != null)
+				serverSocket.close();
+			Server.gameOngoing = false;
+			Server.gameStarting = false;
+			Server.clients = new SparseArray<PrintWriter>();
+			Server.clientsNames = new SparseArray<String>();
+		} catch (IOException e) {
+			System.out.println("Could not close socket");
+			System.exit(-1);
+		}
+	}
 
 	@Override
 	public void run() {
@@ -46,7 +60,7 @@ public class Server implements Runnable {
 	        Log.d("BOMBERMAN SERVER", "Could not listen on port: " + serverPort);
 	    }	
 	
-		while (running) {
+		while (true) {
 			try {
 				ready = true;
 				ClientHandler w = new ClientHandler(serverSocket.accept(), this, clt_id++);
@@ -57,18 +71,6 @@ public class Server implements Runnable {
 				System.out.println("Accept failed: " + serverPort);
 				System.exit(-1);
 			}
-		}
-		
-		try {
-			System.out.println("Resetting the server.");
-			serverSocket.close();
-			Server.gameOngoing = false;
-			Server.gameStarting = false;
-			Server.clients = new SparseArray<PrintWriter>();
-			Server.clientsNames = new SparseArray<String>();
-		} catch (IOException e) {
-			System.out.println("Could not close socket");
-			System.exit(-1);
 		}
 		
 	}

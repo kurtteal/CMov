@@ -52,9 +52,9 @@ public class Path implements IDrawable{
 	private PathState state;
 	private long bombInitialTime;
 	private long explosionInitialTime;
-	private int bombTime; //14 vem do ficheiro map escolhido (esta nos assets)
-	private int explosionTime; // 7
-	private int explosionRange; // range 2 
+	private double bombTime;
+	private int explosionTime;
+	private int explosionRange;
 	
 	private boolean firstUpdate = true; //These 2 attributes exist only because the bitmaps cant be
 	private PathState initialState;		//expanded in the constructor, so its done on the first update instead

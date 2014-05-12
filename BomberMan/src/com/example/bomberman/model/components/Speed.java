@@ -18,7 +18,7 @@ public class Speed {
 	public static final int DIRECTION_DOWN	= 1;
 	public static final int STILL = 0;
 	
-	private int velocity = 1;
+	private double velocity = 1;
 	
 	private int xDirection;
 	private int yDirection;
@@ -27,10 +27,10 @@ public class Speed {
 		stayStill();
 	}
 	
-	public int getVelocity() {
+	public double getVelocity() {
 		return velocity;
 	}
-	public void setVelocity(int velo) {
+	public void setVelocity(double velo) {
 		velocity = velo;
 	}
 

@@ -1,23 +1,23 @@
 13,19
+WWWWWWWWWWWWWWWWWWW 
+W--O--------O-R--3W 
+WWOW-W-W-W-W-W-W-WW 
+W-OOOO---1-------OW 
+WWOWOWOWOW-W-W-W-WW 
+W-2-----R----O----W 
+WWOW-W-W-W-W-W-W-WW 
+W-O--------R------W 
+WWOWOW-W-W-W-WOW-WW 
+W--OOOO--R--OOO---W 
+WW-W-WOWOW-WOWOWOWW 
+W-----4OOO--OO---RW 
 WWWWWWWWWWWWWWWWWWW
-W-----------------W
-WW-W-W-W-W-W-W-W-WW
-W-----------------W
-WW-W-W-W-W-W-W-W-WW
-W-----------------W
-WW-W-W-W-W-W-W-W-WW
-W-----------------W
-WW-W-W-W-W-W-W-W-WW
-WO-O-O-O-O-O------W
-WW-W-W-W-W-W-W-W-WW
-WO1O2ORORORO------W
-WWWWWWWWWWWWWWWWWWW
-Teste do concurrent/Level Name
-120/Game duration (min)
-14/Explosion timeout (s) <-AQUI HA PROBLEMA CONCURRENT MODIFICATION ACCESS!!!! eh preciso proteger a matriz
-1/Explosion duration
-5/Explosion range
-6/Robot speed
-12/Points per robot killed
-15/Points per opponent killed
-2/Max players
+3/Level Name
+120/Game duration (s)
+1/Explosion timeout (s)
+1/Explosion duration (s)
+3/Explosion range (cells)
+2/Robot speed (cells/s)
+10/Points per robot killed
+100/Points per opponent killed
+4/Nr. Max. players

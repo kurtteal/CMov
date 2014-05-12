@@ -18,10 +18,10 @@ public class GameConfigs implements Serializable {
 
 	public String levelName;
 	public int gameDuration;
-	public int explosionTimeout;
+	public double explosionTimeout;
 	public int explosionDuration;
 	public int explosionRange;
-	public int robotSpeed;
+	public double robotSpeed;
 	public int ptsPerRobot;
 	public int ptsPerPlayer;
 	public int maxPlayers;
@@ -81,7 +81,7 @@ public class GameConfigs implements Serializable {
 
 		line = input.readLine();
 		array = line.split("/");
-		explosionTimeout = Integer.parseInt(array[0]);
+		explosionTimeout = Double.parseDouble(array[0]);
 		
 		line = input.readLine();
 		array = line.split("/");
@@ -93,7 +93,7 @@ public class GameConfigs implements Serializable {
 
 		line = input.readLine();
 		array = line.split("/");
-		robotSpeed = Integer.parseInt(array[0]);
+		robotSpeed = Double.parseDouble(array[0]);
 		
 		line = input.readLine();
 		array = line.split("/");

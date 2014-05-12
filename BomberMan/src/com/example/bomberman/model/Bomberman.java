@@ -19,7 +19,7 @@ public class Bomberman {
 	protected char myself; //serve para nao chocar com a sua propria posicao inicial
 	private int numColumns;
 	private int numLines;
-	protected int movementMargin = 3;
+	protected double movementMargin = 3;
 	
 	protected Bitmap bitmapUp; // the actual bitmap (or the animation sequence)
 	protected Bitmap bitmapDown;

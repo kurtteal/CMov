@@ -339,7 +339,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		Intent intent = new Intent(GameActivity.this, ScoresActivity.class);
 		intent.putExtra("scores", scores);
 		gamePanel.thread.setRunning(false);
-		service.stopServer();
 		startActivity(intent);
 	}
 

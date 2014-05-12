@@ -147,7 +147,7 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
             int pos, long id) {
     	CharSequence mSelected = (CharSequence) parent.getItemAtPosition(pos);
 		String selection = mSelected.toString();
-		int selected = Integer.parseInt(selection.substring(4));
+		int selected = Integer.parseInt(selection.substring(6));
 		
         AssetManager am = getAssets();
         int maxPlayers = 0;

@@ -1,23 +1,23 @@
 13,19
+WWWWWWWWWWWWWWWWWWW 
+W-2-----R----O----W 
+WWOW-W-W-W-W-W-W-WW 
+W-O--O-----R------W 
+WWOWOW-W-W-W-WOW-WW 
+W--O-----1--O-R--3W 
+WW-W-W-W-W-W-W-W--W 
+W--O-O--O--O-O---OW 
+WWOW-WOWOW-W-W-W-WW 
+W--O-OO--R---W----W 
+WW-WRWOWOW-WOWOWOWW 
+W4------ROO-O-O-ORW 
 WWWWWWWWWWWWWWWWWWW
-W----------------2W
-WW-W1W-W-W-W-W-W-WW
-W-----------------W
-WW-W-W-W-W-W-W-W-WW
-W-----------------W
-WW-W-W-W-W-W-W-W-WW
-W-----------------W
-WW-W-W-W-W-W-W-W-WW
-W-----------R-----W
-WW-W-WRW-W-W-W-W-WW
-W-R---------------W
-WWWWWWWWWWWWWWWWWWW
-Lecrap/Level Name
-120/Game duration (min)
-10/Explosion timeout (s)
-1/Explosion duration
-1/Explosion range
-3/Robot speed
-12/Points per robot killed
-15/Points per opponent killed
-2/Max players
+2/Level Name
+120/Game duration (s)
+1.5/Explosion timeout (s)
+1/Explosion duration (s)
+3/Explosion range (cells)
+1/Robot speed (cells/s)
+10/Points per robot killed
+100/Points per opponent killed
+4/Nr. Max. players
