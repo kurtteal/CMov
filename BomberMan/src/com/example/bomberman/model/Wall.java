@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 
-import com.example.bomberman.MainGamePanel;
+import com.example.bomberman.GamePanel;
 import com.example.bomberman.R;
 import com.example.bomberman.util.GameConfigs;
 
@@ -14,13 +14,13 @@ public class Wall implements IDrawable{
 	private Bitmap bitmap; // the actual bitmap (or the animation sequence)
 	private int x; // the X coordinate (top left of the image)
 	private int y; // the Y coordinate (top left of the image)
-	private MainGamePanel panel;
+	private GamePanel panel;
 	private int numColumns;
 	private int numLines;
 	
 	private boolean firstUpdate = true;
 
-	public Wall(Resources resources, int x, int y, int numColumns, int numLines, MainGamePanel panel) {
+	public Wall(Resources resources, int x, int y, int numColumns, int numLines, GamePanel panel) {
 		this.panel = panel;
 		//the wall will not use int i and int j, as it does not change the state of the gameMatrix
 		this.bitmap = BitmapFactory.decodeResource(resources, R.drawable.wall);

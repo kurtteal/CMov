@@ -36,8 +36,6 @@ public class WDSimServiceConnection implements ServiceConnection {
 		mChannel = mManager.initialize(activity.getApplication(), activity.getMainLooper(), null);
 		if(activity instanceof MultiplayerMenuActivity)
 			((MultiplayerMenuActivity) activity).requestGroupInfo();
-		//else
-			//((GameActivity) activity).requestGroupInfo();
 	}
 
 	@Override

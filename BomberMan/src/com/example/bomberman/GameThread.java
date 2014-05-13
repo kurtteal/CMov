@@ -18,7 +18,7 @@ public class GameThread extends Thread {
 	private SurfaceHolder surfaceHolder;
 	// The actual view that handles inputs
 	// and draws to the surface
-	private MainGamePanel gamePanel;
+	private GamePanel gamePanel;
 	private Object pauseLock;
 
 	// flag to hold game state 
@@ -33,7 +33,7 @@ public class GameThread extends Thread {
 		return this.paused;
 	}
 
-	public GameThread(SurfaceHolder surfaceHolder, MainGamePanel gamePanel) {
+	public GameThread(SurfaceHolder surfaceHolder, GamePanel gamePanel) {
 		super();
 		this.surfaceHolder = surfaceHolder;
 		this.gamePanel = gamePanel;

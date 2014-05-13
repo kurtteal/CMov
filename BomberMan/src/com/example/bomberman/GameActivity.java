@@ -1,8 +1,10 @@
 package com.example.bomberman;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
 
 import pt.utl.ist.cmov.wifidirect.SimWifiP2pBroadcast;
 import pt.utl.ist.cmov.wifidirect.SimWifiP2pDevice;
@@ -39,7 +41,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	private static final String TAG = GameActivity.class.getSimpleName();
 	protected GameConfigs gc;
 
-	private MainGamePanel gamePanel;
+	private GamePanel gamePanel;
 	private TextView playerNameView;
 	private TextView timeLeftView;
 	private TextView scoreView;
@@ -69,6 +71,8 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 
 	private boolean WDSimEnabled;
 	private boolean inGroup = false;
+	private boolean isGroupOwner = false;
+	private String serverAddress = null;
 	private WDSimServiceConnection servConn = null;
 	
 	@SuppressLint("HandlerLeak") @Override
@@ -147,7 +151,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		}
 	}
 
-	public void setGamePanel(MainGamePanel gPanel) {
+	public void setGamePanel(GamePanel gPanel) {
 		this.gamePanel = gPanel;
 	}
 
@@ -435,15 +439,17 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 
 	@Override
 	public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
-			SimWifiP2pInfo groupInfo) {
+			SimWifiP2pInfo groupInfo, String goName) {
 		inGroup = groupInfo.askIsConnected();
+		isGroupOwner = groupInfo.askIsGO();
 		if(inGroup) {
-			ArrayList<String> addresses = new ArrayList<String>();
 			for(SimWifiP2pDevice d : devices.getDeviceList()) {
 				String[] split = d.virtDeviceAddress.split(":");
-				addresses.add(split[0]);
+				if (d.deviceName.equals(goName))
+					serverAddress = split[0];
 				Log.d("IPs", split[0]);
 			}
+			Log.d("MultiplayerMenu", "Server address: " + serverAddress + " - " + goName);
 		}
 	}
 

@@ -16,7 +16,6 @@ public class NetworkService {
 
 	private static boolean WDSimEnabled;
 	private static boolean isServer;
-	private static Thread serverThread = null;
 	private static Server server = null;
 	private static char playerId = '#';
 	private static MultiplayerMenuActivity menuActivity;
@@ -31,19 +30,21 @@ public class NetworkService {
 	public void enableWDSim() {
 		WDSimEnabled = true; 
 	}
+	
+	public boolean usingWDSim() {
+		return WDSimEnabled;
+	}
 
 	public void enableServer() {
 		NetworkService.isServer = true;
-		server = new Server();
-		server.resetServer();
-		server.start();
-//		serverThread = new Thread(server);
-//		serverThread.start();
-		Log.d("NetService", "STARTED SERVER THREAD CARALHO");
+		NetworkService.server = new Server();
+		NetworkService.server.resetServer();
+		NetworkService.server.start();
 	}
-
-	public boolean usingWDSim() {
-		return WDSimEnabled;
+	
+	public void disableServer() {
+		NetworkService.isServer = false;
+		NetworkService.server = null;
 	}
 
 	public boolean isServer() {
@@ -83,15 +84,13 @@ public class NetworkService {
 
 	public void connect(String address) {
 		try {
-			// Active wait for the server to be ready. It's a separate thread so there's
+			// The server runs on a separate thread so there's
 			// no guarantee that it already ran before the main thread reaches the following
 			// lines of code to send the creation message.
 			if(WDSimEnabled && isServer){
 				Log.d("NetService", "Server state is" + Server.ready);
 				while(!Server.ready) {
 					Thread.yield();
-					// Active wait for server to be ready.
-					// Passive would be with Thread.sleep (WARNING: this is the main thread)
 				}
 			}
 			new ClientAsyncTask("connect", this).execute(address);
@@ -110,7 +109,7 @@ public class NetworkService {
 	}
 
 	public void closeConnection() {
-		// TODO blabla granchinho's shit ...
+		// TODO ...
 	}
 
 	/*
@@ -118,7 +117,6 @@ public class NetworkService {
 	 */
 
 	public void createGame(String playerName) {
-
 		String message = "create " + playerName + playerId;
 		send(message);
 	}

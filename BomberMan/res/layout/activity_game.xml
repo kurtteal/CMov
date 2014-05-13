@@ -57,7 +57,7 @@
             tools:ignore="HardcodedText" />
     </LinearLayout>
 
-    <com.example.bomberman.MainGamePanel
+    <com.example.bomberman.GamePanel
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="0.35" />

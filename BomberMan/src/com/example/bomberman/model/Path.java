@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
-import com.example.bomberman.MainGamePanel;
+import com.example.bomberman.GamePanel;
 import com.example.bomberman.R;
 import com.example.bomberman.util.GameConfigs;
 
@@ -18,7 +18,7 @@ public class Path implements IDrawable{
 	public int iArena;
 	public int jArena;
 	private IDrawable[][] pixelMatrix; //for the explosions to update the other nearby objects
-	private MainGamePanel panel;
+	private GamePanel panel;
 	private int numColumns;
 	private int numLines;
 	
@@ -61,7 +61,7 @@ public class Path implements IDrawable{
 	
 	//TODO bombas e explosoes precisam de ter o id (myself) do owner para atribuicao de pts
 
-	public Path(Resources resources, int x, int y, PathState state, int i, int j, int numColumns, int numLines, MainGamePanel panel) {
+	public Path(Resources resources, int x, int y, PathState state, int i, int j, int numColumns, int numLines, GamePanel panel) {
 		iArena = i;
 		jArena = j; //Each component knows its coordinates on the gameMatrix
 		this.pixelMatrix = panel.getArena().pixelMatrix;

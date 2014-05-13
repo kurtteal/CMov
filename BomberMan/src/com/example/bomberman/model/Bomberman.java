@@ -7,14 +7,14 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.Log;
 
-import com.example.bomberman.MainGamePanel;
+import com.example.bomberman.GamePanel;
 import com.example.bomberman.R;
 import com.example.bomberman.model.components.Speed;
 import com.example.bomberman.util.GameConfigs;
 
 public class Bomberman { 
 	
-	MainGamePanel panel;
+	GamePanel panel;
 	GameConfigs gc;
 	protected char myself; //serve para nao chocar com a sua propria posicao inicial
 	private int numColumns;
@@ -53,7 +53,7 @@ public class Bomberman {
 	protected int iBomb;
 	protected int jBomb;
 	
-	public Bomberman (Resources resources, int x, int y, int xMargin, int yMargin, MainGamePanel panel, char myself, int numColumns, int numLines) {
+	public Bomberman (Resources resources, int x, int y, int xMargin, int yMargin, GamePanel panel, char myself, int numColumns, int numLines) {
 		this.myself = myself;
 		this.panel = panel;
 		this.gc = panel.getArena().gc;

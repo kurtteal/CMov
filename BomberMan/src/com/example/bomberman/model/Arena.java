@@ -3,7 +3,7 @@ package com.example.bomberman.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.bomberman.MainGamePanel;
+import com.example.bomberman.GamePanel;
 import com.example.bomberman.util.GameConfigs;
 import com.example.bomberman.util.ScoreBoard;
 
@@ -22,7 +22,7 @@ public class Arena {
 	private List<Robot> robots;
 	
 	protected GameConfigs gc; // matrix com chars, para verificacao de colisoes
-	public MainGamePanel panel;
+	public GamePanel panel;
 	public ScoreBoard scores = new ScoreBoard();
 	
 	//Cada bomberman so pode por uma bomba de cada vez (enunciado)
@@ -43,7 +43,7 @@ public class Arena {
 	// Cant draw the arena on the constructor because I need
 	// the panel dimensions... so draw on the first update
 	public Arena(Resources resources, GameConfigs gameConfigs,
-			MainGamePanel panel) {
+			GamePanel panel) {
 		players = new ArrayList<Bomberman>();
 		unjoinedPlayers = new ArrayList<Bomberman>();
 		robots = new ArrayList<Robot>();

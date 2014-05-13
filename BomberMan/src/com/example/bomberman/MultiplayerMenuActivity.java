@@ -55,7 +55,7 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
     private static int numUsers;
 	
 	private boolean WDSimEnabled = false;
-	private boolean inGroup = true;
+	private boolean inGroup = false;
 	private boolean isGroupOwner = false;
 	private String serverAddress = null;
 	private WDSimServiceConnection servConn = null;
@@ -123,9 +123,6 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 			servConn = new WDSimServiceConnection(this);
 			Intent intent = new Intent(this, SimWifiP2pService.class);
             bindService(intent, (ServiceConnection) servConn, Context.BIND_AUTO_CREATE);
-            
-            // Temporary solution for the server address.
-            serverAddress = "192.168.0.1";
 		}
 		else {
 			serverAddress = "10.0.2.2";
@@ -200,8 +197,13 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 			}
 		}
 		if (!connected) {
+			if(serverAddress == null) {
+				Toast.makeText(this, "Can't find the server.",
+        				Toast.LENGTH_SHORT).show();
+				return;
+			}
 			service.connect(serverAddress);
-			connected = true;
+			//connected = true;
 		}
 		service.createGame(localUser);
 	}
@@ -215,8 +217,14 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 			}
 		}
 		if (!connected) {
+			if(serverAddress == null) {
+				Toast.makeText(this, "Can't find the server.",
+        				Toast.LENGTH_SHORT).show();
+				return;
+			}
+			service.disableServer();
 			service.connect(serverAddress);
-			connected = true;
+			//connected = true;
 		} 
 		service.joinGame(localUser);
 	}
@@ -230,6 +238,7 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 	 */
 	
 	public void createResponse(boolean result) {
+		connected = true;
 		if(result) {
 			playerId = '1';
 			Log.d("Creation success", " ");
@@ -260,6 +269,7 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 	
 	public void joinResponse(boolean result, char playerId) {
 		if(result) {
+			connected = true;
 			this.playerId = playerId;
 			Log.d("Join success, playerId: ", playerId+"");
 			runOnUiThread(new Runnable() {
@@ -275,7 +285,8 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 			//se falhou o campo playerId eh reciclado para indicar a causa da falha
 			char cause = playerId; 
 			Log.d("Join failed", " ");
-			if(cause == '3')
+			if(cause == '3') {
+				connected = true;
 				runOnUiThread(new Runnable() {
 			        public void run() {
 						Toast.makeText(MultiplayerMenuActivity.this,
@@ -283,6 +294,7 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 								Toast.LENGTH_LONG).show();
 			        }
 				});
+			}
 			else
 				runOnUiThread(new Runnable() {
 			        public void run() {
@@ -344,18 +356,17 @@ public class MultiplayerMenuActivity extends Activity implements OnItemSelectedL
 	
 	@Override
 	public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
-			SimWifiP2pInfo groupInfo) {
-		// Ler o mail do prof! Talvez se possa obter o endereco do GO a partir do seu nome.
-		// E preciso ver (na API) onde e que posso obter o nome do GO.
+			SimWifiP2pInfo groupInfo, String goName) {
 		inGroup = groupInfo.askIsConnected();
 		isGroupOwner = groupInfo.askIsGO();
 		if(inGroup) {
-			ArrayList<String> addresses = new ArrayList<String>();
 			for(SimWifiP2pDevice d : devices.getDeviceList()) {
 				String[] split = d.virtDeviceAddress.split(":");
-				addresses.add(split[0]);
+				if (d.deviceName.equals(goName))
+					serverAddress = split[0];
 				Log.d("IPs", split[0]);
 			}
+			Log.d("MultiplayerMenu", "Server address: " + serverAddress + " - " + goName);
 		}
 	}
 	

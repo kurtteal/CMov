@@ -16,27 +16,27 @@ import com.example.bomberman.util.GameConfigs;
  * This is the main surface that handles the on touch events and draws
  * the image to the screen.
  */
-public class MainGamePanel extends SurfaceView implements
+public class GamePanel extends SurfaceView implements
 		SurfaceHolder.Callback {
 
-	private static final String TAG = MainGamePanel.class.getSimpleName();
+	private static final String TAG = GamePanel.class.getSimpleName();
 	public GameActivity activity;
 	
 	public GameThread thread;
 	//private Bomberman bomberman; //modelo q s mexe
 	private Arena arena;
 	
-	public MainGamePanel(Context context) {
+	public GamePanel(Context context) {
 		super(context);
 		commonInit(context);
 	}
 	
-    public MainGamePanel(Context context, AttributeSet attrs) {
+    public GamePanel(Context context, AttributeSet attrs) {
         super(context, attrs);
 		commonInit(context);
     }
 
-    public MainGamePanel(Context context, AttributeSet attrs, int defStyle) {
+    public GamePanel(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 		commonInit(context);
     }

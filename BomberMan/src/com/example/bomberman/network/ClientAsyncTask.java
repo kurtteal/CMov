@@ -32,22 +32,27 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
         this.service = service;
     }
 	
-	//Metodo que o execute() vai correr: se for com ordem de connect,
-	//vai abrir o socket com o servidor e devolve o printWriter ah activity
-	//com o qual consegue enviar updates ao servidor. Se for send, envia o
-	//update para o servidor no printWriter que lhe eh passado pelo construtor.
-	//(Atencao: AsyncTasks so podem correr 1 vez, tem de ser instanciadas sempre
-	//que correm, portanto eh preciso enviar o printWriter para a activity no connect
-	//para que esta possa usa-lo quando faz send!)
+	public void closeSocket() {
+		try {
+			out.close();
+			in.close();
+			if(!service.usingWDSim())
+				clientSocket.close();
+			else
+				clientWDSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
 	protected PrintWriter doInBackground(String... strings) {
-		
-		// validate input parameters
 		if (strings.length <= 0) {
 			return null;
 		}
 		
 		if(mode.equals("connect")) {
-			Log.d("ClientAsyncTask", "Trying " + strings[0]);
+			Log.d("ClientAsyncTask", "Connecting to " + strings[0]);
 			try {
 				if(!service.usingWDSim()) {
 					clientSocket = new Socket(strings[0], serverPort);
@@ -63,7 +68,7 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 				}
 				Runnable r = new ClientListener(in, service);
 				new Thread(r).start();
-				Log.d("ClientAsyncTask", "Connected to " + "192.168.0.1");
+				Log.d("ClientAsyncTask", "Connected to " + strings[0]);
 			} catch (UnknownHostException e) {
 				System.out.println("Error connecting to server - UnknownHostException");
 				e.printStackTrace();
@@ -82,21 +87,6 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 		}
 	}
 	
-	public void closeSocket() {
-		try {
-			out.close();
-			in.close();
-			if(!service.usingWDSim())
-				clientSocket.close();
-			else
-				clientWDSocket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	// Listener de cada cliente, que fica ah escuta no bufferedReader
-	// associado ao socket do servidor, por actualizacoes e envia-as para o servico
 	public class ClientListener implements Runnable {
 		BufferedReader in;
 		NetworkService service;
@@ -106,6 +96,7 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 			this.service = service;
 		}
 
+		@Override
 		public void run() {
 			while (true) {
 				try {

@@ -6,7 +6,7 @@ import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.example.bomberman.MainGamePanel;
+import com.example.bomberman.GamePanel;
 import com.example.bomberman.R;
 import com.example.bomberman.network.NetworkService;
 
@@ -26,7 +26,7 @@ public class Robot extends Bomberman{
 		super();
 	}
 
-	public Robot (Resources resources, int x, int y, int xMargin, int yMargin, MainGamePanel panel, char myself, double speed, int numColumns, int numLines, int robotId) {
+	public Robot (Resources resources, int x, int y, int xMargin, int yMargin, GamePanel panel, char myself, double speed, int numColumns, int numLines, int robotId) {
 		super(resources, x, y, xMargin, yMargin, panel, myself, numColumns, numLines);
 		this.movementMargin = speed; //the faster it goes, the more margin it needs
 		this.speed.setVelocity(speed);
