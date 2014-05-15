@@ -10,7 +10,7 @@ public class Speed {
 	public static final int DIRECTION_DOWN = 1;
 	public static final int STILL = 0;
 
-	private double velocity = 1;
+	private double velocity = 6;
 	private int xDirection;
 	private int yDirection;
 

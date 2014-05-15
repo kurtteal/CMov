@@ -20,11 +20,11 @@ public class Arena {
 	private List<Bomberman> players;
 	private List<Bomberman> unjoinedPlayers;
 	private List<Robot> robots;
-	
+
 	protected GameConfigs gc; // matrix com chars, para verificacao de colisoes
 	public GamePanel panel;
 	public ScoreBoard scores = new ScoreBoard();
-	
+
 	//Cada bomberman so pode por uma bomba de cada vez (enunciado)
 	public List<String> bombs; //contem os 'ids' dos players que puseram bombas
 
@@ -52,18 +52,18 @@ public class Arena {
 		this.resources = resources;
 		bombs = new ArrayList<String>();
 	}
-	
+
 	//Used in multiplayer: the game master starts the robot behaviour locally that will start their movement in other
 	//instances
 	public void startRobots(){
 		for(Robot r : robots)
 			r.startMoving();
 	}
-	
+
 	public Bomberman getActivePlayer(){
 		return activePlayer;
 	}
-	
+
 	public Bomberman getPlayer(char playerId){
 		for(Bomberman player : players){
 			if(player.myself == playerId)
@@ -71,7 +71,7 @@ public class Arena {
 		}
 		return null;
 	}
-	
+
 	public Robot getRobot(int id){
 		for(Robot b : robots)
 			if(b.robotId == id)
@@ -79,28 +79,28 @@ public class Arena {
 		return null;
 	}
 
-	
-//	public void setActivePlayer(char id){
-//		playerId = id;
-//		for(Bomberman b : players){
-//			if(b.myself == playerId)
-//				activePlayer = b;
-//		}
-//	}
+
+	//	public void setActivePlayer(char id){
+	//		playerId = id;
+	//		for(Bomberman b : players){
+	//			if(b.myself == playerId)
+	//				activePlayer = b;
+	//		}
+	//	}
 
 	private void fillDrawableMatrix() {
-		
+
 		playerId = panel.activity.playerId;
 		int numLines = gc.getNumLines();
 		int numColumns = gc.getNumColumns();
 		numPlayers = panel.activity.getNumPlayers();
 		pixelMatrix = new IDrawable[numLines][numColumns];
 		int i, j;
-//		Log.d("Laaaaa", "test , last*sizeX= " 
-//				+ ((panel.getWidth() - (panel.getWidth() / sizeX)*sizeX)/2) + "," + (panel.getWidth() - (panel.getWidth() / sizeX)*sizeX));
+		//		Log.d("Laaaaa", "test , last*sizeX= " 
+		//				+ ((panel.getWidth() - (panel.getWidth() / sizeX)*sizeX)/2) + "," + (panel.getWidth() - (panel.getWidth() / sizeX)*sizeX));
 		int gameRightMargin = (panel.getWidth() - (panel.getWidth() / numColumns)*numColumns)/2;
 		int gameBottomMargin = (panel.getHeight() - (panel.getHeight() / numLines)*numLines)/2;
-		
+
 		// preenche a matriz de objectos desenhaveis, e as listas de players e
 		// robots
 		for (i = 0; i < numLines; i++) {
@@ -160,11 +160,10 @@ public class Arena {
 					break;
 				}
 			}
-			System.out.println("");
 		}
-		
+
 	}
-	
+
 	//A new player enters in the middle of the game
 	public void newPlayer(char newPlayerId){
 		Bomberman joiningBomber = null;
@@ -195,7 +194,7 @@ public class Arena {
 		}
 		else
 			canPlant = true; //robots podem por as bombas que quiserem
-		
+
 		if(canPlant){
 			//gc.writeLogicPosition(j, i,'B'); setState do Path ja faz isto
 			writeState(i, j, PathState.BOMB, myself);
@@ -204,14 +203,14 @@ public class Arena {
 				bombs.add(planter);
 		}
 	}
-	
+
 	//Removes the playerId from the list of playerIds who had put a bomb
 	protected void bombExploded(char owner){
 		String planter = "" + owner;
 		if(bombs.contains(planter))
 			bombs.remove(planter);
 	}
-	
+
 	// Proteccao contra acessos concorrentes
 	// Escreve o novo estado no objecto Path localizado em i,j
 	public void writeState(int i, int j, PathState state, char owner) {
@@ -229,29 +228,41 @@ public class Arena {
 
 	public void elementHasDied(Bomberman bomber) {
 
-		// marca este elemento como morto
-		deadElements.add(bomber);
 		char victimId = bomber.myself;
 		//vou ah procura do dono da explosao que matou este elemento, e aumento o score se for player
 		char killerId = ((Path)pixelMatrix[bomber.i][bomber.j]).getOwner();
-		Log.d("Killer id:", "" + killerId);
-		//Se nao foi morte por contacto com robot, vai actualizar o score de algum player
-		if(killerId != '#'){
-			String planter = "" + killerId;
-			if(killerId != 'R' && victimId != killerId){ //suicide doesnt count
-				if(victimId == 'R')
-					scores.update(planter, gc.ptsPerRobot);
-				else
-					scores.update(planter, gc.ptsPerPlayer);
+
+		if(deadElements.contains(bomber)){
+			return;
+		} else{
+
+			//synchronized (deadElements) {
+				// marca este elemento como morto
+				deadElements.add(bomber);
+			//}
+			//Se nao foi morte por contacto com robot, vai actualizar o score de algum player
+			if(killerId != '#'){
+				String planter = "" + killerId;
+				if(killerId != 'R' && victimId != killerId){ //suicide doesnt count
+					if(victimId == 'R'){
+						Log.d("IM ELEMENT DIED", "THE PLAYER" + killerId + " KILLED THE ROBOT: " + victimId);
+						scores.update(planter, gc.ptsPerRobot);
+					}
+					else {
+						scores.update(planter, gc.ptsPerPlayer);
+						Log.d("IM ELEMENT DIED", "THE PLAYER" + killerId + " KILLED THE PLAYER: " + victimId);
+					}
+				}
 			}
+
+			//Se o jogador local morreu, deixa de poder usar os controlos!
+			if(victimId == playerId){
+				Log.d("IN DEAD", "THE PLAYER" + playerId + "DIED!");
+				panel.activity.disableControlsAfterDeath();
+			}
+			//Log.d("MORREU", "Morreu: " + deadBomberId + " nas coords[i][j]: " + i + " " + j);
+			//Log.d("DEAD", "Score do " + planter + " is: " + scores.get(planter));
 		}
-		//Se o jogador local morreu, deixa de poder usar os controlos!
-		if(victimId == playerId){
-			Log.d("IN DEAD", "IN DEADDDDDD");
-			panel.activity.disableControlsAfterDeath();
-		}
-		//Log.d("MORREU", "Morreu: " + deadBomberId + " nas coords[i][j]: " + i + " " + j);
-		//Log.d("DEAD", "Score do " + planter + " is: " + scores.get(planter));
 	}
 
 	/**
@@ -264,13 +275,19 @@ public class Arena {
 			panel.activity.startGame();
 			firstUpdate = false;
 		}
+
+		//synchronized (deadElements) {
+
+			if (!deadElements.isEmpty()) {
+				for (Bomberman bomber : deadElements)
+					removeElement(bomber);
+				deadElements.clear();// limpa a lista de mortos
+			}
+
+		//}
 		// Removes any dead players/robots from the list, these wont be updated
 		// or drawn anymore
-		if (!deadElements.isEmpty()) {
-			for (Bomberman bomber : deadElements)
-				removeElement(bomber);
-			deadElements.clear();// limpa a lista de mortos
-		}
+
 
 		int i, j;
 		int sizeX = gc.getNumLines();
@@ -287,7 +304,8 @@ public class Arena {
 		for (Robot robot : robots)
 			robot.update(gameTime);
 		for (Bomberman player : players)
-			player.update(gameTime);
+			if(!player.getIsPaused())
+				player.update(gameTime);
 	}
 
 	public void draw(Canvas canvas) {
@@ -305,12 +323,18 @@ public class Arena {
 		for (Robot robot : robots)
 			robot.draw(canvas);
 		for (Bomberman player : players)
-			player.draw(canvas);
-		
-		//JOGO TERMINA SE NAO HOUVER MAIS PLAYERS
-		//ou se havendo apenas 1 player nao ha robots
-		if(players.isEmpty() || players.size() == 1 && robots.isEmpty()){
-			panel.endGame();
+			if(!player.getIsPaused())
+				player.draw(canvas);
+
+		//jogo termina se houver apenas 1 player
+		if(panel.activity.singleplayer){
+			if(robots.isEmpty() || players.isEmpty()){
+				panel.endGame();
+			}
+		} else{
+			if(players.size() <= 1){
+				panel.endGame();
+			}
 		}
 
 	}

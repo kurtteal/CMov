@@ -1,6 +1,7 @@
 package com.example.bomberman;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,6 +27,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
@@ -53,6 +55,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	private Button downButton;
 	private Button bombButton;
 
+	private TreeMap<Integer, String> users = new TreeMap<Integer, String>();
 	private String playerName;
 	public char playerId; //visivel para a arena
 
@@ -69,27 +72,31 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	private boolean gameMasterIsReady = false;
 	private boolean gameOngoing = false;
 
-	private boolean WDSimEnabled;
 	private boolean inGroup = false;
 	private boolean isGroupOwner = false;
 	private String serverAddress = null;
 	private WDSimServiceConnection servConn = null;
-	
+
+	@SuppressWarnings("unchecked")
 	@SuppressLint("HandlerLeak") @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		WDSimEnabled = getIntent().getBooleanExtra("WDState", false);
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
 		playerName = getIntent().getStringExtra("playerName");
 		playerId = getIntent().getStringExtra("playerId").charAt(0);
 		singleplayer = getIntent().getExtras().getBoolean("singleplayer");
 		numPlayers = getIntent().getExtras().getInt("numPlayers");
+
 		if(!singleplayer) {
 			gameOngoing = getIntent().getExtras().getBoolean("gameOngoing");
 			maxPlayers = getIntent().getExtras().getInt("maxPlayers");
+			HashMap<Integer, String> receivedMap = (HashMap<Integer, String>)getIntent().getExtras().getSerializable("usersMap");
+			users.putAll(receivedMap);
+		} else {
+			users.put(1, playerName);
 		}
-		
+
 		service = new NetworkService();
 		service.setGameActivity(this);
 
@@ -106,7 +113,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		downButton = (Button)findViewById(R.id.down);
 		bombButton = (Button)findViewById(R.id.bomb);
 
-		playerNameView.setText("Player:\n" + playerName);
+		playerNameView.setText("Username:\n" + playerName);
 		scoreView.setText("Score:\n0");
 		timeLeftView.setText("Time left:\n" + gc.gameDuration);
 		playerCountView.setText("# Players:\n" + numPlayers);
@@ -127,28 +134,26 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 				}
 			}
 		};
-		
+
 		/*
 		 * Network related code.
 		 */
-		
+
 		service = new NetworkService();
 		service.setGameActivity(this);
-		
-		if(WDSimEnabled) {
-			// register broadcast receiver
-			IntentFilter filter = new IntentFilter();
-			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
-			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
-			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
-			filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
-			GameBroadcastReceiver receiver = new GameBroadcastReceiver(this);
-			registerReceiver(receiver, filter);
-			
-			servConn = new WDSimServiceConnection(this);
-			Intent intent = new Intent(this, SimWifiP2pService.class);
-            bindService(intent, (ServiceConnection) servConn, Context.BIND_AUTO_CREATE);
-		}
+
+		// register broadcast receiver
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
+		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
+		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
+		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
+		GameBroadcastReceiver receiver = new GameBroadcastReceiver(this);
+		registerReceiver(receiver, filter);
+
+		servConn = new WDSimServiceConnection(this);
+		Intent intent = new Intent(this, SimWifiP2pService.class);
+		bindService(intent, (ServiceConnection) servConn, Context.BIND_AUTO_CREATE);
 	}
 
 	public void setGamePanel(GamePanel gPanel) {
@@ -158,22 +163,22 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	public int getNumPlayers(){
 		return this.numPlayers;
 	}
-	
+
 	public int getMaxPlayers(){
 		return this.maxPlayers;
 	}
-	
+
 	public int getCountDown(){
 		return countDown;
 	}
-	
+
 	//O game master responde a um join tardio com o tempo actual do jogo
 	//este jogador vai actualizar o tempo e comecar o seu timer
 	public void setCountDown(int clock){
 		countDown = clock;
 		startTimer();
 	}
-	
+
 	public boolean masterIsReady(){
 		return this.gameMasterIsReady;
 	}
@@ -214,7 +219,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 						toggleStateButton.setEnabled(false);
 					}
 				});
-			
+
 				//each participant will send "im set" to the party leader every 2 secs, until lider starts
 				if(playerId != '1'){
 					sendImSetTimer = new Timer();
@@ -251,7 +256,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			service.goDown(bomber.i, bomber.j);
 		}
 	}
-	
+
 	public void movePlayerLeft(View v){
 		if(singleplayer){
 			this.goLeftOrder('1', null, null);
@@ -292,17 +297,34 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	}
 
 	public void toggleGameState(View v){
-		boolean isPaused = gamePanel.thread.getPaused();
-		if(isPaused){
-			toggleStateButton.setText("Pause");
-			enableControlButtons();
-			startTimer();
-			gamePanel.thread.resumeThread();
-		} else {
-			toggleStateButton.setText("Play");
-			disableControlButtons();
-			timeUpdater.cancel();
-			gamePanel.thread.pauseThread();
+		if(singleplayer){
+			// In single player pause the whole game (i.e. the thread).
+			if(gamePanel.thread.getPaused()){
+				toggleStateButton.setText("Pause");
+				enableControlButtons();
+				startTimer();
+				gamePanel.thread.resumeThread();
+			} else {
+				toggleStateButton.setText("Play");
+				disableControlButtons();
+				timeUpdater.cancel();
+				gamePanel.thread.pauseThread();
+			}
+		} else{
+			// In multiplayer stops drawing ahd checking collisions for this player
+			Bomberman bman = gamePanel.getArena().getPlayer(playerId);
+			if(bman.getIsPaused()){
+				//if the player paused we want to "unpause" it
+				toggleStateButton.setText("Pause");
+				enableControlButtons();
+				service.resumeGame();
+			} else{
+				//else we want to pause it
+				toggleStateButton.setText("Play");
+				disableControlButtons();
+				service.pauseGame();
+			}
+
 		}
 	}
 
@@ -342,6 +364,11 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		ScoreBoard scores = gamePanel.getArena().scores;
 		Intent intent = new Intent(GameActivity.this, ScoresActivity.class);
 		intent.putExtra("scores", scores);
+		intent.putExtra("playerName", playerName);
+		intent.putExtra("usersMap", users);
+
+		Log.d("ENDGAME USER", "Username is: " + playerName);
+
 		gamePanel.thread.setRunning(false);
 		startActivity(intent);
 	}
@@ -349,7 +376,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	/*
 	 * Callbacks for the Network Service.
 	 */
-	
+
 	public void goUpOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
@@ -421,7 +448,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			}
 		});
 	}
-	
+
 	//Quando entra um jogador a meio
 	public void newPlayer(char newPlayerId){
 		gamePanel.getArena().newPlayer(newPlayerId);
@@ -432,7 +459,19 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			}
 		});
 	}
-	
+
+	public void pausePlayer(char pausePlayerId){
+		Arena arena = gamePanel.getArena();
+		Bomberman bman = arena.getPlayer(pausePlayerId);
+		bman.setIsPaused(true);
+	}
+
+	public void resumePlayer(char resumePlayerId){
+		Arena arena = gamePanel.getArena();
+		Bomberman bman = arena.getPlayer(resumePlayerId);
+		bman.setIsPaused(false);
+	}
+
 	/*
 	 * WDSim related code
 	 */
@@ -456,7 +495,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	@Override
 	public void onPeersAvailable(SimWifiP2pDeviceList arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

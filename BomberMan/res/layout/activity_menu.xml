@@ -14,7 +14,7 @@
         android:id="@+id/bomberman_logo"
         android:contentDescription="@string/app_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dip"
         android:layout_weight="0.66"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="30dp"
@@ -23,36 +23,40 @@
     <Button
         android:id="@+id/singleplayer_button"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:layout_weight="1"
         android:onClick="singlePlayer"
         android:text="@string/singleplayer_button" />
 
     <Button
         android:id="@+id/multiplayer_button"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:layout_weight="1"
         android:onClick="multiPlayer"
         android:text="@string/multiplayer_button" />
 
     <Button
         android:id="@+id/settings_button"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:layout_weight="1"
         android:onClick="openSettings"
         android:text="@string/settings_button" />
 
     <TextView
-        android:id="@+id/activeTV"
-        android:layout_width="match_parent"
+        android:id="@+id/selected_user"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
+        android:text="@string/selected_user"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/activeTV"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/none"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="#FFFFFF" />
+        android:textColor="#000000" />
 
 </LinearLayout>

@@ -10,83 +10,87 @@ import java.net.UnknownHostException;
 import pt.utl.ist.cmov.wifidirect.sockets.SimWifiP2pSocket;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
-	
+
 	private static PrintWriter out;
 	private static Socket clientSocket;
 	private static SimWifiP2pSocket clientWDSocket;
-    private static BufferedReader in;
+	private static BufferedReader in;
 	private int serverPort = 10001;
 	private String mode;
-	private NetworkService service;
-	
+	private static NetworkService service;
+
 	public ClientAsyncTask(String mode) {
-        super();
-        this.mode = mode;
-    }
-	
+		super();
+		this.mode = mode;
+	}
+
 	public ClientAsyncTask(String mode, NetworkService service) {
-        super();
-        this.mode = mode;
-        this.service = service;
-    }
-	
+		super();
+		this.mode = mode;
+		ClientAsyncTask.service = service;
+	}
+
 	public void closeSocket() {
 		try {
 			out.close();
 			in.close();
-			if(!service.usingWDSim())
-				clientSocket.close();
-			else
-				clientWDSocket.close();
+			clientWDSocket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	protected PrintWriter doInBackground(String... strings) {
 		if (strings.length <= 0) {
 			return null;
 		}
-		
+
 		if(mode.equals("connect")) {
 			Log.d("ClientAsyncTask", "Connecting to " + strings[0]);
 			try {
-				if(!service.usingWDSim()) {
-					clientSocket = new Socket(strings[0], serverPort);
-					out = new PrintWriter(clientSocket.getOutputStream(), true);
-					in = new BufferedReader(new InputStreamReader(
-							clientSocket.getInputStream()));
-				}
-				else {
-					clientWDSocket = new SimWifiP2pSocket(strings[0], serverPort);
-					out = new PrintWriter(clientWDSocket.getOutputStream(), true);
-					in = new BufferedReader(new InputStreamReader(
-							clientWDSocket.getInputStream()));
-				}
+				clientWDSocket = new SimWifiP2pSocket(strings[0], serverPort);
+				out = new PrintWriter(clientWDSocket.getOutputStream(), true);
+				in = new BufferedReader(new InputStreamReader(
+						clientWDSocket.getInputStream()));
 				Runnable r = new ClientListener(in, service);
 				new Thread(r).start();
 				Log.d("ClientAsyncTask", "Connected to " + strings[0]);
 			} catch (UnknownHostException e) {
-				System.out.println("Error connecting to server - UnknownHostException");
+				Log.d("CONNECT TO SERVER","Error connecting to server - IOException");
 				e.printStackTrace();
 			} catch (IOException e) {
-				System.out.println("Error connecting to server - IOException");
+				Log.d("CONNECT TO SERVER","Error connecting to server - IOException");
 				e.printStackTrace();
 			}
 			return out;
 		}
 		else if(mode.equals("send")) {
-			out.println(strings[0]);
-			return out;
+			if(out != null){
+				out.println(strings[0]);
+				return out;
+			} else {
+
+				service.getMenuActivity().runOnUiThread(new Runnable(){
+
+					@Override
+					public void run(){
+
+						Toast.makeText(service.getMenuActivity(), "The centralized server isn't running!", Toast.LENGTH_LONG).show();
+					}
+				});
+
+				return null;
+			}
 		}
 		else {
 			return null;
 		}
 	}
-	
+
 	public class ClientListener implements Runnable {
 		BufferedReader in;
 		NetworkService service;
@@ -115,7 +119,7 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 				}
 			}
 		}
-		
+
 	}
-	
+
 }

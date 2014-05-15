@@ -52,7 +52,9 @@ public class SelectMapActivity extends Activity implements OnItemSelectedListene
             int pos, long id) {
     	CharSequence mSelected = (CharSequence) parent.getItemAtPosition(pos);
 		String selection = mSelected.toString();
-		String mapSelected = "map" + selection.substring(4);
+		String mapSelected = "map" + selection.substring(6);
+//		Log.d("SELECT MAP ACT", "THE selection IS " + selection);
+//		Log.d("SELECT MAP ACT", "THE mapSelected IS " + mapSelected);
 		gc = new GameConfigs();
         AssetManager am = getAssets();
         try {
@@ -63,28 +65,28 @@ public class SelectMapActivity extends Activity implements OnItemSelectedListene
 		}
         TextView t;
         t = (TextView)findViewById(R.id.level_name);
-        t.setText("Level name: "+gc.levelName);
+        t.setText("Level name: "+ gc.levelName);
         
         t = (TextView)findViewById(R.id.game_duration);
-        t.setText("Game duration: "+gc.gameDuration);
+        t.setText("Game duration: "+ gc.gameDuration);
         
         t = (TextView)findViewById(R.id.explosion_timeout);
-        t.setText("Explosion timeout: "+gc.explosionTimeout);
+        t.setText("Explosion timeout: "+ gc.explosionTimeout);
         
         t = (TextView)findViewById(R.id.explosion_duration);
-        t.setText("Explosion duration: "+gc.explosionDuration);
+        t.setText("Explosion duration: "+ gc.explosionDuration);
         
         t = (TextView)findViewById(R.id.explosion_range);
-        t.setText("Explosion range: "+gc.explosionRange);
+        t.setText("Explosion range: "+ gc.explosionRange);
         
         t = (TextView)findViewById(R.id.robot_speed);
-        t.setText("Robot speed: "+gc.robotSpeed);
+        t.setText("Robot speed: "+ gc.robotSpeed);
         
         t = (TextView)findViewById(R.id.pts_per_robot);
-        t.setText("Points per robot: "+gc.ptsPerRobot);
+        t.setText("Points per robot: "+ gc.ptsPerRobot);
         
         t = (TextView)findViewById(R.id.pts_per_opponent);
-        t.setText("Points per opponent: "+gc.ptsPerPlayer);
+        t.setText("Points per opponent: "+ gc.ptsPerPlayer);
     }
 
 	public void onNothingSelected(AdapterView<?> parent) {

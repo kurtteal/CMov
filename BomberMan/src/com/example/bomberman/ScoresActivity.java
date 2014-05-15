@@ -1,12 +1,16 @@
 package com.example.bomberman;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources.Theme;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ListView;
@@ -17,30 +21,43 @@ import com.example.bomberman.util.ScoreBoard;
 public class ScoresActivity extends Activity {
 
 	private ScoreBoard scores;
+	private TreeMap<Integer, String> users = new TreeMap<Integer, String>();
 	private ArrayList<String> items;
+	private ArrayList<String> items_values;
+	private String activePlayer;
 	private MyAdapter adapter;
-	private boolean WDSimEnabled;
+	private MyAdapter adapter_values;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_scores);
 		
 		scores = (ScoreBoard) getIntent().getSerializableExtra("scores");
-		WDSimEnabled = getIntent().getBooleanExtra("WDState", false);
-
+		activePlayer = getIntent().getStringExtra("playerName");
+		
 		items = new ArrayList<String>();
-		items.add("Name          Score");
+		items_values = new ArrayList<String>();
+		items.add("Username");
+		items_values.add("Score");
 	    Iterator<Entry<String, Integer>> it = scores.getSortedMap().entrySet().iterator();
+	    HashMap<Integer, String> receivedMap = (HashMap<Integer, String>)getIntent().getExtras().getSerializable("usersMap");
+		users.putAll(receivedMap);
+	    
 	    while (it.hasNext()) {
 	    	Entry<String, Integer> pairs = (Entry<String, Integer>) it.next();
-	        items.add("Player " + pairs.getKey() + "          " + pairs.getValue());
-	        it.remove(); 
+	        items.add(users.get(Integer.parseInt(pairs.getKey())));
+	        items_values.add(Integer.toString(pairs.getValue()));
+	        it.remove();
 	    }
 		
 	    ListView scoreList = (ListView)findViewById(R.id.scores_list);
+	    ListView scoreListValues = (ListView)findViewById(R.id.scores_list_values);
 		adapter = new MyAdapter(this, items);
+		adapter_values = new MyAdapter(this, items_values);
 	    scoreList.setAdapter(adapter);
+	    scoreListValues.setAdapter(adapter_values);
 	}
 
 	@Override
@@ -51,7 +68,8 @@ public class ScoresActivity extends Activity {
 
 	public void leave(View v) {		
 		Intent intent = new Intent(ScoresActivity.this, MenuActivity.class);
-		intent.putExtra("WDState", WDSimEnabled);
+		Log.d("ENDGAME USER", "Username is: " + activePlayer);	
+		intent.putExtra("activePlayer", activePlayer);
 		startActivity(intent);
 	}
 	

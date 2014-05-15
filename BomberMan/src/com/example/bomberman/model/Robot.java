@@ -69,30 +69,47 @@ public class Robot extends Bomberman{
 
 	//check for players in the surroundings, killing them if any was found
 	private void checkForPlayers(){
+		char current = gc.readOverlayPosition(i, j);
 		char above = gc.readOverlayPosition(i-1, j);
 		char below = gc.readOverlayPosition(i+1, j);
 		char toTheLeft = gc.readOverlayPosition(i, j-1);
 		char toTheRight = gc.readOverlayPosition(i, j+1);
 
+		
+		if(current != '-'){
+			Bomberman bman = panel.getArena().getPlayer(current);
+			if(bman != null && !bman.getIsPaused()){
+				gc.writeOverlayPosition(i,j,'-');
+				bman.die();
+			}
+		}
 		if(above != '-'){
 			Bomberman bman = panel.getArena().getPlayer(above);
-			if(bman != null)
+			if(bman != null && !bman.getIsPaused()){
+				gc.writeOverlayPosition(i,j,'-');
 				bman.die();
+			}
 		}
 		if(below != '-'){
 			Bomberman bman = panel.getArena().getPlayer(below);
-			if(bman != null)
+			if(bman != null && !bman.getIsPaused()){
+				gc.writeOverlayPosition(i,j,'-');
 				bman.die();
+			}
 		}
 		if(toTheLeft != '-'){
 			Bomberman bman = panel.getArena().getPlayer(toTheLeft);
-			if(bman != null)
+			if(bman != null && !bman.getIsPaused()){
+				gc.writeOverlayPosition(i,j,'-');
 				bman.die();
+			}
 		}
 		if(toTheRight != '-'){
 			Bomberman bman = panel.getArena().getPlayer(toTheRight);
-			if(bman != null)
+			if(bman != null && !bman.getIsPaused()){
+				gc.writeOverlayPosition(i,j,'-');
 				bman.die();
+			}
 		}
 	}
 
@@ -223,7 +240,6 @@ public class Robot extends Bomberman{
 				else{
 					service.robotUp(robotId, i, j);
 				}
-
 			}
 		}
 	}
@@ -263,7 +279,7 @@ public class Robot extends Bomberman{
 		}	
 		//verifica se ha players na vizinhanca
 		checkPlayersCounter++;
-		if(checkPlayersCounter%3 == 0) //faz o check a cada 3 updates
+		if(checkPlayersCounter%5 == 0) //faz o check a cada 3 updates
 			checkForPlayers();
 	}
 
@@ -280,7 +296,7 @@ public class Robot extends Bomberman{
 	//	}
 
 	private boolean pathIsFree(char block){
-		if(block != 'O' && block != 'W' && block != 'B') return true;
+		if(block != 'O' && block != 'W' && block != 'B' && block != 'E') return true;
 		else return false;
 	}
 

@@ -1,5 +1,7 @@
 package com.example.bomberman.model;
 
+import java.util.ArrayList;
+
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -48,6 +50,8 @@ public class Bomberman {
 	protected int targetY; //the players will move square by square
 	
 	private boolean firstUpdate = true;
+	private boolean isPaused = false;
+	private ArrayList<Character> playersKilled;
 	private char nextMove = ' '; //players podem guardar o prox move para tornar o jogo mais responsivo 
 	protected boolean justPlanted;
 	protected int iBomb;
@@ -88,6 +92,7 @@ public class Bomberman {
 		this.numLines = numLines;
 		
 		currentFrame = 0;
+		playersKilled = new ArrayList<Character>();
 		spriteWidth = bitmapRight.getWidth() / frameNr;
 		spriteHeight = bitmapRight.getHeight();
 		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);
@@ -144,6 +149,24 @@ public class Bomberman {
 	
 	public boolean isMoving(){
 		return speed.isNotZero();
+	}
+	
+	public boolean getIsPaused(){
+		return this.isPaused;
+	}
+	
+	public void setIsPaused(boolean state){
+		this.isPaused = state;
+	}
+	
+	public boolean getIfKilledPlayer(char playerId){
+		Log.d("MENU ACT", "O PLAYERS KILLED ESTA " + playersKilled);
+		Log.d("MENU ACT", "O PLAYER ID E " + playerId);
+		return this.playersKilled.contains(playerId);
+	}
+	
+	public void addPlayerKilled(char playerId){
+		this.playersKilled.add(playerId);
 	}
 	
 	//Receives the sent coordinates, and updates the position
@@ -253,8 +276,6 @@ public class Bomberman {
 	}
 
 	public void die(){
-		//updates immediately the overlay to say this player died
-		gc.writeOverlayPosition(i,j,'-');
 		//Avisar a arena que este elemento esta fora de jogo
 		panel.getArena().elementHasDied(this);
 	}
@@ -463,11 +484,15 @@ public class Bomberman {
 		if(oldJ != j || oldI != i ){
 			gc.writeOverlayPosition(oldI, oldJ, '-'); //antigo bloco agora eh chao
 			//se a nova posicao eh 1 explosao, morre
-			if(gc.readLogicPosition(i, j) == 'E')
+			if(gc.readLogicPosition(i, j) == 'E'){
+				gc.writeOverlayPosition(i, j, '-');
 				die();
+			}
 			//cc, o novo bloco agora contem o proprio
-			else 
-				gc.writeOverlayPosition(i, j, myself); 
+			else{ 
+				if(myself != 'R')			// Para o robot nao reescrever a pos dos players na overlay matrix.
+					gc.writeOverlayPosition(i, j, myself); 
+			}
 		}
 		
 	}
@@ -520,8 +545,10 @@ public class Bomberman {
 //		int[] currentPos = getPositionInMatrix();
 //		int j = currentPos[0];
 //		int i = currentPos[1];
-		if(gc.readLogicPosition(i,j)=='E')
+		if(gc.readLogicPosition(i,j)=='E'){
+			gc.writeOverlayPosition(i,j,'-');
 			die();
+		}
 		
 	}
 

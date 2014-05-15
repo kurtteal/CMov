@@ -14,7 +14,6 @@ import com.example.bomberman.network.server.Server;
  */
 public class NetworkService {
 
-	private static boolean WDSimEnabled;
 	private static boolean isServer;
 	private static Server server = null;
 	private static char playerId = '#';
@@ -26,14 +25,6 @@ public class NetworkService {
 	/*
 	 * Getters and Setters
 	 */
-
-	public void enableWDSim() {
-		WDSimEnabled = true; 
-	}
-	
-	public boolean usingWDSim() {
-		return WDSimEnabled;
-	}
 
 	public void enableServer() {
 		NetworkService.isServer = true;
@@ -48,10 +39,7 @@ public class NetworkService {
 	}
 
 	public boolean isServer() {
-		if(WDSimEnabled)
-			return isServer;
-		else
-			return false;
+		return isServer;
 	}
 
 	public void setMenuActivity(MultiplayerMenuActivity act) {
@@ -87,7 +75,7 @@ public class NetworkService {
 			// The server runs on a separate thread so there's
 			// no guarantee that it already ran before the main thread reaches the following
 			// lines of code to send the creation message.
-			if(WDSimEnabled && isServer){
+			if(isServer){
 				Log.d("NetService", "Server state is" + Server.ready);
 				while(!Server.ready) {
 					Thread.yield();
@@ -148,6 +136,16 @@ public class NetworkService {
 
 	public void setMap(int mapNumber, int maxPlayers) {
 		String message = "set_map " + mapNumber + " " + playerId + " " + maxPlayers;
+		send(message);
+	}
+	
+	public void pauseGame() {
+		String message = "pause_game" + playerId;
+		send(message);
+	}
+	
+	public void resumeGame() {
+		String message = "resume_game" + playerId;
 		send(message);
 	}
 
@@ -239,6 +237,7 @@ public class NetworkService {
 	}
 
 	private void startGameOrder(String message) {
+		Log.d("START GAME ORDER", "A MESSAGE E" + message);
 		char mode = message.charAt(1);
 		menuActivity.startGameOrder(mode);
 	}
@@ -302,11 +301,21 @@ public class NetworkService {
 			// servico
 		}
 	}
+	
+	private void pausePlayer(String id) {
+		char pausePlayerId = id.charAt(0);
+		gameActivity.pausePlayer(pausePlayerId);
+	}
+	
+	private void resumePlayer(String id) {
+		char resumePlayerId = id.charAt(0);
+		gameActivity.resumePlayer(resumePlayerId);
+	}
 
 	private void updateClock(String clock) {
 		gameActivity.setCountDown(Integer.parseInt(clock));
 	}
-
+	
 	/*
 	 * Other synchronization methods.
 	 */
@@ -347,6 +356,9 @@ public class NetworkService {
 		case '4':
 			joinNotSuccessful('4');
 			break;
+		case '5':
+			joinNotSuccessful('5');
+			break;
 		case 'L': // lista de jogadores actualizada
 			String[] players = message.substring(2, message.length() - 1)
 			.split(",");
@@ -373,6 +385,12 @@ public class NetworkService {
 			break;
 		case 'N': // new player N <playerId>
 			newPlayer(message.substring(1));
+			break;
+		case 'P': // Pause do jogador com o id <playerId>
+			pausePlayer(message.substring(1));
+			break;
+		case 'Q': // Resume do jogador com o id <playerId> (Q pois já estava usado...)
+			resumePlayer(message.substring(1));
 			break;
 		case 'Y': // Y <clock> remaining in secs
 			updateClock(message.substring(1));

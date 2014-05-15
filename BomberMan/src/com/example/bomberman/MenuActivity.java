@@ -5,15 +5,17 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MenuActivity extends Activity {
 
 	private ArrayList<String> localUsers;
 	private TextView activeUser;
-	private boolean WDSimEnabled;
+	private boolean selectedUsername;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +28,15 @@ public class MenuActivity extends Activity {
 		activeUser = ((TextView) findViewById(R.id.activeTV));
 		Intent intent = getIntent();
 		if(intent != null) {
-			WDSimEnabled = intent.getBooleanExtra("WDState", false);
+			String activeU = intent.getStringExtra("activePlayer");
+			//Log.d("ENDGAME USER", "NO ONCREATE DO MENUACT, O USER E" + activeU);
+			if(activeU == null){
+				activeUser.setText("(None - Please go to Settings)");
+				selectedUsername = false;
+			} else {
+				activeUser.setText(activeU);
+				selectedUsername = true;
+			}
 		}
 	}
 
@@ -45,32 +55,40 @@ public class MenuActivity extends Activity {
 			if (!localUsers.contains(active))
 				localUsers.add(0, active);
 			activeUser.setText(active);
-			WDSimEnabled = intent.getBooleanExtra("WDState", false);
+			selectedUsername = true;
 		}
 	}
 
 	/*
 	 * Button methods.
 	 */
-	
+
 	public void singlePlayer(View v) {
-		Intent intent = new Intent(MenuActivity.this, SelectMapActivity.class);
-    	intent.putExtra("playerName", activeUser.getText());
-		startActivity(intent);
+		if(!selectedUsername){
+			Toast.makeText(this, "Please pick a Username first!",
+					Toast.LENGTH_SHORT).show();
+		} else{
+			Intent intent = new Intent(MenuActivity.this, SelectMapActivity.class);
+			intent.putExtra("playerName", activeUser.getText());
+			startActivity(intent);
+		}
 	}
 
 	public void multiPlayer(View v) {
-		Intent intent = new Intent(MenuActivity.this, MultiplayerMenuActivity.class);
-    	intent.putExtra("playerName", activeUser.getText());
-    	intent.putExtra("WDState", WDSimEnabled);
-		startActivity(intent);
+		if(!selectedUsername){
+			Toast.makeText(this, "Please pick a Username first!",
+					Toast.LENGTH_SHORT).show();
+		} else{
+			Intent intent = new Intent(MenuActivity.this, MultiplayerMenuActivity.class);
+			intent.putExtra("playerName", activeUser.getText());
+			startActivity(intent);
+		}
 	}
 
 	public void openSettings(View v) {
 		Intent intent = new Intent(MenuActivity.this, SettingsActivity.class);
 		intent.putExtra("users", localUsers);
-		intent.putExtra("WDState", WDSimEnabled);
 		startActivityForResult(intent, 1);
 	}
-	
+
 }
