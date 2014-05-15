@@ -52,7 +52,7 @@ public class Bomberman {
 	private boolean firstUpdate = true;
 	private boolean isPaused = false;
 	private ArrayList<Character> playersKilled;
-	private char nextMove = ' '; //players podem guardar o prox move para tornar o jogo mais responsivo 
+	protected char nextMove = ' '; //players podem guardar o prox move para tornar o jogo mais responsivo 
 	protected boolean justPlanted;
 	protected int iBomb;
 	protected int jBomb;

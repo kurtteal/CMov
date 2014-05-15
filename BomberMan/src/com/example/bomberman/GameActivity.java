@@ -184,15 +184,52 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	}
 
 	@Override
-	protected void onDestroy() {
-		Log.d(TAG, "Destroying...");
-		super.onDestroy();
+	public void onPause() {
+		super.onPause();  // Always call the superclass method first
+
+		// Release the Camera because we don't need it when paused
+		// and other activities might need to use it.
+		Toast.makeText(this, "ON PAUSE - GAME ACT",
+				Toast.LENGTH_SHORT).show();
+		
+		
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();  // Always call the superclass method first
+
+		// Get the Camera instance as the activity achieves full user focus
+		Toast.makeText(this, "ON RESUME - GAME ACT",
+				Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
 	protected void onStop() {
-		Log.d(TAG, "Stopping...");
-		super.onStop();
+		super.onStop();  // Always call the superclass method first
+
+		// Save the note's current draft, because the activity is stopping
+		// and we want to be sure the current note progress isn't lost.
+		Toast.makeText(this, "ON STOP - GAME ACT",
+				Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();  // Always call the superclass method first
+
+		// The activity is either being restarted or started for the first time
+		// so this is where we should make sure that GPS is enabled
+		Toast.makeText(this, "ON START - GAME ACT",
+				Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();  // Always call the superclass method first
+
+		Toast.makeText(this, "ON RESTART - GAME ACT",
+				Toast.LENGTH_SHORT).show(); 
 	}
 
 	//The arena will call this on its first update
@@ -356,8 +393,21 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	}
 
 	public void quitGame(View v){
+		if(!singleplayer)
+			service.leaveGame();
+		timeUpdater.cancel();
 		gamePanel.thread.setRunning(false);
-		this.finish();
+		Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+		intent.putExtra("activePlayer", playerName);
+		startActivity(intent);
+	}
+
+	public void quitPlayer(char quitPlayerId){
+		Bomberman bomber = gamePanel.getArena().getPlayer(quitPlayerId);
+		if(bomber != null){
+			gamePanel.getArena().removeElement(bomber);
+			gamePanel.getArena().scores.remove(quitPlayerId+"");
+		}
 	}
 
 	public void endGame(){
@@ -370,6 +420,9 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		Log.d("ENDGAME USER", "Username is: " + playerName);
 
 		gamePanel.thread.setRunning(false);
+		timeUpdater.cancel();
+		if(service.isServer())
+			service.resetServer();
 		startActivity(intent);
 	}
 
@@ -380,31 +433,36 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	public void goUpOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
-		bman.oneSquareUp(i, j);
+		if(bman != null)
+			bman.oneSquareUp(i, j);
 	}
 
 	public void goDownOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
-		bman.oneSquareDown(i, j);
+		if(bman != null)
+			bman.oneSquareDown(i, j);
 	}
 
 	public void goLeftOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
-		bman.oneSquareLeft(i, j);
+		if(bman != null)
+			bman.oneSquareLeft(i, j);
 	}
 
 	public void goRightOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
-		bman.oneSquareRight(i, j);
+		if(bman != null)
+			bman.oneSquareRight(i, j);
 	}
 
 	public void plantBombOrder(char id, String i, String j){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(id);
-		bman.plantBomb(i, j);
+		if(bman != null)
+			bman.plantBomb(i, j);
 	}
 
 	public void robotGoUp(int id, String i, String j){

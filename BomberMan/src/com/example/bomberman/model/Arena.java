@@ -332,7 +332,7 @@ public class Arena {
 				panel.endGame();
 			}
 		} else{
-			if(players.size() <= 1){
+			if(players.size() < 1 || (players.size() == 1 && robots.isEmpty() )){
 				panel.endGame();
 			}
 		}

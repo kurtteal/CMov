@@ -12,6 +12,8 @@ import com.example.bomberman.network.NetworkService;
 
 public class Robot extends Bomberman{
 
+	private double xAcum = 0;
+	private double yAcum = 0;
 	public int robotId; //used in multiplayer
 	private boolean singleplayer;
 	//os robots precisam de saber se sao eles que enviam a info
@@ -59,12 +61,17 @@ public class Robot extends Bomberman{
 	}
 
 	//O robot resolve colisoes, escolhendo uma direccao qqer aleatoria
-	//	@Override
-	//	public void solveCollision(){
-	//		//check surroundings
-	//		char[] surroundings = checkSurroundings();
-	//		decideNewPath(surroundings);
-	//	}
+	@Override
+	public void solveCollision(){
+		//check surroundings
+		speed.stayStill();		//porque o robot so muda de direçao de estiver parado (caso contrario vai para next move)
+		targetX = 0;
+		targetY = 0;
+		char[] surroundings = getSurroundings();
+		decideNewPath(surroundings);
+		if(nextMove != ' ')
+			Log.d("decideNewPath", "ROBOTID: "+ robotId+ " , O NEXT MOVE E " + nextMove);
+	}
 
 
 	//check for players in the surroundings, killing them if any was found
@@ -75,7 +82,7 @@ public class Robot extends Bomberman{
 		char toTheLeft = gc.readOverlayPosition(i, j-1);
 		char toTheRight = gc.readOverlayPosition(i, j+1);
 
-		
+
 		if(current != '-'){
 			Bomberman bman = panel.getArena().getPlayer(current);
 			if(bman != null && !bman.getIsPaused()){
@@ -146,15 +153,15 @@ public class Robot extends Bomberman{
 		//Se tiver em multi e nao for o playerId 1 os robots vao-s mexer com comandos
 		//vindos do servidor
 		//Log.i("Robot:", "playerId= " + playerId + " robotId= " + robotId);
-		if(playerId == '1'){ 
+		if(playerId == '1'){
 			char above = surroundings[0];
 			char below = surroundings[1];
 			char toTheLeft = surroundings[2];
 			char toTheRight = surroundings[3];
-			Log.d("decideNewPath", "above is:" + above);
-			Log.d("decideNewPath", "below is:" + below);
-			Log.d("decideNewPath", "toTheLeft is:" + toTheLeft);
-			Log.d("decideNewPath", "toTheRight is:" + toTheRight);
+			Log.d("decideNewPath", "ROBOT ID: "+robotId+" | above is:" + above);
+			Log.d("decideNewPath", "ROBOT ID: "+robotId+" | below is:" + below);
+			Log.d("decideNewPath", "ROBOT ID: "+robotId+" | left is:"+ toTheLeft);
+			Log.d("decideNewPath", "ROBOT ID: "+robotId+" | right is:"+ toTheRight);
 
 
 			int numPossible = 0;
@@ -249,6 +256,7 @@ public class Robot extends Bomberman{
 	protected void updatePixelPosition(){
 		//Se estiver num cruzamento, obtem a vizinhanca, 
 		//e decide aleatoriamente a nova direccao
+
 		if(targetX != 0 && Math.abs(targetX - x) < movementMargin){ //se chegou ao destino
 			x = targetX;
 			targetX = 0;
@@ -256,6 +264,7 @@ public class Robot extends Bomberman{
 			if(!checkIfNextMove()){
 				//check surroundings
 				char[] surroundings = getSurroundings();
+
 				decideNewPath(surroundings);
 				//checkIfPlanted();
 				//will plant a bomb with a given probability if it is at an intersection
@@ -266,6 +275,7 @@ public class Robot extends Bomberman{
 			targetY = 0;
 			speed.setYStationary();
 			if(!checkIfNextMove()){
+
 				//check surroundings
 				char[] surroundings = getSurroundings();
 				decideNewPath(surroundings);
@@ -274,12 +284,34 @@ public class Robot extends Bomberman{
 				//decideIfPlant();
 			}
 		}else{ //continua a mexer-se caso contrario
-			x += (speed.getVelocity() * speed.getxDirection()); 
-			y += (speed.getVelocity() * speed.getyDirection());
+
+			if(speed.getVelocity() >= 1){
+				x += (speed.getVelocity() * speed.getxDirection()); 
+				y += (speed.getVelocity() * speed.getyDirection());
+				Log.d("ROBOT SPEED", "NO IF, ROBOT"+ robotId + " | X="+x +" | Y="+y);
+			} else{
+				xAcum += (speed.getVelocity() * speed.getxDirection());
+				yAcum += (speed.getVelocity() * speed.getyDirection());
+				if(xAcum >= 1){
+					x += xAcum;
+					xAcum -= 1;
+				} else if(xAcum <= -1){
+					x += xAcum;
+					xAcum += 1;
+				}
+
+				if(yAcum >= 1){
+					y += yAcum;
+					yAcum -= 1;
+				} else if(yAcum <= -1){
+					y += yAcum;
+					yAcum += 1;
+				}
+			}
 		}	
 		//verifica se ha players na vizinhanca
 		checkPlayersCounter++;
-		if(checkPlayersCounter%5 == 0) //faz o check a cada 3 updates
+		if(checkPlayersCounter%10 == 0) //faz o check a cada 5 updates
 			checkForPlayers();
 	}
 

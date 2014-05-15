@@ -101,10 +101,15 @@ public class ClientHandler implements Runnable {
 						//servidor nao sabe se o player cabe no mapa, esse check eh feito client-side
 					}else
 						server.reply(clientId, out, "3"); //no game, join failed
-				}
-				else if(command.startsWith("pause_game")){ 
+				}else if(command.startsWith("pause_game")){ 
 					Log.d("CLT HANDLER", "Someone pausing: " + clientId);
 					server.broadcast("P" + clientId);
+					//WHEN MID JOINER is ready to receive commands from the game
+				}else if(command.startsWith("leave_game")){ 
+					Log.d("CLT HANDLER", "Someone leaving: " + clientId);
+					server.clients.remove(clientId);
+					server.clientsNames.remove(clientId);
+					server.broadcast("U" + clientId);
 					//WHEN MID JOINER is ready to receive commands from the game
 				}else if(command.startsWith("resume_game")){ 
 					Log.d("CLT HANDLER", "Someone resuming: " + clientId);

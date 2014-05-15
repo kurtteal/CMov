@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.bomberman.util.MyAdapter;
 import com.example.bomberman.util.ScoreBoard;
@@ -64,6 +65,53 @@ public class ScoresActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu, menu);
 		return true;
+	}
+	
+	@Override
+	public void onPause() {
+	    super.onPause();  // Always call the superclass method first
+
+	    // Release the Camera because we don't need it when paused
+	    // and other activities might need to use it.
+	    Toast.makeText(this, "ON PAUSE - SCORES ACT",
+				Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
+	public void onResume() {
+	    super.onResume();  // Always call the superclass method first
+
+	    // Get the Camera instance as the activity achieves full user focus
+	    Toast.makeText(this, "ON RESUME - SCORES ACT",
+				Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
+	protected void onStop() {
+	    super.onStop();  // Always call the superclass method first
+
+	    // Save the note's current draft, because the activity is stopping
+	    // and we want to be sure the current note progress isn't lost.
+	    Toast.makeText(this, "ON STOP - SCORES ACT",
+				Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
+	protected void onStart() {
+	    super.onStart();  // Always call the superclass method first
+	    
+	    // The activity is either being restarted or started for the first time
+	    // so this is where we should make sure that GPS is enabled
+	    Toast.makeText(this, "ON START - SCORES ACT",
+				Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	protected void onRestart() {
+	    super.onRestart();  // Always call the superclass method first
+	    
+	    Toast.makeText(this, "ON RESTART - SCORES ACT",
+				Toast.LENGTH_SHORT).show(); 
 	}
 
 	public void leave(View v) {		

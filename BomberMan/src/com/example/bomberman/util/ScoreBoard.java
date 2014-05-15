@@ -28,6 +28,10 @@ public class ScoreBoard implements Serializable {
 		scores.put(playerId, scores.get(playerId) + score);
 	}
 	
+	public void remove(String playerId){
+		scores.remove(playerId);
+	}
+	
 	public Integer get(char playerId) {
 		return scores.get(playerId+"");
 	}

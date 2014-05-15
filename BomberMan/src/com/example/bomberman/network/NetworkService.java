@@ -29,13 +29,16 @@ public class NetworkService {
 	public void enableServer() {
 		NetworkService.isServer = true;
 		NetworkService.server = new Server();
-		NetworkService.server.resetServer();
 		NetworkService.server.start();
 	}
 	
 	public void disableServer() {
 		NetworkService.isServer = false;
 		NetworkService.server = null;
+	}
+	
+	public void resetServer(){
+		NetworkService.server.resetServer();
 	}
 
 	public boolean isServer() {
@@ -311,6 +314,11 @@ public class NetworkService {
 		char resumePlayerId = id.charAt(0);
 		gameActivity.resumePlayer(resumePlayerId);
 	}
+	
+	private void quitPlayer(String id) {
+		char quitPlayerId = id.charAt(0);
+		gameActivity.quitPlayer(quitPlayerId);
+	}
 
 	private void updateClock(String clock) {
 		gameActivity.setCountDown(Integer.parseInt(clock));
@@ -389,8 +397,11 @@ public class NetworkService {
 		case 'P': // Pause do jogador com o id <playerId>
 			pausePlayer(message.substring(1));
 			break;
-		case 'Q': // Resume do jogador com o id <playerId> (Q pois já estava usado...)
+		case 'Q': // Resume do jogador com o id <playerId> (Q pois R já estava usado...)
 			resumePlayer(message.substring(1));
+			break;
+		case 'U': // Resume do jogador com o id <playerId> (Q pois R já estava usado...)
+			quitPlayer(message.substring(1));
 			break;
 		case 'Y': // Y <clock> remaining in secs
 			updateClock(message.substring(1));

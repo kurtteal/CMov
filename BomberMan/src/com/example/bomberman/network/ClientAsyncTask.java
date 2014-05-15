@@ -4,18 +4,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
 import pt.utl.ist.cmov.wifidirect.sockets.SimWifiP2pSocket;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 
 	private static PrintWriter out;
-	private static Socket clientSocket;
 	private static SimWifiP2pSocket clientWDSocket;
 	private static BufferedReader in;
 	private int serverPort = 10001;
@@ -72,19 +69,8 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 			if(out != null){
 				out.println(strings[0]);
 				return out;
-			} else {
-
-				service.getMenuActivity().runOnUiThread(new Runnable(){
-
-					@Override
-					public void run(){
-
-						Toast.makeText(service.getMenuActivity(), "The centralized server isn't running!", Toast.LENGTH_LONG).show();
-					}
-				});
-
+			} else
 				return null;
-			}
 		}
 		else {
 			return null;

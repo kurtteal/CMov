@@ -59,6 +59,53 @@ public class MenuActivity extends Activity {
 		}
 	}
 
+	@Override
+	public void onPause() {
+	    super.onPause();  // Always call the superclass method first
+
+	    // Release the Camera because we don't need it when paused
+	    // and other activities might need to use it.
+	    Toast.makeText(this, "ON PAUSE - MENU ACT",
+				Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
+	public void onResume() {
+	    super.onResume();  // Always call the superclass method first
+
+	    // Get the Camera instance as the activity achieves full user focus
+	    Toast.makeText(this, "ON RESUME - MENU ACT",
+				Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
+	protected void onStop() {
+	    super.onStop();  // Always call the superclass method first
+
+	    // Save the note's current draft, because the activity is stopping
+	    // and we want to be sure the current note progress isn't lost.
+	    Toast.makeText(this, "ON STOP - MENU ACT",
+				Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
+	protected void onStart() {
+	    super.onStart();  // Always call the superclass method first
+	    
+	    // The activity is either being restarted or started for the first time
+	    // so this is where we should make sure that GPS is enabled
+	    Toast.makeText(this, "ON START - MENU ACT",
+				Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	protected void onRestart() {
+	    super.onRestart();  // Always call the superclass method first
+	    
+	    Toast.makeText(this, "ON RESTART - MENU ACT",
+				Toast.LENGTH_SHORT).show(); 
+	}
+	
 	/*
 	 * Button methods.
 	 */
