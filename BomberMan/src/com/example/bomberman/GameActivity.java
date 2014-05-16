@@ -54,6 +54,8 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	private Thread timerThread;
 	private Timer sendImSetTimer;
 	private static int countDown;
+	private boolean suspended = false;
+	private boolean serverStarted = true;
 	private int score;
 	private int numPlayers;
 	private int maxPlayers;
@@ -63,6 +65,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	private boolean gameOngoing = false;
 	private boolean inGroup = false;
 	private boolean unpausing = false;
+	private boolean connected = true;
 	private boolean isGroupOwner = false;
 	private String serverAddress = null;
 	private WDSimServiceConnection servConn = null;
@@ -302,34 +305,38 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	}
 	
 	public void toggleGameState(View v){
-		if(singleplayer){
-			// In single player pause the whole game (i.e. the thread).
-			if(gamePanel.thread.getPaused()){
-				toggleStateButton.setText("Pause");
-				enableControlButtons();
-			} else {
-				toggleStateButton.setText("Play");
-				disableControlButtons();
-				timerThread.interrupt();
-			}
-		} else{
-			// In multiplayer stops drawing and checking collisions for this player
-			Bomberman bman = gamePanel.getArena().getPlayer(playerId);
-			if (bman != null){
-				if(bman.getIsPaused()){
-					//if the player paused we want to "unpause" it
-					toggleStateButton.setText("Pause");
-					enableControlButtons();
-					service.resumeGame();
+		runOnUiThread(new Runnable() {
+			public void run() {
+				if(singleplayer){
+					// In single player pause the whole game (i.e. the thread).
+					if(gamePanel.thread.getPaused()){
+						toggleStateButton.setText("Pause");
+						enableControlButtons();
+					} else {
+						toggleStateButton.setText("Play");
+						disableControlButtons();
+						timerThread.interrupt();
+					}
 				} else{
-					//else we want to pause it
-					toggleStateButton.setText("Play");
-					disableControlButtons();
-					service.pauseGame();
+					// In multiplayer stops drawing and checking collisions for this player
+					Bomberman bman = gamePanel.getArena().getPlayer(playerId);
+					if (bman != null){
+						if(bman.getIsPaused()){
+							//if the player paused we want to "unpause" it
+							toggleStateButton.setText("Pause");
+							enableControlButtons();
+							service.resumeGame();
+						} else{
+							//else we want to pause it
+							toggleStateButton.setText("Play");
+							disableControlButtons();
+							service.pauseGame();
+						}
+					}
+		
 				}
 			}
-
-		}
+		});
 	}
 
 	private void enableControlButtons(){
@@ -500,9 +507,18 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	}
 	
 	public void serverHasLeft(char newPlayerId){
+		connected = false;
 		onPause();
-		disableControlsAfterDeath();
-		disableQuitButton(null);
+		numPlayers--;
+		suspended = true;
+		serverStarted = false;
+		runOnUiThread(new Runnable() {
+			public void run() {
+				disableControlsAfterDeath();
+				disableQuitButton(null);
+			}
+		});
+		
 		playerId = newPlayerId;
 		
 		ScoreBoard newScores = new ScoreBoard();
@@ -522,9 +538,15 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	}
 	
 	public void unsuspendGame() {
+		suspended = false;
 		onResume();
-		enableControlButtons();
-		enableQuitButton(null);
+		runOnUiThread(new Runnable() {
+			public void run() {
+				enableControlButtons();
+				enableQuitButton(null);
+			}
+		});
+		
 	}
 
 	/*
@@ -537,12 +559,16 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		inGroup = groupInfo.askIsConnected();
 		isGroupOwner = groupInfo.askIsGO();
 		if(inGroup) {
-			if(playerId == '1' && isGroupOwner)
-				service.enableServer();
 			for(SimWifiP2pDevice d : devices.getDeviceList()) {
 				String[] split = d.virtDeviceAddress.split(":");
 				if (d.deviceName.equals(goName))
 					serverAddress = split[0];
+			}
+			if(playerId == '1' && isGroupOwner && suspended && !serverStarted) {
+				Log.d("HANDOVER", "Vou ser o novo servidor");
+				service.enableServer();
+				serverStarted = true;
+				gamePanel.getArena().setRobotPlayerId();
 			}
 			try {
 				Thread.sleep(1000);
@@ -550,8 +576,14 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			service.connect(serverAddress);
-			service.rejoin();
+			if(suspended) {
+				if(!connected) {
+					Log.d("HANDOVER", "Novo server address = " + serverAddress);
+					service.connect(serverAddress);
+					service.rejoin();
+					connected = true;
+				}
+			}
 		}
 	}
 	

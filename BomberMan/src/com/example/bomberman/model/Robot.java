@@ -52,6 +52,10 @@ public class Robot extends Bomberman{
 	public int getRobotId(){
 		return this.robotId;
 	}
+	
+	public void setrobotPlayerId(char a) {
+		playerId = a;
+	}
 
 	public void startMoving(){
 		//em multiplayer os robots sao come�ados depois do first update da arena

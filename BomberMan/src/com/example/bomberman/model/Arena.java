@@ -92,7 +92,12 @@ public class Arena {
 		synchronized (robots) {
 			return this.robots;
 		}
-
+	}
+	
+	public void setRobotPlayerId() {
+		for(Robot r : robots) {
+			r.setrobotPlayerId('1');
+		}
 	}
 
 	public List<Bomberman> getPlayers(){

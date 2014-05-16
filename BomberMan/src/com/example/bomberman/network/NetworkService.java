@@ -130,12 +130,16 @@ public class NetworkService {
 	}
 	
 	public void rejoin() {
-		String message = "rejoin " + gameActivity.getActivePlayer();
+		String message = "rejoin " + playerId + " " + gameActivity.getActivePlayer();
 		send(message);
 	}
 
 	public void leaveGame() {
-		String message = "leave_game " + playerId;
+		String message;
+		if(!isServer)
+			message = "leave_game " + playerId;
+		else
+			message = "server_leave_game";
 		send(message);
 	}
 
@@ -418,10 +422,6 @@ public class NetworkService {
 			e.printStackTrace();
 		}
 	}
-	
-	public void unsuspendGame() {
-		
-	}
 
 	/*
 	 * The message processing method. Invoked after a message is received.
@@ -498,10 +498,12 @@ public class NetworkService {
 			updateInfo(clock, scoreBrd, currentMatrix, deadsList, playersPositions);
 			break;
 		case 'Z': // Server leaving game...
+			Log.d("NETSERVICE", "Recebi um Z");
 			serverLeft();
 			break;
 		case 'A': // Resuming a suspended game ...
-			serverLeft();
+			Log.d("NETSERVICE", "Recebi um A");
+			gameActivity.unsuspendGame();
 			break;
 		default:
 			break;

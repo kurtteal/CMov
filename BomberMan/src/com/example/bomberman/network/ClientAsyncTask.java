@@ -18,6 +18,7 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 	private int serverPort = 10001;
 	private String mode;
 	private static NetworkService service;
+	private static Thread thread;
 
 	public ClientAsyncTask(String mode) {
 		super();
@@ -32,6 +33,7 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 
 	public void closeSocket() {
 		try {
+			thread.interrupt();
 			out.close();
 			in.close();
 			clientWDSocket.close();
@@ -52,8 +54,8 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 				out = new PrintWriter(clientWDSocket.getOutputStream(), true);
 				in = new BufferedReader(new InputStreamReader(
 						clientWDSocket.getInputStream()));
-				Runnable r = new ClientListener(in, service);
-				new Thread(r).start();
+				thread = new ClientListener(in, service);
+				thread.start();
 				Log.d("ClientAsyncTask", "Connected to " + strings[0]);
 			} catch (UnknownHostException e) {
 				Log.d("CONNECT TO SERVER","Error connecting to server - UnknownHostException");
@@ -76,7 +78,7 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 		}
 	}
 
-	public class ClientListener implements Runnable {
+	public class ClientListener extends Thread {
 		BufferedReader in;
 		NetworkService service;
 
@@ -89,6 +91,8 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 		public void run() {
 			while (true) {
 				try {
+					if(isInterrupted())
+						break;
 					String message = in.readLine();
 					if(message == null){
 						closeSocket();

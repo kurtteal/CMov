@@ -108,6 +108,7 @@ public class ClientHandler implements Runnable {
 					Server.clients.remove(clientId);
 					Server.clientsNames.remove(clientId);
 					server.broadcast("U" + clientId);
+					break;
 					//WHEN MID JOINER is ready to receive commands from the game
 				}else if(command.startsWith("resume_game")){ 
 					Log.d("CLT HANDLER", "Someone resuming: " + clientId);
@@ -142,14 +143,6 @@ public class ClientHandler implements Runnable {
 					server.broadcast("X" + clientId);
 					Server.gameStarting = false;
 					Server.gameOngoing = true;
-				}else if(command.startsWith("leave_game")){
-					Server.clients.remove(clientId);
-					Server.clientsNames.remove(clientId);
-					if(Server.clients.size() == 0){
-						Server.clt_id = 1;
-						Server.gameOngoing = false;
-					}
-					break;
 				}else if(command.startsWith("server_leave_game")){
 					Server.clients.remove(1);
 					Server.clientsNames.remove(1);
@@ -160,7 +153,7 @@ public class ClientHandler implements Runnable {
 					Server.clients.put(id, out);
 					Server.clientsNames.put(id, command.split(" ")[2]);
 					Server.total_rejoins++;
-					if(Server.total_rejoins >= Server.service.getGameActivity().getNumPlayers())
+					if(Server.total_rejoins == Server.service.getGameActivity().getNumPlayers())
 						server.broadcast("A"); // Everyone joined, resume the game.
 					break;
 				}else{ //o resto sao updates de jogadores vindos do jogo
