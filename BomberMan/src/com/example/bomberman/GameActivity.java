@@ -1,5 +1,6 @@
 package com.example.bomberman;
 
+import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
@@ -171,7 +172,35 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	public int getCountDown(){
 		return countDown;
 	}
+	
+	public GamePanel getGamePanel(){
+		return this.gamePanel;
+	}
 
+	public String getActivePlayer(){
+		return this.playerName;
+	}
+	
+	public void setUsersMap(String newUsersMap){
+		
+		String[] usersMapSplitted = newUsersMap.split("&");
+		
+		for(String keyValue: usersMapSplitted){
+			String[] keyValueSplitted = keyValue.split(",");
+			users.put(Integer.parseInt(keyValueSplitted[0]), keyValueSplitted[1]);
+		}
+	}
+	
+	public String getUsersMap(){
+		String newUsersList = "";
+		for(java.util.Map.Entry<Integer, String> userName: users.entrySet()){
+				newUsersList += userName.getKey() + "," + userName.getValue() + "&";
+		}
+		if(newUsersList == "")
+			newUsersList = "no users& ";
+		return newUsersList;
+	}
+	
 	//O game master responde a um join tardio com o tempo actual do jogo
 	//este jogador vai actualizar o tempo e comecar o seu timer
 	public void setCountDown(int clock){
@@ -230,6 +259,12 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 
 		Toast.makeText(this, "ON RESTART - GAME ACT",
 				Toast.LENGTH_SHORT).show(); 
+	}
+	
+	public void updatePlayerList(TreeMap<Integer, String> clientsNames) {
+		Log.d("TESTT", "CLIENTS NAMES E  "+ " " + clientsNames.get(1) + "|" + clientsNames.get(2) );
+		users = clientsNames;
+		numPlayers = clientsNames.size();
 	}
 
 	//The arena will call this on its first update
@@ -411,14 +446,16 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	}
 
 	public void endGame(){
-		ScoreBoard scores = gamePanel.getArena().scores;
+		ScoreBoard scrs = gamePanel.getArena().scores;
 		Intent intent = new Intent(GameActivity.this, ScoresActivity.class);
-		intent.putExtra("scores", scores);
+		intent.putExtra("scores", scrs);
 		intent.putExtra("playerName", playerName);
 		intent.putExtra("usersMap", users);
 
-		Log.d("ENDGAME USER", "Username is: " + playerName);
+		Log.d("TESTT", "IN ENDGAME, SCOREBOARD IS: 1:" + scrs.get('1') + " | 2:" + scrs.get('2'));
 
+		Log.d("TESTT", "IN ENDGAME, USERSMAP IS: 1:" + users.get(1) + " | 2:" + users.get(2));
+		
 		gamePanel.thread.setRunning(false);
 		timeUpdater.cancel();
 		if(service.isServer())

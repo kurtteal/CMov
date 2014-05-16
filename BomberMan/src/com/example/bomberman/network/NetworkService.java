@@ -1,12 +1,25 @@
 package com.example.bomberman.network;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
+import android.content.Entity;
+import android.os.DropBoxManager.Entry;
+import android.text.BoringLayout;
 import android.util.Log;
 
 import com.example.bomberman.GameActivity;
 import com.example.bomberman.MultiplayerMenuActivity;
+import com.example.bomberman.model.Bomberman;
+import com.example.bomberman.model.IDrawable;
+import com.example.bomberman.model.Path;
+import com.example.bomberman.model.PathState;
+import com.example.bomberman.model.Robot;
+import com.example.bomberman.model.Wall;
 import com.example.bomberman.network.server.Server;
+import com.example.bomberman.util.ScoreBoard;
 
 /*
  * Network service class that encapsulates the application's communication and synchronization protocol.
@@ -31,12 +44,12 @@ public class NetworkService {
 		NetworkService.server = new Server();
 		NetworkService.server.start();
 	}
-	
+
 	public void disableServer() {
 		NetworkService.isServer = false;
 		NetworkService.server = null;
 	}
-	
+
 	public void resetServer(){
 		NetworkService.server.resetServer();
 	}
@@ -128,12 +141,12 @@ public class NetworkService {
 	}
 
 	public void midJoin() {
-		String message = "mid_join_ready " + playerId;
+		String message = "mid_join_ready " + gameActivity.getActivePlayer();
 		send(message);
 	}
 
 	public void leaveGame() {
-		String message = "leave_game" + playerId;
+		String message = "leave_game " + playerId;
 		send(message);
 	}
 
@@ -141,14 +154,14 @@ public class NetworkService {
 		String message = "set_map " + mapNumber + " " + playerId + " " + maxPlayers;
 		send(message);
 	}
-	
+
 	public void pauseGame() {
-		String message = "pause_game" + playerId;
+		String message = "pause_game " + playerId;
 		send(message);
 	}
-	
+
 	public void resumeGame() {
-		String message = "resume_game" + playerId;
+		String message = "resume_game " + playerId;
 		send(message);
 	}
 
@@ -234,6 +247,15 @@ public class NetworkService {
 		}
 		menuActivity.updatePlayerList(clientsNames);
 	}
+	
+	private void updateGameUsers(String[] players) {
+		//clientsNames = new TreeMap<Integer, String>();
+		for (String player : players) {
+			String[] data = player.split("=");
+			clientsNames.put(Integer.parseInt(data[0].trim()), data[1]);
+		}
+		gameActivity.updatePlayerList(clientsNames);
+	}
 
 	private void updateMap(char mapNumber) {
 		menuActivity.updateMap(mapNumber);
@@ -300,30 +322,87 @@ public class NetworkService {
 		if (playerId == '1') {
 			// TODO enviar msg com o clock actual para o newPlayerId
 			int currentCount = gameActivity.getCountDown();
-			sendCurrentClock(newPlayerId, currentCount); // metodo do proprio
+			ScoreBoard scoreBrd = gameActivity.getGamePanel().getArena().scores;
+			char current_matrix[][] = gameActivity.getGamePanel().getArena().getGC().matrix;
+			String deadElementsList = gameActivity.getGamePanel().getArena().getDeadElementsIds();
+			String playersPosition = gameActivity.getGamePanel().getArena().getPlayersPositions(id);
+			//String userNamesList = gameActivity.getUsersMap();
+			//Log.d("TESTT", "IN NEWPLAYER SERVICE, O USERNAMES LIST E" + userNamesList.toString());
+			
+			sendCurrentInfo(newPlayerId, currentCount, scoreBrd, current_matrix, deadElementsList, playersPosition); // metodo do proprio
 			// servico
 		}
 	}
-	
+
 	private void pausePlayer(String id) {
 		char pausePlayerId = id.charAt(0);
 		gameActivity.pausePlayer(pausePlayerId);
 	}
-	
+
 	private void resumePlayer(String id) {
 		char resumePlayerId = id.charAt(0);
 		gameActivity.resumePlayer(resumePlayerId);
 	}
-	
+
 	private void quitPlayer(String id) {
 		char quitPlayerId = id.charAt(0);
 		gameActivity.quitPlayer(quitPlayerId);
 	}
 
-	private void updateClock(String clock) {
-		gameActivity.setCountDown(Integer.parseInt(clock));
+	private void updateInfo(int clock, String scoreBrd, String currentMatrix, String deadElementsList, String playersPosition) {
+
+		//HashMap<String, Integer> newBoard = new HashMap<String, Integer>();
+		ScoreBoard newBoard = new ScoreBoard();
+		int numLines = gameActivity.getGamePanel().getArena().getGC().getNumLines();
+		int numColumns = gameActivity.getGamePanel().getArena().getGC().getNumColumns();
+		char[][] newMatrix = new char[numLines][numColumns];
+		
+		ArrayList<String> deadRobotsIds = new ArrayList<String>();
+		ArrayList<String> deadPlayersIds = new ArrayList<String>();
+		
+		String[] boardSplitted = scoreBrd.split("&");
+
+		String[] matrixSplitted = currentMatrix.split("&");
+
+		String[] deadElementsSplitted = deadElementsList.split("&");
+
+		//		StringBuilder sb = new StringBuilder();
+		//		for(String s : boardSplitted){
+		//			sb.append(s);
+		//			sb.append("XXX");
+		//		}
+		//		Log.d("UPDATE INFO", "BOARD SPLITTED E "+ sb.toString());
+
+		for(String keyValue: boardSplitted){
+			String[] keyValueSplitted = keyValue.split(",");
+			newBoard.add(keyValueSplitted[0], Integer.parseInt(keyValueSplitted[1]));
+		}
+
+		for(String matrixVals: matrixSplitted){
+			String[] matrixValsSplitted = matrixVals.split(",");
+			newMatrix[Integer.parseInt(matrixValsSplitted[0])][Integer.parseInt(matrixValsSplitted[1])] = matrixValsSplitted[2].charAt(0); 
+		}
+		
+		if(!(deadElementsSplitted[0].equals("no deads"))){
+			for(String deadVal: deadElementsSplitted){
+				String[] deadValsSplitted = deadVal.split(",");
+				if(deadValsSplitted[0] == "P"){
+					Log.d("DEADVALS", "PLAYER:" + deadValsSplitted[1]);
+					deadPlayersIds.add(deadValsSplitted[1]);
+				} else{
+					deadRobotsIds.add(deadValsSplitted[1]);
+					Log.d("DEADVALS", "ROBOT:" + deadValsSplitted[1]);
+				}
+			}
+		}
+
+		gameActivity.setCountDown(clock);
+		gameActivity.getGamePanel().getArena().setScoreBoard(newBoard);
+		gameActivity.getGamePanel().getArena().setListsAndMatrix(newMatrix, deadRobotsIds, deadPlayersIds, playersPosition);
+		gameActivity.getGamePanel().getArena().setUpdatedGameInfo();
+		
 	}
-	
+
 	/*
 	 * Other synchronization methods.
 	 */
@@ -337,8 +416,24 @@ public class NetworkService {
 
 	// O game master depois de receber um join a meio, envia o clock atual
 	// para o ultimo que entrou ficar atualizado
-	private void sendCurrentClock(char newPlayerId, int clock) {
-		String message = "clock " + clock + newPlayerId;
+	private void sendCurrentInfo(char newPlayerId, int clock, ScoreBoard scoreBrd, char current_matrix[][], String newDeadList, String playersPosition) {
+
+		String newScoreBoard = "";
+		String newCurrentMatrix = "";
+
+		for (java.util.Map.Entry<String, Integer> entry : scoreBrd.entrySet()){
+			newScoreBoard += entry.getKey() + "," + entry.getValue();
+			newScoreBoard += "&";
+		}
+
+		for(int i = 0; i < current_matrix.length; i++){
+			for(int j = 0; j < current_matrix[i].length; j++){
+				newCurrentMatrix += i + "," + j + "," + current_matrix[i][j];
+				newCurrentMatrix += "&";
+			}
+		}
+
+		String message = "info " + "#" +  clock + "#" + newScoreBoard + "#" + newCurrentMatrix + "#" + newDeadList + "#" + playersPosition + "#" + newPlayerId;
 		send(message);
 	}
 
@@ -370,8 +465,13 @@ public class NetworkService {
 		case 'L': // lista de jogadores actualizada
 			String[] players = message.substring(2, message.length() - 1)
 			.split(",");
-			Log.d("Plist updt: ", NetworkService.playerId + " " + players[0]);
+			Log.d("Plist updt", NetworkService.playerId + " " + players[0] + "|" + players[1]);
 			updatePlayerList(players);
+			break;
+		case 'K':
+			String[] playrs = message.substring(2, message.length() - 1)
+			.split(",");
+			updateGameUsers(playrs);
 			break;
 		case 'M': // mapa escolhido
 			updateMap(message.charAt(1));
@@ -404,7 +504,14 @@ public class NetworkService {
 			quitPlayer(message.substring(1));
 			break;
 		case 'Y': // Y <clock> remaining in secs
-			updateClock(message.substring(1));
+			String[] messageSplitted = message.split("#");
+			int clock = Integer.parseInt(messageSplitted[1]);
+			String scoreBrd = messageSplitted[2];
+			String currentMatrix = messageSplitted[3];
+			String deadsList = messageSplitted[4];
+			String playersPositions = messageSplitted[5];
+			//String userNamesMap = messageSplitted[6];
+			updateInfo(clock, scoreBrd, currentMatrix, deadsList, playersPositions);
 			break;
 		default:
 			break;

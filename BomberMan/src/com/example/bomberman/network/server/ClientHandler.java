@@ -55,47 +55,45 @@ public class ClientHandler implements Runnable {
 				//CREATE <nickname>
 				if(command.startsWith("create")){ 
 					//se ainda nao existir um jogo a comecar ou a correr
-					if(!server.gameStarting && !server.gameOngoing){
-						server.clients.put(clientId,out); //entra na lista de broadcast
+					if(!Server.gameStarting && !Server.gameOngoing){
+						Server.clients.put(clientId,out); //entra na lista de broadcast
 						String playerName = command.split(" ")[1];
 						playerName = playerName.substring(0, playerName.length()-1);//retirar o #
-						server.clientsNames.put(clientId, playerName);
+						Server.clientsNames.put(clientId, playerName);
 						server.reply(clientId, "0"); //Create successful
-						server.gameStarting = true;
+						Server.gameStarting = true;
 					}else
 						server.reply(clientId, out, "1"); //create failed
 					//JOIN (no jogo a decorrer)
 				}else if(command.startsWith("join")){ 
 					System.out.println("Someone joining: " + clientId + " " + Character.getNumericValue(maxPlayers));
 					//verificar se ha jogo a decorrer
-					if(server.gameStarting && clientId <= Character.getNumericValue(maxPlayers)){
+					if(Server.gameStarting && clientId <= Character.getNumericValue(maxPlayers)){
 						String playerName = command.split(" ")[1];
 						playerName = playerName.substring(0, playerName.length()-1);//retirar o #
 						boolean foundSameUser = false;
-						for(int i = 0 ; i < server.clientsNames.size() ; i++) {
-							if(server.clientsNames.valueAt(i).equals(playerName))
+						for(int i = 0 ; i < Server.clientsNames.size() ; i++) {
+							if(Server.clientsNames.valueAt(i).equals(playerName))
 								foundSameUser = true;
 						}
 						if(foundSameUser)
 							server.reply(clientId, out, "5"); // Check if username exists 
 						else{
-							server.clients.put(clientId,out); //entra na lista de broadcast
+							Server.clients.put(clientId,out); //entra na lista de broadcast
 							//Eh preciso enviar aos jogadores que se juntam, a informacao
 							//sobre quem eles sao no mapa (activePlayer -> clientId)
 							//Join successful '2 <id>'
 							server.reply(clientId, "2" + clientId); 
-							server.reply(clientId, "M" + server.mapSelected);
-							server.clientsNames.put(clientId, playerName);
+							server.reply(clientId, "M" + Server.mapSelected);
+							Server.clientsNames.put(clientId, playerName);
 							//envia a todos a nova lista
-							server.broadcast("L" + server.clientsNames.toString());
+							server.broadcast("L" + Server.clientsNames.toString());
 						}
-					}else if(server.gameOngoing){
+					}else if(Server.gameOngoing){
 						if(clientId <= Character.getNumericValue(maxPlayers)){
 							server.reply(clientId, out, "2" + clientId); 
-							server.reply(clientId, out, "M" + server.mapSelected);
+							server.reply(clientId, out, "M" + Server.mapSelected);
 							server.reply(clientId, out, "X#"); //fazer load do mapa
-							String playerName = command.split(" ")[1];
-							server.clientsNames.put(clientId, playerName);
 						}else
 							server.reply(clientId, out, "4"); //game full, join failed
 						//servidor nao sabe se o player cabe no mapa, esse check eh feito client-side
@@ -107,8 +105,8 @@ public class ClientHandler implements Runnable {
 					//WHEN MID JOINER is ready to receive commands from the game
 				}else if(command.startsWith("leave_game")){ 
 					Log.d("CLT HANDLER", "Someone leaving: " + clientId);
-					server.clients.remove(clientId);
-					server.clientsNames.remove(clientId);
+					Server.clients.remove(clientId);
+					Server.clientsNames.remove(clientId);
 					server.broadcast("U" + clientId);
 					//WHEN MID JOINER is ready to receive commands from the game
 				}else if(command.startsWith("resume_game")){ 
@@ -116,29 +114,40 @@ public class ClientHandler implements Runnable {
 					server.broadcast("Q" + clientId);
 					//WHEN MID JOINER is ready to receive commands from the game
 				}else if(command.startsWith("mid_join_ready")){
-					server.broadcast("N" + clientId); 
-					server.clients.put(clientId,out); //entra na lista de broadcast
-				}else if(command.startsWith("clock")){
-					int playerId = Integer.parseInt(command.substring(command.length()-1));
-					int clock = Integer.parseInt(command.substring(6, command.length()-1));
-					server.reply(playerId, "Y" + clock);
+					server.broadcast("N" + clientId);
+					String playerName = command.split(" ")[1];
+					Log.d("TESTT", "NO SERVER; PLAYER NAME E " +playerName);
+					Server.clientsNames.put(clientId, playerName);
+					server.reply(clientId, out, "K" + Server.clientsNames.toString()); //fazer load do mapa
+					server.broadcast("K" + Server.clientsNames.toString());
+					Server.clients.put(clientId,out); //entra na lista de broadcast
+				}else if(command.startsWith("info")){
+					String[] commandSplitted = command.split("#");
+					int clock = Integer.parseInt(commandSplitted[1]);
+					String scoreBrd = commandSplitted[2];
+					String currentMatrix = commandSplitted[3];
+					String deadsList = commandSplitted[4];
+					String playersPositions = commandSplitted[5];
+					//String userNamesMap = commandSplitted[6];
+					int playerId = Integer.parseInt(commandSplitted[6]);
+					server.reply(playerId, "Y" + "#" +  clock + "#" + scoreBrd + "#" + currentMatrix + "#" + deadsList + "#" + playersPositions);
 					//SET MAP <map number>
 				}else if(command.startsWith("set_map")){
 					mapNumber = command.charAt(8);
 					maxPlayers = command.charAt(12);
 					System.out.println("New map " +mapNumber + " max players: "+ maxPlayers);
-					server.mapSelected = mapNumber;
+					Server.mapSelected = mapNumber;
 					server.broadcast("M" + mapNumber);
 				}else if(command.startsWith("start")){
 					server.broadcast("X" + clientId);
-					server.gameStarting = false;
-					server.gameOngoing = true;
+					Server.gameStarting = false;
+					Server.gameOngoing = true;
 				}else if(command.startsWith("leave_game")){
-					server.clients.remove(clientId);
-					server.clientsNames.remove(clientId);
-					if(server.clients.size() == 0){
-						server.clt_id = 1;
-						server.gameOngoing = false;
+					Server.clients.remove(clientId);
+					Server.clientsNames.remove(clientId);
+					if(Server.clients.size() == 0){
+						Server.clt_id = 1;
+						Server.gameOngoing = false;
 					}
 					break;
 				}else{ //o resto sao updates de jogadores vindos do jogo

@@ -169,6 +169,15 @@ public class Bomberman {
 		this.playersKilled.add(playerId);
 	}
 	
+	public char getMyself(){
+		return this.myself;
+	}
+	
+	public void setInitialPosition(int i, int j){
+		this.x = xMapMargin + j * getWidth();
+		this.y = yMapMargin + i * getHeight();
+	}
+	
 	//Receives the sent coordinates, and updates the position
 	//(in pixel map: x, y) to the sent values, the overlay and the i, j
 	protected void correctThePosition(int newI, int newJ){

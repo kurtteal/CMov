@@ -14,7 +14,7 @@ public class Robot extends Bomberman{
 
 	private double xAcum = 0;
 	private double yAcum = 0;
-	public int robotId; //used in multiplayer
+	private int robotId; //used in multiplayer
 	private boolean singleplayer;
 	//os robots precisam de saber se sao eles que enviam a info
 	//no caso do multiplayer
@@ -49,6 +49,10 @@ public class Robot extends Bomberman{
 		if(singleplayer){
 			startMoving();
 		}
+	}
+	
+	public int getRobotId(){
+		return this.robotId;
 	}
 
 	public void startMoving(){

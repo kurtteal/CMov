@@ -7,6 +7,7 @@ import com.example.bomberman.GamePanel;
 import com.example.bomberman.util.GameConfigs;
 import com.example.bomberman.util.ScoreBoard;
 
+import android.R.integer;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.util.Log;
@@ -20,6 +21,9 @@ public class Arena {
 	private List<Bomberman> players;
 	private List<Bomberman> unjoinedPlayers;
 	private List<Robot> robots;
+	private List<String> deadRobotsIds;		// For the midjoin
+	private List<String> deadPlayersIds;
+	private String playersPositions; // For midjoin too
 
 	protected GameConfigs gc; // matrix com chars, para verificacao de colisoes
 	public GamePanel panel;
@@ -37,7 +41,9 @@ public class Arena {
 	private int robotIdCounter = 0; //used to attribute an id to each robot (useful for multiplayer)
 
 	private boolean firstUpdate = true;
-
+	private Boolean updatedInfo = false;
+	
+	
 	private int numPlayers;
 
 	// Cant draw the arena on the constructor because I need
@@ -65,20 +71,93 @@ public class Arena {
 	}
 
 	public Bomberman getPlayer(char playerId){
-		for(Bomberman player : players){
-			if(player.myself == playerId)
-				return player;
+		synchronized (players) {
+			for(Bomberman player : players){
+				if(player.myself == playerId)
+					return player;
+			}
 		}
 		return null;
 	}
 
 	public Robot getRobot(int id){
-		for(Robot b : robots)
-			if(b.robotId == id)
-				return b;
-		return null;
+		synchronized (robots) {
+			for(Robot b : robots)
+				if(b.getRobotId() == id)
+					return b;
+			return null;
+		}
 	}
 
+	public List<Robot> getRobots(){
+		synchronized (robots) {
+			return this.robots;
+		}
+
+	}
+
+	public List<Bomberman> getPlayers(){
+		synchronized (players) {
+			return this.players;
+		}
+	}
+
+	public GameConfigs getGC(){
+		return this.gc;
+	}
+
+	public void setScoreBoard(ScoreBoard newBoard){
+		synchronized (scores) {
+			this.scores = newBoard;
+			Log.d("TESTT", "KEY 1:" + scores.get('1') + " | KEY 2:" + scores.get('2'));
+		}
+		
+	}
+	
+	// Midjoin
+	public void setListsAndMatrix(char[][] newMatrix, List<String> deadRobots, List<String> deadPlayers, String plPositions){
+		this.gc.matrix = newMatrix;
+		
+		this.deadRobotsIds = deadRobots;
+		this.deadPlayersIds = deadPlayers;
+		this.playersPositions = plPositions;
+	}
+
+	public String getDeadElementsIds(){
+		synchronized (deadElements) {
+			String newDeadList = "";
+			for(Bomberman bman: deadElements){
+				if(bman.getMyself() == 'R')
+					newDeadList += "R" + "," +((Robot) bman).getRobotId() + "&";
+				else
+					newDeadList += "P" + "," +  bman.getPlayerId() + "&";
+			}
+			if(newDeadList == "")
+				newDeadList = "no deads& ";
+			return newDeadList;
+		}
+	}
+	
+	public String getPlayersPositions(String joiningID){
+		synchronized (players) {
+			String newPlayersList = "";
+			for(Bomberman bman: players){
+				if(!bman.getPlayerId().equals(joiningID))
+					newPlayersList += bman.getPlayerId() + "," + bman.i + "," + bman.j + "&";
+			}
+			if(newPlayersList == "")
+				newPlayersList = "no players& ";
+			return newPlayersList;
+		}
+	}
+	
+	public void setUpdatedGameInfo(){
+		
+		synchronized (updatedInfo) {
+			updatedInfo = true;
+		}
+		
+	}
 
 	//	public void setActivePlayer(char id){
 	//		playerId = id;
@@ -90,6 +169,8 @@ public class Arena {
 
 	private void fillDrawableMatrix() {
 
+		
+		Log.d("TESTT", "NO FILLREDRAW");
 		playerId = panel.activity.playerId;
 		int numLines = gc.getNumLines();
 		int numColumns = gc.getNumColumns();
@@ -134,9 +215,11 @@ public class Arena {
 							PathState.BOMB, i, j, numColumns, numLines, panel);
 					break;
 				case 'R':
-					robots.add(new Robot(resources, previousRightBorder,
-							previousBottomBorder, gameRightMargin, gameBottomMargin, panel, gc.matrix[i][j],
-							gc.robotSpeed, numColumns, numLines, robotIdCounter++));
+					synchronized (robots) {
+						robots.add(new Robot(resources, previousRightBorder,
+								previousBottomBorder, gameRightMargin, gameBottomMargin, panel, gc.matrix[i][j],
+								gc.robotSpeed, numColumns, numLines, robotIdCounter++));
+					}
 					pixelMatrix[i][j] = new Path(resources,
 							previousRightBorder, previousBottomBorder,
 							PathState.FLOOR, i, j, numColumns, numLines, panel);
@@ -162,6 +245,94 @@ public class Arena {
 			}
 		}
 
+	}
+
+
+	public void refillDrawableMatrix() {
+
+		Log.d("TESTT", "NO REEEFILLREDRAW");
+		int numLines = gc.getNumLines();
+		int numColumns = gc.getNumColumns();
+		pixelMatrix = new IDrawable[numLines][numColumns];
+		int i, j;
+		//		Log.d("Laaaaa", "test , last*sizeX= " 
+		//				+ ((panel.getWidth() - (panel.getWidth() / sizeX)*sizeX)/2) + "," + (panel.getWidth() - (panel.getWidth() / sizeX)*sizeX));
+		int gameRightMargin = (panel.getWidth() - (panel.getWidth() / numColumns)*numColumns)/2;
+		int gameBottomMargin = (panel.getHeight() - (panel.getHeight() / numLines)*numLines)/2;
+
+		// preenche a matriz de objectos desenhaveis, e as listas de players e
+		// robots
+		for (i = 0; i < numLines; i++) {
+			int previousBottomBorder = gameBottomMargin;
+			if (i != 0)
+				previousBottomBorder = pixelMatrix[i - 1][0].getDownBorder();
+			for (j = 0; j < numColumns; j++) {
+				int previousRightBorder = gameRightMargin;
+				if (j != 0)
+					previousRightBorder = pixelMatrix[i][j - 1]
+							.getRightBorder();
+				switch (gc.matrix[i][j]) {
+				case 'W':
+					pixelMatrix[i][j] = new Wall(resources,
+							previousRightBorder, previousBottomBorder, numColumns,
+							numLines, panel);
+					break;
+				case '-':
+					pixelMatrix[i][j] = new Path(resources,
+							previousRightBorder, previousBottomBorder,
+							PathState.FLOOR, i, j, numColumns, numLines, panel);
+					break;
+				case 'O':
+					pixelMatrix[i][j] = new Path(resources,
+							previousRightBorder, previousBottomBorder,
+							PathState.OBSTACLE, i, j, numColumns, numLines, panel);
+					break;
+				case 'B':
+					pixelMatrix[i][j] = new Path(resources,
+							previousRightBorder, previousBottomBorder,
+							PathState.BOMB, i, j, numColumns, numLines, panel);
+					break;
+				case 'R':
+					pixelMatrix[i][j] = new Path(resources,
+							previousRightBorder, previousBottomBorder,
+							PathState.FLOOR, i, j, numColumns, numLines, panel);
+					break;
+				default:
+					pixelMatrix[i][j] = new Path(resources,
+							previousRightBorder, previousBottomBorder,
+							PathState.FLOOR, i, j, numColumns, numLines, panel);
+					break;
+				}
+			}
+		}
+		
+		for(String rID: deadRobotsIds){
+			removeElement(getRobot(Integer.parseInt(rID)));
+		}
+		
+		for(String pID: deadPlayersIds){
+			removeElement(getPlayer(pID.charAt(0)));
+		}
+		
+		Log.d("TESTT", "ANTES DO PARSE, A STRING E " + playersPositions);
+		String[] playersPositionsSplitted = playersPositions.split("&");
+		
+		for(String playerPos: playersPositionsSplitted){
+			
+			String[] playerPosVal = playerPos.split(",");
+			char playerId = playerPosVal[0].charAt(0);
+			Bomberman bmbman = getPlayer(playerId);
+			bmbman.i = Integer.parseInt(playerPosVal[1]);
+			bmbman.j = Integer.parseInt(playerPosVal[2]);
+			String oldPos = gc.getInitialPosition(playerId);
+			String[] oldPosVals = oldPos.split(",");
+			int oldi = Integer.parseInt(oldPosVals[0]);
+			int oldj = Integer.parseInt(oldPosVals[1]);
+			gc.writeOverlayPosition(oldi, oldj, '-');
+			gc.writeOverlayPosition(bmbman.i, bmbman.j, playerId);
+			bmbman.setInitialPosition(bmbman.i, bmbman.j);
+		}
+		
 	}
 
 	//A new player enters in the middle of the game
@@ -220,10 +391,16 @@ public class Arena {
 	}
 
 	public void removeElement(Bomberman bomber) {
-		if (bomber.getId() == 'R')
-			robots.remove(bomber);
-		else
-			players.remove(bomber);
+		if (bomber.getMyself() == 'R')
+			synchronized (robots) {
+				robots.remove(bomber);
+			}
+		else{
+			synchronized (players) {
+				players.remove(bomber);
+			}
+		}
+
 	}
 
 	public void elementHasDied(Bomberman bomber) {
@@ -232,14 +409,20 @@ public class Arena {
 		//vou ah procura do dono da explosao que matou este elemento, e aumento o score se for player
 		char killerId = ((Path)pixelMatrix[bomber.i][bomber.j]).getOwner();
 
-		if(deadElements.contains(bomber)){
+		boolean containsBomber = false;
+		
+		synchronized (deadElements) {
+			containsBomber = deadElements.contains(bomber);
+		}
+		
+		if(containsBomber){
 			return;
 		} else{
-
-			//synchronized (deadElements) {
-				// marca este elemento como morto
+			
+			synchronized (deadElements) {
+			// marca este elemento como morto
 				deadElements.add(bomber);
-			//}
+			}
 			//Se nao foi morte por contacto com robot, vai actualizar o score de algum player
 			if(killerId != '#'){
 				String planter = "" + killerId;
@@ -274,15 +457,24 @@ public class Arena {
 			fillDrawableMatrix();
 			panel.activity.startGame();
 			firstUpdate = false;
+		} else{
+			synchronized (updatedInfo) {
+				if(updatedInfo)
+					refillDrawableMatrix();
+					updatedInfo = false;
+			}
 		}
 
-		//synchronized (deadElements) {
+		synchronized (deadElements) {
 
 			if (!deadElements.isEmpty()) {
 				for (Bomberman bomber : deadElements)
 					removeElement(bomber);
-				deadElements.clear();// limpa a lista de mortos
+			//deadElements.clear();// limpa a lista de mortos
 			}
+		}
+		
+		
 
 		//}
 		// Removes any dead players/robots from the list, these wont be updated
@@ -301,11 +493,16 @@ public class Arena {
 				pixelMatrix[i][j].update(gameTime, gc);
 			}
 		}
-		for (Robot robot : robots)
-			robot.update(gameTime);
-		for (Bomberman player : players)
-			if(!player.getIsPaused())
-				player.update(gameTime);
+		synchronized (robots) {
+			for (Robot robot : robots)
+				robot.update(gameTime);
+		}
+		synchronized (players) {
+			for (Bomberman player : players){
+				if(!player.getIsPaused())
+					player.update(gameTime);
+			}
+		}
 	}
 
 	public void draw(Canvas canvas) {
@@ -320,19 +517,37 @@ public class Arena {
 			}
 		}
 		// depois os robots e os players
-		for (Robot robot : robots)
-			robot.draw(canvas);
-		for (Bomberman player : players)
-			if(!player.getIsPaused())
-				player.draw(canvas);
+		synchronized (robots) {
+			for (Robot robot : robots)
+				robot.draw(canvas);
+		}
+		synchronized (players) {
+			for (Bomberman player : players)
+				if(!player.getIsPaused())
+					player.draw(canvas);
+		}
+
+		boolean isEmptyRobots = false;
+		boolean isEmptyPlayers = false;
+		int playersSize;
+
+		synchronized (robots) {
+			isEmptyRobots = robots.isEmpty();
+		}
+		synchronized (players) {
+			isEmptyPlayers = players.isEmpty();
+			playersSize = players.size();
+		}
 
 		//jogo termina se houver apenas 1 player
 		if(panel.activity.singleplayer){
-			if(robots.isEmpty() || players.isEmpty()){
+
+			if(isEmptyRobots || isEmptyPlayers){
 				panel.endGame();
 			}
-		} else{
-			if(players.size() < 1 || (players.size() == 1 && robots.isEmpty() )){
+		}
+		else{
+			if(playersSize < 1 || (playersSize == 1 && isEmptyRobots )){
 				panel.endGame();
 			}
 		}

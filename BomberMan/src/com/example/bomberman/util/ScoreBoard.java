@@ -24,6 +24,10 @@ public class ScoreBoard implements Serializable {
 		scores.put(playerId, 0);
 	}
 	
+	public void add(String playerId, int score) {
+		scores.put(playerId, score);
+	}
+	
 	public void update(String playerId, int score) {
 		scores.put(playerId, scores.get(playerId) + score);
 	}
