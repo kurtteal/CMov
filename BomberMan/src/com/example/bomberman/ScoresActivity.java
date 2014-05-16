@@ -26,12 +26,19 @@ public class ScoresActivity extends Activity {
 	private String activePlayer;
 	private MyAdapter adapter;
 	private MyAdapter adapter_values;
+	private boolean inGroup = false;
+	private boolean isGroupOwner = false;
+	private String serverAddress = "";
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_scores);
+		
+		inGroup = getIntent().getBooleanExtra("inGroup", false);
+		isGroupOwner = getIntent().getBooleanExtra("isGO", false);
+		serverAddress = getIntent().getStringExtra("serverAddress");
 
 		scores = (ScoreBoard) getIntent().getSerializableExtra("scores");
 		activePlayer = getIntent().getStringExtra("playerName");
@@ -96,6 +103,10 @@ public class ScoresActivity extends Activity {
 		Intent intent = new Intent(ScoresActivity.this, MenuActivity.class);
 		Log.d("ENDGAME USER", "Username is: " + activePlayer);
 		intent.putExtra("activePlayer", activePlayer);
+		intent.putExtra("WDSimStarted", true);
+		intent.putExtra("serverAddress", serverAddress);
+		intent.putExtra("inGroup", inGroup);
+		intent.putExtra("isGO", isGroupOwner);
 		startActivity(intent);
 	}
 

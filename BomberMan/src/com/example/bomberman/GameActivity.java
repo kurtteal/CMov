@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
@@ -70,9 +69,10 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		Toast.makeText(this, "ENTREI NO ON CREATEEEE!",
-				Toast.LENGTH_SHORT).show();
+		
+		inGroup = getIntent().getBooleanExtra("inGroup", true);
+		isGroupOwner = getIntent().getBooleanExtra("isGO", true);
+		serverAddress = getIntent().getStringExtra("serverAddress");
 
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
 		playerName = getIntent().getStringExtra("playerName");
@@ -367,6 +367,9 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		intent.putExtra("scores", scrs);
 		intent.putExtra("playerName", playerName);
 		intent.putExtra("usersMap", users);
+		intent.putExtra("serverAddress", serverAddress);
+		intent.putExtra("inGroup", inGroup);
+		intent.putExtra("isGO", isGroupOwner);
 		gamePanel.thread.setRunning(false);
 		timerThread.interrupt();
 		if(service.isServer())
@@ -503,6 +506,11 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 					serverAddress = split[0];
 			}
 		}
+	}
+	
+	public void requestGroupInfo() {
+		servConn.getManager().requestGroupInfo(servConn.getChannel(),
+				(GroupInfoListener) this);
 	}
 
 	@Override

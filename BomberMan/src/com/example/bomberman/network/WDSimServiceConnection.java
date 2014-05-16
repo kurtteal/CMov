@@ -8,6 +8,8 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Messenger;
 
+import com.example.bomberman.GameActivity;
+import com.example.bomberman.MenuActivity;
 import com.example.bomberman.MultiplayerMenuActivity;
 
 public class WDSimServiceConnection implements ServiceConnection {
@@ -34,8 +36,12 @@ public class WDSimServiceConnection implements ServiceConnection {
 		mService = new Messenger(service);
 		mManager = new SimWifiP2pManager(mService);
 		mChannel = mManager.initialize(activity.getApplication(), activity.getMainLooper(), null);
+		if(activity instanceof MenuActivity)
+			((MenuActivity) activity).requestGroupInfo();
 		if(activity instanceof MultiplayerMenuActivity)
 			((MultiplayerMenuActivity) activity).requestGroupInfo();
+		if(activity instanceof GameActivity)
+			((GameActivity) activity).requestGroupInfo();
 	}
 
 	@Override
