@@ -18,10 +18,8 @@ public class Robot extends Bomberman{
 	private boolean singleplayer;
 	//os robots precisam de saber se sao eles que enviam a info
 	//no caso do multiplayer
-	private char playerId; 
-
+	private char playerId;
 	private NetworkService service;
-
 	private int checkPlayersCounter = 0;
 
 	public Robot(){
@@ -73,8 +71,6 @@ public class Robot extends Bomberman{
 		targetY = 0;
 		char[] surroundings = getSurroundings();
 		decideNewPath(surroundings);
-		if(nextMove != ' ')
-			Log.d("decideNewPath", "ROBOTID: "+ robotId+ " , O NEXT MOVE E " + nextMove);
 	}
 
 
@@ -85,7 +81,6 @@ public class Robot extends Bomberman{
 		char below = gc.readOverlayPosition(i+1, j);
 		char toTheLeft = gc.readOverlayPosition(i, j-1);
 		char toTheRight = gc.readOverlayPosition(i, j+1);
-
 
 		if(current != '-'){
 			Bomberman bman = panel.getArena().getPlayer(current);
@@ -127,11 +122,6 @@ public class Robot extends Bomberman{
 	//Returns a char[4] with whats in the surroundings on the logic matrix
 	//if I find a player in the surroundings, I kill it immediately!
 	private char[] getSurroundings(){
-		//		int[] array = getPositionInMatrix();
-		//		//Log.i("ARRAY:", array[0]+","+array[1]);
-		//		int j = array[0];
-		//		int i = array[1];
-
 		char[] directions = new char[4];
 
 		//fill the directions array			
@@ -148,25 +138,14 @@ public class Robot extends Bomberman{
 	//entre os caminhos livres
 	//Este metodo so eh chamado quando o robot chegar a um bloco
 	private void decideNewPath(char[] surroundings){
-		//int[] array = getPositionInMatrix();
-		//Log.i("ARRAY:", array[0]+","+array[1]);
-		//int j = array[0];
-		//int i = array[1];
-
 		//Single ou multi, a instancia de jogo com playerId = 1 eh quem envia comandos.
 		//Se tiver em multi e nao for o playerId 1 os robots vao-s mexer com comandos
 		//vindos do servidor
-		//Log.i("Robot:", "playerId= " + playerId + " robotId= " + robotId);
 		if(playerId == '1'){
 			char above = surroundings[0];
 			char below = surroundings[1];
 			char toTheLeft = surroundings[2];
 			char toTheRight = surroundings[3];
-			Log.d("decideNewPath", "ROBOT ID: "+robotId+" | above is:" + above);
-			Log.d("decideNewPath", "ROBOT ID: "+robotId+" | below is:" + below);
-			Log.d("decideNewPath", "ROBOT ID: "+robotId+" | left is:"+ toTheLeft);
-			Log.d("decideNewPath", "ROBOT ID: "+robotId+" | right is:"+ toTheRight);
-
 
 			int numPossible = 0;
 			char[] possiblePaths = new char[4];
@@ -188,57 +167,36 @@ public class Robot extends Bomberman{
 				numPossible++;
 			}
 			if (numPossible > 0){
-				Log.d("decideNewPath", "ENTREI NO IF E O numPossible is:" + numPossible);
 				//Pick an available path randomly
 				Random m = new Random();
 				int selected = m.nextInt(numPossible);
 
 				switch(possiblePaths[selected]){
 				case 'U':
-					//speed.goUp();
 					if(singleplayer)
 						oneSquareUp(null, null);
 					else{
-						//	int[] coords = getPositionInMatrix();
-						//	int i = coords[1];
-						//	int j = coords[0];
-						Log.d("decideNewPath", "A NOVA DIRECAO E UP");
 						service.robotUp(robotId, i, j);
 					}
 					break;
 				case 'D':
-					//speed.goDown();
 					if(singleplayer)
 						oneSquareDown(null, null);
 					else{
-						//	int[] coords = getPositionInMatrix();
-						//	int i = coords[1];
-						//	int j = coords[0];
-						Log.d("decideNewPath", "A NOVA DIRECAO E DOWN");
 						service.robotDown(robotId, i, j);
 					}
 					break;
 				case 'L':
-					//speed.goLeft();
 					if(singleplayer)
 						oneSquareLeft(null, null);
 					else{
-						//	int[] coords = getPositionInMatrix();
-						//	int i = coords[1];
-						//	int j = coords[0];
-						Log.d("decideNewPath", "A NOVA DIRECAO E LEFT");
 						service.robotLeft(robotId, i, j);
 					}
 					break;
 				case 'R':
-					//speed.goRight();
 					if(singleplayer)
 						oneSquareRight(null, null);
 					else{
-						//	int[] coords = getPositionInMatrix();
-						//	int i = coords[1];
-						//	int j = coords[0];
-						Log.d("decideNewPath", "A NOVA DIRECAO E RIGHT");
 						service.robotRight(robotId, i, j);
 					}
 					break;
@@ -268,27 +226,18 @@ public class Robot extends Bomberman{
 			if(!checkIfNextMove()){
 				//check surroundings
 				char[] surroundings = getSurroundings();
-
 				decideNewPath(surroundings);
-				//checkIfPlanted();
-				//will plant a bomb with a given probability if it is at an intersection
-				//decideIfPlant();
 			}
 		} else if(targetY != 0 && Math.abs(targetY - y) < movementMargin){
 			y = targetY; 
 			targetY = 0;
 			speed.setYStationary();
 			if(!checkIfNextMove()){
-
 				//check surroundings
 				char[] surroundings = getSurroundings();
 				decideNewPath(surroundings);
-				//checkIfPlanted();
-				//will plant a bomb with a given probability if it is at an intersection
-				//decideIfPlant();
 			}
 		}else{ //continua a mexer-se caso contrario
-
 			if(speed.getVelocity() >= 1){
 				x += (speed.getVelocity() * speed.getxDirection()); 
 				y += (speed.getVelocity() * speed.getyDirection());
@@ -318,18 +267,6 @@ public class Robot extends Bomberman{
 		if(checkPlayersCounter%10 == 0) //faz o check a cada 5 updates
 			checkForPlayers();
 	}
-
-	//	//actualiza a variavel de estado que diz se pos uma bomba recentemente (num bloco anterior)
-	//	@Override
-	//	protected void checkIfPlanted(){
-	//		if(justPlanted)
-	//			justPlanted = false;
-	//	}
-	//	
-	//	private void decideIfPlant(){
-	//		if(Math.random() > 0.95) //5% prob de por bomba num cruzamento
-	//			plantBomb();
-	//	}
 
 	private boolean pathIsFree(char block){
 		if(block != 'O' && block != 'W' && block != 'B' && block != 'E') return true;

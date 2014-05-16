@@ -45,7 +45,6 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 		if (strings.length <= 0) {
 			return null;
 		}
-
 		if(mode.equals("connect")) {
 			Log.d("ClientAsyncTask", "Connecting to " + strings[0]);
 			try {
@@ -57,7 +56,7 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 				new Thread(r).start();
 				Log.d("ClientAsyncTask", "Connected to " + strings[0]);
 			} catch (UnknownHostException e) {
-				Log.d("CONNECT TO SERVER","Error connecting to server - IOException");
+				Log.d("CONNECT TO SERVER","Error connecting to server - UnknownHostException");
 				e.printStackTrace();
 			} catch (IOException e) {
 				Log.d("CONNECT TO SERVER","Error connecting to server - IOException");
@@ -93,11 +92,9 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 					String message = in.readLine();
 					if(message == null){
 						closeSocket();
-						service.closeConnection();
 						break;
 					}
 					service.processMessage(message);
-					Log.d("Client recebeu: ", message);
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				} catch (IOException e) {

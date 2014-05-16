@@ -3,17 +3,17 @@ package com.example.bomberman.network.broadcastreceivers;
 import pt.utl.ist.cmov.wifidirect.SimWifiP2pBroadcast;
 import pt.utl.ist.cmov.wifidirect.SimWifiP2pDeviceList;
 import pt.utl.ist.cmov.wifidirect.SimWifiP2pInfo;
+import pt.utl.ist.cmov.wifidirect.SimWifiP2pManager.GroupInfoListener;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.example.bomberman.GameActivity;
-
-public class GameBroadcastReceiver extends BroadcastReceiver {
+public class WDSimBroadcastReceiver extends BroadcastReceiver {
 	
-	private GameActivity activity;
+	private Activity activity;
 
-    public GameBroadcastReceiver(GameActivity activity) {
+    public WDSimBroadcastReceiver(Activity activity) {
         super();
         this.activity = activity;
     }
@@ -37,7 +37,7 @@ public class GameBroadcastReceiver extends BroadcastReceiver {
 			SimWifiP2pDeviceList devices = (SimWifiP2pDeviceList) intent
 					.getSerializableExtra(SimWifiP2pBroadcast.EXTRA_DEVICE_LIST);
 			String goName = intent.getStringExtra("goName");
-			activity.onGroupInfoAvailable(devices, ginfo, goName);
+			((GroupInfoListener) activity).onGroupInfoAvailable(devices, ginfo, goName);
 			
         } else if (SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION.equals(action)) {
         	SimWifiP2pInfo ginfo = (SimWifiP2pInfo) intent
@@ -45,7 +45,7 @@ public class GameBroadcastReceiver extends BroadcastReceiver {
 			SimWifiP2pDeviceList devices = (SimWifiP2pDeviceList) intent
 					.getSerializableExtra(SimWifiP2pBroadcast.EXTRA_DEVICE_LIST);
 			String goName = intent.getStringExtra("goName");
-			activity.onGroupInfoAvailable(devices, ginfo, goName);
+			((GroupInfoListener) activity).onGroupInfoAvailable(devices, ginfo, goName);
 			
         }
     }

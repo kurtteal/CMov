@@ -36,7 +36,7 @@ import android.widget.Toast;
 
 import com.example.bomberman.network.NetworkService;
 import com.example.bomberman.network.WDSimServiceConnection;
-import com.example.bomberman.network.broadcastreceivers.MenuBroadcastReceiver;
+import com.example.bomberman.network.broadcastreceivers.WDSimBroadcastReceiver;
 import com.example.bomberman.util.GameConfigs;
 import com.example.bomberman.util.MyAdapter;
 
@@ -51,13 +51,14 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 	private char playerId;
 	private String mapSelected;
 	private boolean connected;
+	protected static boolean inGameAlready = false;
 	private NetworkService service;
 	private static int numUsers;
-
 	private boolean inGroup = false;
 	private boolean isGroupOwner = false;
 	private String serverAddress = null;
 	private WDSimServiceConnection servConn = null;
+	private WDSimBroadcastReceiver receiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +67,7 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 
 		// create the list of players, and add the local player
 		localUser = getIntent().getStringExtra("playerName");
-		users = new TreeMap<Integer, String>(); // treemap orders by key, by
-		// default
+		users = new TreeMap<Integer, String>();
 		users.put(1, localUser);
 		numUsers = 1;
 
@@ -79,7 +79,6 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 			Entry<Integer, String> pairs = (Entry<Integer, String>) it.next();
 			items.add("Player " + pairs.getKey() + "          "
 					+ pairs.getValue());
-			// it.remove();
 		}
 
 		// create an array adapter to bind the array to list view
@@ -118,18 +117,19 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
 		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
 		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
-		MenuBroadcastReceiver receiver = new MenuBroadcastReceiver(this);
+		receiver = new WDSimBroadcastReceiver(this);
 		registerReceiver(receiver, filter);
 
 		servConn = new WDSimServiceConnection(this);
-		Intent intent = new Intent(this, SimWifiP2pService.class);
-		bindService(intent, (ServiceConnection) servConn,
-				Context.BIND_AUTO_CREATE);
+		if(servConn.getManager() == null) {
+			Intent intent = new Intent(this, SimWifiP2pService.class);
+			bindService(intent, (ServiceConnection) servConn,
+					Context.BIND_AUTO_CREATE);
+		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.menu, menu);
 		return true;
 	}
@@ -143,7 +143,6 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 		CharSequence mSelected = (CharSequence) parent.getItemAtPosition(pos);
 		String selection = mSelected.toString();
 		int selected = Integer.parseInt(selection.substring(6));
-
 		AssetManager am = getAssets();
 		int maxPlayers = 0;
 		try {
@@ -152,7 +151,6 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 		service.setMap(selected, maxPlayers);
 	}
 
@@ -172,7 +170,6 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 							.next();
 					items.add("Player " + pairs.getKey() + "          "
 							+ pairs.getValue());
-					// it.remove();
 				}
 				if (adapter != null)
 					adapter.notifyDataSetChanged();
@@ -180,52 +177,33 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 		});
 	}
 
+	/*
+	 * Activity state changes.
+	 */
 	
 	@Override
 	public void onPause() {
-	    super.onPause();  // Always call the superclass method first
-
-	    // Release the Camera because we don't need it when paused
-	    // and other activities might need to use it.
-	    Toast.makeText(this, "ON PAUSE - MULTIPLAYER ACT",
-				Toast.LENGTH_SHORT).show();
+	    super.onPause();
 	}
 	
 	@Override
 	public void onResume() {
-	    super.onResume();  // Always call the superclass method first
-
-	    // Get the Camera instance as the activity achieves full user focus
-	    Toast.makeText(this, "ON RESUME - MULTIPLAYER ACT",
-				Toast.LENGTH_SHORT).show();
+	    super.onResume();
 	}
 	
 	@Override
 	protected void onStop() {
-	    super.onStop();  // Always call the superclass method first
-
-	    // Save the note's current draft, because the activity is stopping
-	    // and we want to be sure the current note progress isn't lost.
-	    Toast.makeText(this, "ON STOP - MULTIPLAYER ACT",
-				Toast.LENGTH_SHORT).show();
+	    super.onStop();
 	}
 	
 	@Override
 	protected void onStart() {
-	    super.onStart();  // Always call the superclass method first
-	    
-	    // The activity is either being restarted or started for the first time
-	    // so this is where we should make sure that GPS is enabled
-	    Toast.makeText(this, "ON START - MULTIPLAYER ACT",
-				Toast.LENGTH_SHORT).show();
+	    super.onStart();
 	}
 
 	@Override
 	protected void onRestart() {
-	    super.onRestart();  // Always call the superclass method first
-	    
-	    Toast.makeText(this, "ON RESTART - MULTIPLAYER ACT",
-				Toast.LENGTH_SHORT).show(); 
+	    super.onRestart(); 
 	}
 	
 	/*
@@ -235,7 +213,7 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 	public void newGame(View v) {
 		requestGroupInfo();
 		if (inGroup && isGroupOwner) {
-			Log.d("BOMBERMAN", "Enabling bomberman server.");
+			Log.d("BOMBERMAN", "Starting bomberman server.");
 			service.enableServer();
 		} else {
 			Toast.makeText(this, "Not in a group or not the GO.",
@@ -254,21 +232,36 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 	}
 
 	public void joinGame(View v) {
-		if (!inGroup) {
-			Toast.makeText(this, "Join a Wi-Fi Direct group first.",
-					Toast.LENGTH_SHORT).show();
-			return;
-		}
-		if (!connected) {
-			if (serverAddress == null) {
-				Toast.makeText(this, "Can't find the server.",
+		if(!inGameAlready) {
+			if (!inGroup) {
+				Toast.makeText(this, "Join a WiFi Direct group first.",
 						Toast.LENGTH_SHORT).show();
 				return;
 			}
-			service.disableServer();
-			service.connect(serverAddress);
+			if (!connected) {
+				if (serverAddress == null) {
+					Toast.makeText(this, "Can't find the server.",
+							Toast.LENGTH_SHORT).show();
+					return;
+				}
+				service.disableServer();
+				service.connect(serverAddress);
+			}
+			service.joinGame(localUser);
 		}
-		service.joinGame(localUser);
+		else {
+			Intent intent = new Intent(MultiplayerMenuActivity.this,
+					GameActivity.class);
+			intent.putExtra("gc", gc);
+			intent.putExtra("playerName", localUser);
+			intent.putExtra("playerId", playerId + "");
+			intent.putExtra("singleplayer", false);
+			intent.putExtra("numPlayers", numUsers);
+			intent.putExtra("gameOngoing", true);
+			intent.putExtra("maxPlayers", gc.getMaxPlayers());
+			intent.putExtra("usersMap", users);
+			startActivity(intent);
+		}
 	}
 
 	public void startGame(View v) {
@@ -283,7 +276,6 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 		connected = true;
 		if (result) {
 			playerId = '1';
-			Log.d("Creation success", " ");
 			runOnUiThread(new Runnable() {
 				public void run() {
 					Spinner s = (Spinner) findViewById(R.id.levels_spinner);
@@ -297,7 +289,6 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 				}
 			});
 		} else {
-			Log.d("Creation failed", " ");
 			runOnUiThread(new Runnable() {
 				public void run() {
 					Toast.makeText(MultiplayerMenuActivity.this,
@@ -312,15 +303,12 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 		if (result) {
 			connected = true;
 			this.playerId = playerId;
-			Log.d("Join success, playerId: ", playerId + "");
 			runOnUiThread(new Runnable() {
 				public void run() {
 					TextView tv = (TextView) findViewById(R.id.level_name);
 					tv.setVisibility(View.VISIBLE);
 					Button b = (Button) findViewById(R.id.newgame_button);
 					b.setEnabled(false);
-//					Button b2 = (Button) findViewById(R.id.joingame_button);
-//					b2.setEnabled(false);
 				}
 			});
 		} else {
@@ -398,7 +386,7 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 			// o meu num define o num d jogadores, pq acabei de entrar
 			numUsers = Character.getNumericValue(playerId);
 		}
-		// unbindService(servConn);
+		inGameAlready = true;
 		Intent intent = new Intent(MultiplayerMenuActivity.this,
 				GameActivity.class);
 		intent.putExtra("gc", gc);
@@ -409,6 +397,7 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 		intent.putExtra("gameOngoing", gameOngoing);
 		intent.putExtra("maxPlayers", gc.getMaxPlayers());
 		intent.putExtra("usersMap", users);
+		unregisterReceiver(receiver);
 		startActivity(intent);
 	}
 
@@ -426,10 +415,7 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 				String[] split = d.virtDeviceAddress.split(":");
 				if (d.deviceName.equals(goName))
 					serverAddress = split[0];
-				Log.d("IPs", split[0]);
 			}
-			Log.d("MultiplayerMenu", "Server address: " + serverAddress + " - "
-					+ goName);
 		}
 	}
 

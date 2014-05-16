@@ -81,7 +81,6 @@ public class NetworkService {
 			// no guarantee that it already ran before the main thread reaches the following
 			// lines of code to send the creation message.
 			if(isServer){
-				Log.d("NetService", "Server state is" + Server.ready);
 				while(!Server.ready) {
 					Thread.yield();
 				}
@@ -95,14 +94,9 @@ public class NetworkService {
 	public void send(String message) {
 		try {
 			new ClientAsyncTask("send").execute(message);
-			Log.d("NetService", "Client sent" + message);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void closeConnection() {
-		// TODO ...
 	}
 
 	/*
@@ -250,7 +244,6 @@ public class NetworkService {
 	}
 
 	private void startGameOrder(String message) {
-		Log.d("START GAME ORDER", "A MESSAGE E" + message);
 		char mode = message.charAt(1);
 		menuActivity.startGameOrder(mode);
 	}
@@ -310,18 +303,10 @@ public class NetworkService {
 		if (playerId == '1') {
 			// TODO enviar msg com o clock actual para o newPlayerId
 			int currentCount = gameActivity.getCountDown();
-			Log.d("TESTT", "currentCount = " + currentCount);
 			ScoreBoard scoreBrd = gameActivity.getGamePanel().getArena().scores;
-			Log.d("TESTT", "scoreboard = " + scoreBrd);
 			char current_matrix[][] = gameActivity.getGamePanel().getArena().getGC().matrix;
-			Log.d("TESTT", "matrix = " + current_matrix);
 			String deadElementsList = gameActivity.getGamePanel().getArena().getDeadElementsIds();
-			Log.d("TESTT", "deadElementsList = " + deadElementsList);
 			String playersPosition = gameActivity.getGamePanel().getArena().getPlayersPositions(id);
-			Log.d("TESTT", "playersPos = " + playersPosition);
-			//String userNamesList = gameActivity.getUsersMap();
-			//Log.d("TESTT", "IN NEWPLAYER SERVICE, O USERNAMES LIST E" + userNamesList.toString());
-			
 			sendCurrentInfo(newPlayerId, currentCount, scoreBrd, current_matrix, deadElementsList, playersPosition); // metodo do proprio
 			// servico
 		}
@@ -343,8 +328,6 @@ public class NetworkService {
 	}
 
 	private void updateInfo(int clock, String scoreBrd, String currentMatrix, String deadElementsList, String playersPosition) {
-
-		//HashMap<String, Integer> newBoard = new HashMap<String, Integer>();
 		ScoreBoard newBoard = new ScoreBoard();
 		int numLines = gameActivity.getGamePanel().getArena().getGC().getNumLines();
 		int numColumns = gameActivity.getGamePanel().getArena().getGC().getNumColumns();
@@ -354,17 +337,8 @@ public class NetworkService {
 		ArrayList<String> deadPlayersIds = new ArrayList<String>();
 		
 		String[] boardSplitted = scoreBrd.split("&");
-
 		String[] matrixSplitted = currentMatrix.split("&");
-
 		String[] deadElementsSplitted = deadElementsList.split("&");
-
-		//		StringBuilder sb = new StringBuilder();
-		//		for(String s : boardSplitted){
-		//			sb.append(s);
-		//			sb.append("XXX");
-		//		}
-		//		Log.d("UPDATE INFO", "BOARD SPLITTED E "+ sb.toString());
 
 		for(String keyValue: boardSplitted){
 			String[] keyValueSplitted = keyValue.split(",");
@@ -380,16 +354,13 @@ public class NetworkService {
 			for(String deadVal: deadElementsSplitted){
 				String[] deadValsSplitted = deadVal.split(",");
 				if(deadValsSplitted[0] == "P"){
-					Log.d("DEADVALS", "PLAYER:" + deadValsSplitted[1]);
 					deadPlayersIds.add(deadValsSplitted[1]);
 				} else{
 					deadRobotsIds.add(deadValsSplitted[1]);
-					Log.d("DEADVALS", "ROBOT:" + deadValsSplitted[1]);
 				}
 			}
 		}
 
-		Log.d("COUNTDOWN", "Recebi novo clock = " + clock);
 		gameActivity.setCountDown(clock);
 		gameActivity.getGamePanel().getArena().setScoreBoard(newBoard);
 		gameActivity.getGamePanel().getArena().setListsAndMatrix(newMatrix, deadRobotsIds, deadPlayersIds, playersPosition);
@@ -411,7 +382,6 @@ public class NetworkService {
 	// O game master depois de receber um join a meio, envia o clock atual
 	// para o ultimo que entrou ficar atualizado
 	private void sendCurrentInfo(char newPlayerId, int clock, ScoreBoard scoreBrd, char current_matrix[][], String newDeadList, String playersPosition) {
-
 		String newScoreBoard = "";
 		String newCurrentMatrix = "";
 
@@ -459,7 +429,6 @@ public class NetworkService {
 		case 'L': // lista de jogadores actualizada
 			String[] players = message.substring(2, message.length() - 1)
 			.split(",");
-			Log.d("Plist updt", NetworkService.playerId + " " + players[0] + "|" + players[1]);
 			updatePlayerList(players);
 			break;
 		case 'K':
@@ -504,7 +473,6 @@ public class NetworkService {
 			String currentMatrix = messageSplitted[3];
 			String deadsList = messageSplitted[4];
 			String playersPositions = messageSplitted[5];
-			//String userNamesMap = messageSplitted[6];
 			updateInfo(clock, scoreBrd, currentMatrix, deadsList, playersPositions);
 			break;
 		default:

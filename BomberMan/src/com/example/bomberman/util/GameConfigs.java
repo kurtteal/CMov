@@ -9,13 +9,10 @@ import java.io.Serializable;
 public class GameConfigs implements Serializable {
 
 	private static final long serialVersionUID = 3721119759990402565L;
-
 	public char matrix[][]; //onde estao walls e paths
 	public char overlay[][]; //onde estao os players e robots
-
 	private int numLines;
 	private int numColumns;
-
 	public String levelName;
 	public int gameDuration;
 	public double explosionTimeout;
@@ -41,7 +38,6 @@ public class GameConfigs implements Serializable {
 
 	public int loadConfigs(InputStream is) throws IOException {
 		BufferedReader input = new BufferedReader(new InputStreamReader(is));
-
 		String line = input.readLine();
 		if(line == null) {
 			input.close();
@@ -139,13 +135,12 @@ public class GameConfigs implements Serializable {
 
 	public String getInitialPosition(char id){
 		synchronized (overlay) {
-
 			int i,j;
 			for(i=0; i< numLines; i++) {
-					for(j=0; j< numColumns; j++) {
-						if(overlay[i][j] == id)
-							return "" + i + "," + j;
-					}
+				for(j=0; j< numColumns; j++) {
+					if(overlay[i][j] == id)
+						return "" + i + "," + j;
+				}
 			}
 			return "no player";
 		}

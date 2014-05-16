@@ -11,7 +11,6 @@ public class Server extends Thread {
 	
 	private static SimWifiP2pSocketServer serverSocket;
     private static int serverPort = 10001;
-    
     public static boolean ready = false;
 	public static char mapSelected;
     public static int clt_id = 1;
@@ -38,7 +37,7 @@ public class Server extends Thread {
 	
 	public void resetServer(){
 		try {
-			System.out.println("Resetting the server.");
+			Log.d("BOMBERMAN SERVER", "Resetting server state ...");
 			if (serverSocket != null)
 				serverSocket.close();
 			Server.gameOngoing = false;
@@ -46,7 +45,7 @@ public class Server extends Thread {
 			Server.clients = new SparseArray<PrintWriter>();
 			Server.clientsNames = new SparseArray<String>();
 		} catch (IOException e) {
-			System.out.println("Could not close socket");
+			Log.e("BOMBERMAN SERVER", "Error while closing socket");
 			System.exit(-1);
 		}
 	}
@@ -55,11 +54,10 @@ public class Server extends Thread {
 	public void run() {
 	    try {
 	        serverSocket = new SimWifiP2pSocketServer(serverPort);
-	        Log.d("BOMBERMAN SERVER", "created server socket");
+	        Log.d("BOMBERMAN SERVER", "Listening on port " + serverPort);
 	    } catch (IOException e) {
 	        Log.d("BOMBERMAN SERVER", "Could not listen on port: " + serverPort);
-	    }	
-	
+	    }
 		while (true) {
 			try {
 				ready = true;
@@ -72,7 +70,6 @@ public class Server extends Thread {
 				System.exit(-1);
 			}
 		}
-		
 	}
 
 }
