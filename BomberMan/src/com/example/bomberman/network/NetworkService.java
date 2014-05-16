@@ -1,23 +1,12 @@
 package com.example.bomberman.network;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.TreeMap;
 
-import android.content.Entity;
-import android.os.DropBoxManager.Entry;
-import android.text.BoringLayout;
 import android.util.Log;
 
 import com.example.bomberman.GameActivity;
 import com.example.bomberman.MultiplayerMenuActivity;
-import com.example.bomberman.model.Bomberman;
-import com.example.bomberman.model.IDrawable;
-import com.example.bomberman.model.Path;
-import com.example.bomberman.model.PathState;
-import com.example.bomberman.model.Robot;
-import com.example.bomberman.model.Wall;
 import com.example.bomberman.network.server.Server;
 import com.example.bomberman.util.ScoreBoard;
 
@@ -321,10 +310,15 @@ public class NetworkService {
 		if (playerId == '1') {
 			// TODO enviar msg com o clock actual para o newPlayerId
 			int currentCount = gameActivity.getCountDown();
+			Log.d("TESTT", "currentCount = " + currentCount);
 			ScoreBoard scoreBrd = gameActivity.getGamePanel().getArena().scores;
+			Log.d("TESTT", "scoreboard = " + scoreBrd);
 			char current_matrix[][] = gameActivity.getGamePanel().getArena().getGC().matrix;
+			Log.d("TESTT", "matrix = " + current_matrix);
 			String deadElementsList = gameActivity.getGamePanel().getArena().getDeadElementsIds();
+			Log.d("TESTT", "deadElementsList = " + deadElementsList);
 			String playersPosition = gameActivity.getGamePanel().getArena().getPlayersPositions(id);
+			Log.d("TESTT", "playersPos = " + playersPosition);
 			//String userNamesList = gameActivity.getUsersMap();
 			//Log.d("TESTT", "IN NEWPLAYER SERVICE, O USERNAMES LIST E" + userNamesList.toString());
 			
@@ -395,6 +389,7 @@ public class NetworkService {
 			}
 		}
 
+		Log.d("COUNTDOWN", "Recebi novo clock = " + clock);
 		gameActivity.setCountDown(clock);
 		gameActivity.getGamePanel().getArena().setScoreBoard(newBoard);
 		gameActivity.getGamePanel().getArena().setListsAndMatrix(newMatrix, deadRobotsIds, deadPlayersIds, playersPosition);

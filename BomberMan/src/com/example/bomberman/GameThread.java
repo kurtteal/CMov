@@ -59,7 +59,6 @@ public class GameThread extends Thread {
 	public void run() {
 
 		Canvas canvas;
-		Log.d(TAG, "Starting game loop");
 		while (running) {
 			
 			synchronized (pauseLock) {
@@ -75,7 +74,6 @@ public class GameThread extends Thread {
 			
 			if(isInterrupted())
 				break;
-			Log.d(TAG, "Starting game loop 222");
 			
 			canvas = null;
 			// try locking the canvas for exclusive pixel editing in the surface

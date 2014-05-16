@@ -1,9 +1,6 @@
 package com.example.bomberman;
 
-import java.security.KeyStore.Entry;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.NoSuchElementException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
@@ -22,13 +19,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
@@ -41,7 +35,6 @@ import com.example.bomberman.util.ScoreBoard;
 
 public class GameActivity extends Activity implements PeerListListener, GroupInfoListener {
 
-	private static final String TAG = GameActivity.class.getSimpleName();
 	protected GameConfigs gc;
 
 	private GamePanel gamePanel;
@@ -124,19 +117,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		// Timer setup, it will only start when the game starts.
 		// The handler gets the message from the timer thread to update the UI.
 		countDown = gc.gameDuration;
-//		mHandler = new Handler() {
-//			public void handleMessage(Message msg) {
-//				if(countDown == 0)
-//					endGame();
-//				else{
-//					timeLeftView.setText("Time left:\n" + countDown);
-//					Arena arna= gamePanel.getArena();
-//					ScoreBoard scb = arna.scores;
-//					score = scb.get(playerId);
-//					scoreView.setText("Score:\n" + score);
-//				}
-//			}
-//		};
 
 		/*
 		 * Network related code.
@@ -198,60 +178,24 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	@Override
 	public void onPause() {
 		super.onPause();  // Always call the superclass method first
-
-		//timeUpdater.cancel();
-		timerThread.interrupt();
-		
+		//timerThread.interrupt();
 		gamePanel.pause();
+		toggleGameState(null);
 		unpausing = true;
-
-
-		// Release the Camera because we don't need it when paused
-		// and other activities might need to use it.
-		//		Toast.makeText(this, "ON PAUSE - GAME ACT",
-		//				Toast.LENGTH_SHORT).show();
-
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();  // Always call the superclass method first
-
 		if(unpausing){
+			gamePanel.resume();
 			if(singleplayer)
 				startTimer();
-			gamePanel.resume();
+//			else
+//				service.midJoin();
+			toggleGameState(null);
 		}
 	}
-
-	//	@Override
-	//	protected void onStop() {
-	//		super.onStop();  // Always call the superclass method first
-	//
-	//		// Save the note's current draft, because the activity is stopping
-	//		// and we want to be sure the current note progress isn't lost.
-	//		Toast.makeText(this, "ON STOP - GAME ACT",
-	//				Toast.LENGTH_SHORT).show();
-	//		
-	//	}
-
-	//	@Override
-	//	protected void onStart() {
-	//		super.onStart();  // Always call the superclass method first
-	//
-	//		// The activity is either being restarted or started for the first time
-	//		// so this is where we should make sure that GPS is enabled
-	//		Toast.makeText(this, "ON START - GAME ACT",
-	//				Toast.LENGTH_SHORT).show();
-	//	}
-
-	//	@Override
-	//	protected void onRestart() {
-	//		super.onRestart();  // Always call the superclass method first
-	//
-	//		Toast.makeText(this, "ON RESTART - GAME ACT",
-	//				Toast.LENGTH_SHORT).show(); 
-	//	}
 
 	public void updatePlayerList(TreeMap<Integer, String> clientsNames) {
 		Log.d("TESTT", "CLIENTS NAMES E  "+ " " + clientsNames.get(1) + "|" + clientsNames.get(2) );
@@ -268,6 +212,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			//in multiplayer buttons become disabled until timer starts
 			if(gameOngoing){
 				//participantReady = true;
+				Log.d("MIDJOIN", "vou entrar no midjoin");
 				service.midJoin();
 				//o timer so vai comecar quando o game master enviar o clock actual do jogo
 			}else{
@@ -349,15 +294,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	}
 
 	public void startTimer() {
-		// Start the time left timer.
-//		timeUpdater = new Timer();
-//		timeUpdater.scheduleAtFixedRate(new TimerTask() {
-//			@Override
-//			public void run() {
-//				GameActivity.this.countDown--;
-//				mHandler.obtainMessage().sendToTarget();
-//			}
-//		}, 1000, 1000);
 		timerThread = new TimerThread();
 		timerThread.start();
 	}
@@ -425,7 +361,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	public void quitGame(View v){
 		if(!singleplayer)
 			service.leaveGame();
-		//timeUpdater.cancel();
 		timerThread.interrupt();
 		gamePanel.thread.setRunning(false);
 		Intent intent = new Intent(GameActivity.this, MenuActivity.class);
@@ -453,7 +388,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		Log.d("TESTT", "IN ENDGAME, USERSMAP IS: 1:" + users.get(1) + " | 2:" + users.get(2));
 
 		gamePanel.thread.setRunning(false);
-		//timeUpdater.cancel();
 		timerThread.interrupt();
 		if(service.isServer())
 			service.resetServer();
@@ -621,6 +555,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 				}
 			}
 		}
+		
 	}
 
 }
