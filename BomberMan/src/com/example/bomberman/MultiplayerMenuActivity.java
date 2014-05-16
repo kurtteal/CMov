@@ -319,8 +319,8 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 					tv.setVisibility(View.VISIBLE);
 					Button b = (Button) findViewById(R.id.newgame_button);
 					b.setEnabled(false);
-					Button b2 = (Button) findViewById(R.id.joingame_button);
-					b2.setEnabled(false);
+//					Button b2 = (Button) findViewById(R.id.joingame_button);
+//					b2.setEnabled(false);
 				}
 			});
 		} else {

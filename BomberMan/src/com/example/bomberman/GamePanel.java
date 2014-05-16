@@ -17,52 +17,53 @@ import com.example.bomberman.util.GameConfigs;
  * the image to the screen.
  */
 public class GamePanel extends SurfaceView implements
-		SurfaceHolder.Callback {
+SurfaceHolder.Callback {
 
 	private static final String TAG = GamePanel.class.getSimpleName();
 	public GameActivity activity;
-	
+
 	public GameThread thread;
 	//private Bomberman bomberman; //modelo q s mexe
 	private Arena arena;
-	
+	//private static GameConfigs gc;
+	private boolean resumed = false;
+
 	public GamePanel(Context context) {
 		super(context);
 		commonInit(context);
 	}
-	
-    public GamePanel(Context context, AttributeSet attrs) {
-        super(context, attrs);
-		commonInit(context);
-    }
 
-    public GamePanel(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+	public GamePanel(Context context, AttributeSet attrs) {
+		super(context, attrs);
 		commonInit(context);
-    }
+	}
+
+	public GamePanel(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+		commonInit(context);
+	}
 
 	private void commonInit(Context context){
 		getHolder().addCallback(this);
 		activity = (GameActivity) context;
 		activity.setGamePanel(this);
-		
-    	GameConfigs gc = ((GameActivity)context).gc;      
-		//Log.d("CONTEXT", matrix.getLine(1)); //ja funca
+		GameConfigs gc = ((GameActivity)context).gc;
 		arena = new Arena(getResources(), gc, this);
-		// create the game loop thread
+		
 		thread = new GameThread(getHolder(), this);
-		// make the GamePanel focusable so it can handle events
+		
 		setFocusable(true);
+		//Log.d("CONTEXT", matrix.getLine(1)); //ja funca
 	}
-	
+
 	public void endGame(){
 		activity.endGame();
 	}
-	
+
 	public Arena getArena(){
 		return arena;
 	}
-    
+
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
@@ -74,21 +75,43 @@ public class GamePanel extends SurfaceView implements
 	public void surfaceCreated(SurfaceHolder holder) {
 		// at this point the surface is created and
 		// we can safely start the game loop
-		thread.setRunning(true);
-		thread.start();
-		
+
+		if(!resumed){
+			thread.setRunning(true);
+			thread.start();
+		}
+
 	}
 
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
+		//		Log.d(TAG, "Surface is being destroyed");
+		//		// tell the thread to shut down and wait for it to finish
+		//		// this is a clean shutdown
+		//		boolean retry = true;
+		//		while (retry) {
+		//			try {
+		//				thread.join();
+		//				thread.setRunning(false);
+		//				retry = false;
+		//			} catch (InterruptedException e) {
+		//				// try again shutting down the thread
+		//			}
+		//		}
+		//		Log.d(TAG, "Thread was shut down cleanly");
+	}
+
+	public void pause(){
 		Log.d(TAG, "Surface is being destroyed");
 		// tell the thread to shut down and wait for it to finish
 		// this is a clean shutdown
 		boolean retry = true;
 		while (retry) {
 			try {
+				thread.setRunning(false);
 				thread.join();
+				thread.interrupt();
 				retry = false;
 			} catch (InterruptedException e) {
 				// try again shutting down the thread
@@ -97,12 +120,19 @@ public class GamePanel extends SurfaceView implements
 		Log.d(TAG, "Thread was shut down cleanly");
 	}
 
+	public void resume(){
+		thread = new GameThread(getHolder(), this);
+		thread.setRunning(true);
+		thread.start();
+		resumed = true;
+	}
+
 	public void update() {
 		// Update new positions and animations
 		arena.update(System.currentTimeMillis());
-//		bomberman.update(System.currentTimeMillis(), this);
+		//		bomberman.update(System.currentTimeMillis(), this);
 	}
-	
+
 	//Aqui eh qdo sao desenhados, a ordem interessa, os ultimos ficam "por cima"
 	protected void render(Canvas canvas) {
 		// fills the canvas with black
@@ -110,8 +140,8 @@ public class GamePanel extends SurfaceView implements
 			canvas.drawColor(Color.BLACK);
 			arena.draw(canvas);
 		}
-//		bomberman.draw(canvas);
+		//		bomberman.draw(canvas);
 	}
-	
+
 
 }

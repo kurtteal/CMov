@@ -249,7 +249,6 @@ public class NetworkService {
 	}
 	
 	private void updateGameUsers(String[] players) {
-		//clientsNames = new TreeMap<Integer, String>();
 		for (String player : players) {
 			String[] data = player.split("=");
 			clientsNames.put(Integer.parseInt(data[0].trim()), data[1]);

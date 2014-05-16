@@ -73,6 +73,10 @@ public class GameThread extends Thread {
 				}
 			}
 			
+			if(isInterrupted())
+				break;
+			Log.d(TAG, "Starting game loop 222");
+			
 			canvas = null;
 			// try locking the canvas for exclusive pixel editing in the surface
 			try {
