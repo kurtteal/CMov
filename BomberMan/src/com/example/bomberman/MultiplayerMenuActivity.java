@@ -51,7 +51,6 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 	private char playerId;
 	private String mapSelected;
 	private boolean connected;
-	protected static boolean inGameAlready = false;
 	private NetworkService service;
 	private static int numUsers;
 	private boolean inGroup = false;
@@ -64,7 +63,7 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_multiplayer_menu);
-
+		
 		// create the list of players, and add the local player
 		localUser = getIntent().getStringExtra("playerName");
 		users = new TreeMap<Integer, String>();
@@ -180,32 +179,32 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 	/*
 	 * Activity state changes.
 	 */
-	
+
 	@Override
 	public void onPause() {
-	    super.onPause();
+		super.onPause();
 	}
-	
+
 	@Override
 	public void onResume() {
-	    super.onResume();
+		super.onResume();
 	}
-	
+
 	@Override
 	protected void onStop() {
-	    super.onStop();
+		super.onStop();
 	}
-	
+
 	@Override
 	protected void onStart() {
-	    super.onStart();
+		super.onStart();
 	}
 
 	@Override
 	protected void onRestart() {
-	    super.onRestart(); 
+		super.onRestart(); 
 	}
-	
+
 	/*
 	 * Listeners associate to the Buttons.
 	 */
@@ -232,36 +231,21 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 	}
 
 	public void joinGame(View v) {
-		if(!inGameAlready) {
-			if (!inGroup) {
-				Toast.makeText(this, "Join a WiFi Direct group first.",
+		if (!inGroup) {
+			Toast.makeText(this, "Join a WiFi Direct group first.",
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+		if (!connected) {
+			if (serverAddress == null) {
+				Toast.makeText(this, "Can't find the server.",
 						Toast.LENGTH_SHORT).show();
 				return;
 			}
-			if (!connected) {
-				if (serverAddress == null) {
-					Toast.makeText(this, "Can't find the server.",
-							Toast.LENGTH_SHORT).show();
-					return;
-				}
-				service.disableServer();
-				service.connect(serverAddress);
-			}
-			service.joinGame(localUser);
+			service.disableServer();
+			service.connect(serverAddress);
 		}
-		else {
-			Intent intent = new Intent(MultiplayerMenuActivity.this,
-					GameActivity.class);
-			intent.putExtra("gc", gc);
-			intent.putExtra("playerName", localUser);
-			intent.putExtra("playerId", playerId + "");
-			intent.putExtra("singleplayer", false);
-			intent.putExtra("numPlayers", numUsers);
-			intent.putExtra("gameOngoing", true);
-			intent.putExtra("maxPlayers", gc.getMaxPlayers());
-			intent.putExtra("usersMap", users);
-			startActivity(intent);
-		}
+		service.joinGame(localUser);
 	}
 
 	public void startGame(View v) {
@@ -386,7 +370,6 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 			// o meu num define o num d jogadores, pq acabei de entrar
 			numUsers = Character.getNumericValue(playerId);
 		}
-		inGameAlready = true;
 		Intent intent = new Intent(MultiplayerMenuActivity.this,
 				GameActivity.class);
 		intent.putExtra("gc", gc);

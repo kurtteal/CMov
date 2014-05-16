@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.bomberman.model.Arena;
 import com.example.bomberman.model.Bomberman;
@@ -50,7 +51,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	public char playerId; //visivel para a arena
 	private Thread timerThread;
 	private Timer sendImSetTimer;
-	private int countDown;
+	private static int countDown;
 	private int score;
 	private int numPlayers;
 	private int maxPlayers;
@@ -70,6 +71,9 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		Toast.makeText(this, "ENTREI NO ON CREATEEEE!",
+				Toast.LENGTH_SHORT).show();
+
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
 		playerName = getIntent().getStringExtra("playerName");
 		playerId = getIntent().getStringExtra("playerId").charAt(0);
@@ -84,9 +88,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		} else {
 			users.put(1, playerName);
 		}
-
-		service = new NetworkService();
-		service.setGameActivity(this);
 
 		setContentView(R.layout.activity_game);
 
@@ -108,11 +109,11 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 
 		// Timer setup, it will only start when the game starts.
 		countDown = gc.gameDuration;
-
+		
 		/*
 		 * Network related code.
 		 */
-
+		
 		service = new NetworkService();
 		service.setGameActivity(this);
 
@@ -131,6 +132,8 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			bindService(intent, (ServiceConnection) servConn,
 					Context.BIND_AUTO_CREATE);
 		}
+
+
 	}
 
 	public void setGamePanel(GamePanel gPanel) {
@@ -174,18 +177,20 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		gamePanel.pause();
 		toggleGameState(null);
 		unpausing = true;
-		unregisterReceiver(receiver);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 		if(unpausing){
-			toggleGameState(null);
 			gamePanel.resume();
-			if(singleplayer)
-				startTimer();
+			toggleGameState(null);
 		}
+	}
+	
+	@Override
+	public void onBackPressed(){
+		this.toggleGameState(null);
 	}
 
 	public void updatePlayerList(TreeMap<Integer, String> clientsNames) {
@@ -281,8 +286,10 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	}
 
 	public void startTimer() {
-		timerThread = new TimerThread();
-		timerThread.start();
+		if(timerThread == null || timerThread.getState() == Thread.State.TERMINATED){
+			timerThread = new TimerThread();
+			timerThread.start();
+		}
 	}
 
 	public void toggleGameState(View v){
@@ -291,26 +298,26 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			if(gamePanel.thread.getPaused()){
 				toggleStateButton.setText("Pause");
 				enableControlButtons();
-				gamePanel.thread.resumeThread();
 			} else {
 				toggleStateButton.setText("Play");
 				disableControlButtons();
 				timerThread.interrupt();
-				gamePanel.thread.pauseThread();
 			}
 		} else{
 			// In multiplayer stops drawing and checking collisions for this player
 			Bomberman bman = gamePanel.getArena().getPlayer(playerId);
-			if(bman.getIsPaused()){
-				//if the player paused we want to "unpause" it
-				toggleStateButton.setText("Pause");
-				enableControlButtons();
-				service.resumeGame();
-			} else{
-				//else we want to pause it
-				toggleStateButton.setText("Play");
-				disableControlButtons();
-				service.pauseGame();
+			if (bman != null){
+				if(bman.getIsPaused()){
+					//if the player paused we want to "unpause" it
+					toggleStateButton.setText("Pause");
+					enableControlButtons();
+					service.resumeGame();
+				} else{
+					//else we want to pause it
+					toggleStateButton.setText("Play");
+					disableControlButtons();
+					service.pauseGame();
+				}
 			}
 
 		}
@@ -348,7 +355,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			service.leaveGame();
 		timerThread.interrupt();
 		gamePanel.thread.setRunning(false);
-		MultiplayerMenuActivity.inGameAlready = false;
 		Intent intent = new Intent(GameActivity.this, MenuActivity.class);
 		intent.putExtra("activePlayer", playerName);
 		unregisterReceiver(receiver);
@@ -363,7 +369,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		intent.putExtra("usersMap", users);
 		gamePanel.thread.setRunning(false);
 		timerThread.interrupt();
-		MultiplayerMenuActivity.inGameAlready = false;
 		if(service.isServer())
 			service.resetServer();
 		unregisterReceiver(receiver);
@@ -481,7 +486,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			gamePanel.getArena().scores.remove(quitPlayerId+"");
 		}
 	}
-	
+
 	/*
 	 * WDSim related code
 	 */
@@ -510,7 +515,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	 * Timer Thread class. It's responsible for the count down of the
 	 * time left and also updates the UI (time left and score).
 	 */
-	
+
 	public class TimerThread extends Thread {
 		long startTime;
 
@@ -541,7 +546,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 				}
 			}
 		}
-		
+
 	}
 
 }

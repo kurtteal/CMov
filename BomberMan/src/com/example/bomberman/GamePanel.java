@@ -16,7 +16,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 	private static final String TAG = GamePanel.class.getSimpleName();
 	public GameActivity activity;
 	public GameThread thread;
-	private Arena arena;
+	private static Arena arena;
 	private boolean resumed = false;
 
 	public GamePanel(Context context) {
