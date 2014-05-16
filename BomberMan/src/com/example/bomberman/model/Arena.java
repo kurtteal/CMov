@@ -108,7 +108,6 @@ public class Arena {
 	public void setScoreBoard(ScoreBoard newBoard){
 		synchronized (scores) {
 			this.scores = newBoard;
-			Log.d("TESTT", "KEY 1:" + scores.get('1') + " | KEY 2:" + scores.get('2'));
 		}
 		
 	}

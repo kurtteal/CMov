@@ -31,6 +31,7 @@ public class NetworkService {
 	public void enableServer() {
 		NetworkService.isServer = true;
 		NetworkService.server = new Server();
+		Server.service = this;
 		NetworkService.server.start();
 	}
 
@@ -125,6 +126,11 @@ public class NetworkService {
 
 	public void midJoin() {
 		String message = "mid_join_ready " + gameActivity.getActivePlayer();
+		send(message);
+	}
+	
+	public void rejoin() {
+		String message = "rejoin " + gameActivity.getActivePlayer();
 		send(message);
 	}
 
@@ -400,6 +406,22 @@ public class NetworkService {
 		String message = "info " + "#" +  clock + "#" + newScoreBoard + "#" + newCurrentMatrix + "#" + newDeadList + "#" + playersPosition + "#" + newPlayerId;
 		send(message);
 	}
+	
+	public void serverLeft() {
+		int tempplayerId = Character.getNumericValue(playerId);
+		tempplayerId--;
+		playerId = Character.forDigit(tempplayerId, 10);
+		gameActivity.serverHasLeft(playerId);
+		try {
+			new ClientAsyncTask("").closeSocket();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void unsuspendGame() {
+		
+	}
 
 	/*
 	 * The message processing method. Invoked after a message is received.
@@ -474,6 +496,12 @@ public class NetworkService {
 			String deadsList = messageSplitted[4];
 			String playersPositions = messageSplitted[5];
 			updateInfo(clock, scoreBrd, currentMatrix, deadsList, playersPositions);
+			break;
+		case 'Z': // Server leaving game...
+			serverLeft();
+			break;
+		case 'A': // Resuming a suspended game ...
+			serverLeft();
 			break;
 		default:
 			break;

@@ -3,12 +3,15 @@ package com.example.bomberman.network.server;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import com.example.bomberman.network.NetworkService;
+
 import pt.utl.ist.cmov.wifidirect.sockets.SimWifiP2pSocketServer;
 import android.util.Log;
 import android.util.SparseArray;
 
 public class Server extends Thread {
 	
+	public static NetworkService service;
 	private static SimWifiP2pSocketServer serverSocket;
     private static int serverPort = 10001;
     public static boolean ready = false;
@@ -16,6 +19,7 @@ public class Server extends Thread {
     public static int clt_id = 1;
     public static boolean gameStarting = false;
     public static boolean gameOngoing = false;
+    public static int total_rejoins = 0;
 	public static SparseArray<PrintWriter> clients = new SparseArray<PrintWriter>();
 	public static SparseArray<String> clientsNames = new SparseArray<String>();
 	

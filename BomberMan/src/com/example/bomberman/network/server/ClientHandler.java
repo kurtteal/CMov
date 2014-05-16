@@ -150,6 +150,19 @@ public class ClientHandler implements Runnable {
 						Server.gameOngoing = false;
 					}
 					break;
+				}else if(command.startsWith("server_leave_game")){
+					Server.clients.remove(1);
+					Server.clientsNames.remove(1);
+					server.broadcast("Z");
+					break;
+				}else if(command.startsWith("rejoin")){
+					int id = Integer.parseInt(command.split(" ")[1]);
+					Server.clients.put(id, out);
+					Server.clientsNames.put(id, command.split(" ")[2]);
+					Server.total_rejoins++;
+					if(Server.total_rejoins >= Server.service.getGameActivity().getNumPlayers())
+						server.broadcast("A"); // Everyone joined, resume the game.
+					break;
 				}else{ //o resto sao updates de jogadores vindos do jogo
 					// RELAY: Send broadcast to clients
 					if(command != null && !command.equals(""))

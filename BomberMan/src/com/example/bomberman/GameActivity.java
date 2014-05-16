@@ -1,6 +1,7 @@
 package com.example.bomberman;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
@@ -41,6 +42,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	private TextView scoreView;
 	private TextView playerCountView;
 	private Button toggleStateButton;
+	private Button quitButton;
 	private Button upButton;
 	private Button leftButton;
 	private Button rightButton;
@@ -93,6 +95,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		timeLeftView = (TextView)findViewById(R.id.activity_game_time_left);
 		playerCountView = (TextView)findViewById(R.id.activity_game_player_count);
 		toggleStateButton = (Button)findViewById(R.id.toggleStateBtn);
+		quitButton = (Button)findViewById(R.id.quit);
 		upButton = (Button)findViewById(R.id.up);
 		leftButton = (Button)findViewById(R.id.left);
 		rightButton = (Button)findViewById(R.id.right);
@@ -289,7 +292,15 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			timerThread.start();
 		}
 	}
+	
+	public void disableQuitButton(View v){
+		this.quitButton.setEnabled(false);
+	}
 
+	public void enableQuitButton(View v){
+		this.quitButton.setEnabled(true);
+	}
+	
 	public void toggleGameState(View v){
 		if(singleplayer){
 			// In single player pause the whole game (i.e. the thread).
@@ -487,6 +498,34 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			gamePanel.getArena().scores.remove(quitPlayerId+"");
 		}
 	}
+	
+	public void serverHasLeft(char newPlayerId){
+		onPause();
+		disableControlsAfterDeath();
+		disableQuitButton(null);
+		playerId = newPlayerId;
+		
+		ScoreBoard newScores = new ScoreBoard();
+		ScoreBoard scores = gamePanel.getArena().scores;
+		scores.remove("1");
+		for(Entry<String, Integer> keyVal : scores.entrySet()){
+			newScores.add((Integer.parseInt(keyVal.getKey()) - 1)+ "", keyVal.getValue());
+		}
+		gamePanel.getArena().setScoreBoard(newScores);
+		
+		TreeMap<Integer, String> newUsersMap = new TreeMap<Integer, String>();
+		users.remove(1);
+		for(Entry<Integer, String> idUserName : users.entrySet()){
+			newUsersMap.put(idUserName.getKey() - 1, idUserName.getValue());		
+		}
+		users = newUsersMap;	
+	}
+	
+	public void unsuspendGame() {
+		onResume();
+		enableControlButtons();
+		enableQuitButton(null);
+	}
 
 	/*
 	 * WDSim related code
@@ -498,11 +537,21 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		inGroup = groupInfo.askIsConnected();
 		isGroupOwner = groupInfo.askIsGO();
 		if(inGroup) {
+			if(playerId == '1' && isGroupOwner)
+				service.enableServer();
 			for(SimWifiP2pDevice d : devices.getDeviceList()) {
 				String[] split = d.virtDeviceAddress.split(":");
 				if (d.deviceName.equals(goName))
 					serverAddress = split[0];
 			}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			service.connect(serverAddress);
+			service.rejoin();
 		}
 	}
 	
