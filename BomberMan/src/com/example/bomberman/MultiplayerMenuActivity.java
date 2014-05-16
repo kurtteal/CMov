@@ -14,6 +14,7 @@ import pt.utl.ist.cmov.wifidirect.SimWifiP2pInfo;
 import pt.utl.ist.cmov.wifidirect.SimWifiP2pManager.GroupInfoListener;
 import pt.utl.ist.cmov.wifidirect.SimWifiP2pManager.PeerListListener;
 import pt.utl.ist.cmov.wifidirect.service.SimWifiP2pService;
+import pt.utl.ist.cmov.wifidirect.sockets.SimWifiP2pSocketManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -63,10 +64,6 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_multiplayer_menu);
 		
-		inGroup = getIntent().getBooleanExtra("inGroup", false);
-		isGroupOwner = getIntent().getBooleanExtra("isGO", false);
-		serverAddress = getIntent().getStringExtra("serverAddress");
-		
 		// create the list of players, and add the local player
 		localUser = getIntent().getStringExtra("playerName");
 		users = new TreeMap<Integer, String>();
@@ -110,6 +107,9 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 		service.setMenuActivity(this);
 		connected = false;
 
+		//Initialize the WDSim API
+		SimWifiP2pSocketManager.Init(getApplicationContext());
+		
 		// register broadcast receiver
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -380,9 +380,6 @@ OnItemSelectedListener, PeerListListener, GroupInfoListener {
 		intent.putExtra("gameOngoing", gameOngoing);
 		intent.putExtra("maxPlayers", gc.getMaxPlayers());
 		intent.putExtra("usersMap", users);
-		intent.putExtra("serverAddress", serverAddress);
-		intent.putExtra("inGroup", inGroup);
-		intent.putExtra("isGO", isGroupOwner);
 		unregisterReceiver(receiver);
 		startActivity(intent);
 	}

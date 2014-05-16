@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -69,10 +70,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		inGroup = getIntent().getBooleanExtra("inGroup", true);
-		isGroupOwner = getIntent().getBooleanExtra("isGO", true);
-		serverAddress = getIntent().getStringExtra("serverAddress");
 
 		gc = (GameConfigs)getIntent().getSerializableExtra("gc");
 		playerName = getIntent().getStringExtra("playerName");
@@ -128,6 +125,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 
 		servConn = new WDSimServiceConnection(this);
 		if(servConn.getManager() == null) {
+			Log.d("SERVCON", "ESTOU NO IF3 == NULL");
 			Intent intent = new Intent(this, SimWifiP2pService.class);
 			bindService(intent, (ServiceConnection) servConn,
 					Context.BIND_AUTO_CREATE);
@@ -367,9 +365,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		intent.putExtra("scores", scrs);
 		intent.putExtra("playerName", playerName);
 		intent.putExtra("usersMap", users);
-		intent.putExtra("serverAddress", serverAddress);
-		intent.putExtra("inGroup", inGroup);
-		intent.putExtra("isGO", isGroupOwner);
 		gamePanel.thread.setRunning(false);
 		timerThread.interrupt();
 		if(service.isServer())
@@ -473,18 +468,21 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	public void pausePlayer(char pausePlayerId){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(pausePlayerId);
-		bman.setIsPaused(true);
+		if(bman != null)
+			bman.setIsPaused(true);
 	}
 
 	public void resumePlayer(char resumePlayerId){
 		Arena arena = gamePanel.getArena();
 		Bomberman bman = arena.getPlayer(resumePlayerId);
-		bman.setIsPaused(false);
+		if(bman != null)
+			bman.setIsPaused(false);
 	}
 
 	public void quitPlayer(char quitPlayerId){
 		Bomberman bomber = gamePanel.getArena().getPlayer(quitPlayerId);
 		if(bomber != null){
+			numPlayers -= 1;
 			gamePanel.getArena().removeElement(bomber);
 			gamePanel.getArena().scores.remove(quitPlayerId+"");
 		}
@@ -515,8 +513,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 
 	@Override
 	public void onPeersAvailable(SimWifiP2pDeviceList arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -548,6 +544,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 								ScoreBoard scb = arna.scores;
 								score = scb.get(playerId);
 								scoreView.setText("Score:\n" + score);
+								playerCountView.setText("# Players:\n" + numPlayers);
 							}
 						}});
 					startTime = System.currentTimeMillis();
