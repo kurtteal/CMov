@@ -9,6 +9,7 @@
     <string name="singleplayer_button">Single-player</string>
     <string name="multiplayer_button">Multi-player</string>
     <string name="startgame_button">Start Game</string>
+    <string name="ready_button">Ready</string>  
     <string name="settings_button">Settings</string>
     <string name="selected_user">Selected Username:</string>
     <string name="none">(None - Please go to Settings)</string>

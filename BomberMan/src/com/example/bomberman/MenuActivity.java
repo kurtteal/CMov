@@ -29,8 +29,7 @@ public class MenuActivity extends Activity {
 		if(intent != null) {
 			String activeU = intent.getStringExtra("activePlayer");
 			if(activeU == null){
-				activeUser.setText("(None - Please go to Settings)");
-				selectedUsername = false;
+				resetUser();
 			} else {
 				activeUser.setText(activeU);
 				selectedUsername = true;
@@ -81,9 +80,26 @@ public class MenuActivity extends Activity {
 	    super.onRestart(); 
 	}
 	
+	@Override
+	public void onBackPressed() { //back button
+		//Toast.makeText(this, "Back button pressed!",
+		//		Toast.LENGTH_SHORT).show();
+	    //super.finish(); //este apenas termina esta activity... nao termina as restantes
+		resetUser();
+		Intent startMain = new Intent(Intent.ACTION_MAIN);
+		startMain.addCategory(Intent.CATEGORY_HOME);
+		startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(startMain);
+	}
+	
 	/*
 	 * Button methods.
 	 */
+	
+	protected void resetUser(){
+		activeUser.setText("(None - Please go to Settings)");
+		selectedUsername = false;
+	}
 
 	public void singlePlayer(View v) {
 		if(!selectedUsername){

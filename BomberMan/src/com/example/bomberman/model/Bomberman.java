@@ -238,7 +238,7 @@ public class Bomberman {
 		if (!isMoving() || speed.getxDirection() == Speed.DIRECTION_LEFT) {
 			speed.goRight();
 			targetX = xMapMargin + j * getWidth() + getWidth();
-			Log.d("Myself targetx x:",myself +" " + targetX+ " "+x);
+			//Log.d("Myself targetx x:",myself +" " + targetX+ " "+x);
 		}
 		else
 			nextMove = 'R';

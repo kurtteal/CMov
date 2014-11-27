@@ -3,6 +3,7 @@ package com.example.bomberman.network;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import android.os.Message;
 import android.util.Log;
 
 import com.example.bomberman.GameActivity;
@@ -16,6 +17,8 @@ import com.example.bomberman.util.ScoreBoard;
  */
 public class NetworkService {
 
+	public static BluetoothModule bt; //used by the game activity
+	
 	private static boolean isServer;
 	private static Server server = null;
 	private static char playerId = '#';
@@ -48,6 +51,10 @@ public class NetworkService {
 		return isServer;
 	}
 
+	public void setBluetoothModule(BluetoothModule module){
+		bt = module;
+	}
+	
 	public void setMenuActivity(MultiplayerMenuActivity act) {
 		menuActivity = act;
 	}
@@ -93,11 +100,14 @@ public class NetworkService {
 	}
 
 	public void send(String message) {
-		try {
-			new ClientAsyncTask("send").execute(message);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		String strMsg = "&" + message; //Need to delimit each message because when reading
+										//it may read from the stream more than one at a time
+		if(bt.hasComms())
+			bt.commsThread.write(strMsg.getBytes());
+	}
+	
+	public void stopBluetoothConnection(){
+		bt.commsThread.cancel();
 	}
 
 	/*
@@ -215,23 +225,23 @@ public class NetworkService {
 	 * Internal methods.
 	 */
 
-	private void createSuccessful() {
-		setPlayerId('1'); // quem criou eh o 1
-		menuActivity.createResponse(true);
-	}
-
-	private void createNotSuccessful() {
-		menuActivity.createResponse(false);
-	}
-
-	private void joinSuccessful(char playerId) {
-		setPlayerId(playerId);
-		menuActivity.joinResponse(true, playerId);
-	}
-
-	private void joinNotSuccessful(char cause) {
-		menuActivity.joinResponse(false, cause);
-	}
+//	private void createSuccessful() {
+//		setPlayerId('1'); // quem criou eh o 1
+//		menuActivity.createResponse(true);
+//	}
+//
+//	private void createNotSuccessful() {
+//		menuActivity.createResponse(false);
+//	}
+//
+//	private void joinSuccessful(char playerId) {
+//		setPlayerId(playerId);
+//		menuActivity.joinResponse(true, playerId);
+//	}
+//
+//	private void joinNotSuccessful(char cause) {
+//		menuActivity.joinResponse(false, cause);
+//	}
 
 	private void updatePlayerList(String[] players) {
 		for (String player : players) {
@@ -259,6 +269,7 @@ public class NetworkService {
 	}
 
 	private void playerAction(String command) { // ex: up/3/13/42
+		Log.d("NetworkService", "playerAction: " + command);
 		String[] params = command.split("/");
 		char executerId = params[1].charAt(0);
 		String iPos = params[2];
@@ -423,73 +434,94 @@ public class NetworkService {
 		}
 	}
 
+	//In bluetooth sometimes the same message may contain more than 1 string because it reads from
+	//a stream so it reads all that is available
+	public void preProcessMessage(Message msg){
+		String data = (String)msg.obj; 
+		//String data = new String((byte [])msg.obj);
+		//Log.d("PROCMESSAGE", data);
+		String[] messages = data.split("&");
+		for(int i=1; i < messages.length; i++){
+			processMessage(messages[i]);
+		}
+	}
+	
 	/*
 	 * The message processing method. Invoked after a message is received.
 	 */
-	public void processMessage(String message) {
-		char type = message.charAt(0);
+	public void processMessage(String command) {
+		char type = command.charAt(0);
 		switch (type) {
-		case '0':
-			createSuccessful();
+//		case '0':
+//			createSuccessful();
+//			break;
+//		case '1':
+//			createNotSuccessful();
+//			break;
+//		case '2':
+//			char playerId = message.charAt(1);
+//			joinSuccessful(playerId);
+//			break;
+//		case '3':
+//			joinNotSuccessful('3');
+//			break;
+//		case '4':
+//			joinNotSuccessful('4');
+//			break;
+//		case '5':
+//			joinNotSuccessful('5');
+//			break;
+		case 'r':
+			menuActivity.allowStart();
 			break;
-		case '1':
-			createNotSuccessful();
+		case 's':
+			menuActivity.startGameOrder('a');
 			break;
-		case '2':
-			char playerId = message.charAt(1);
-			joinSuccessful(playerId);
-			break;
-		case '3':
-			joinNotSuccessful('3');
-			break;
-		case '4':
-			joinNotSuccessful('4');
-			break;
-		case '5':
-			joinNotSuccessful('5');
+		case 'm':
+			menuActivity.updateMap(command.split("#")[1].charAt(0));
 			break;
 		case 'L': // lista de jogadores actualizada
-			String[] players = message.substring(2, message.length() - 1)
+			String[] players = command.substring(2, command.length() - 1)
 			.split(",");
 			updatePlayerList(players);
 			break;
 		case 'K':
-			String[] playrs = message.substring(2, message.length() - 1)
+			String[] playrs = command.substring(2, command.length() - 1)
 			.split(",");
 			updateGameUsers(playrs);
 			break;
 		case 'M': // mapa escolhido
-			updateMap(message.charAt(1));
+			updateMap(command.charAt(1));
 			break;
 		case 'X': // preStartGame (gameActivity loading arena)
-			startGameOrder(message);
+			startGameOrder(command);
 			break;
 		case 'S': // other participants sending 'im set' msgs to the game master
-			checkIfAllReady(message.charAt(1));
+			checkIfAllReady(command.charAt(1));
 			break;
 		case 'T': // startGame
 			gameActivity.startGameOrder();
 			break;
 		case 'C': // comando de outro jogador (ou do proprio)
-			playerAction(message.substring(1));
+			playerAction(command.substring(1));
 			break;
 		case 'R': // comando de um robot
-			robotAction(message.substring(1));
+			robotAction(command.substring(1));
 			break;
 		case 'N': // new player N <playerId>
-			newPlayer(message.substring(1));
+			newPlayer(command.substring(1));
 			break;
 		case 'P': // Pause do jogador com o id <playerId>
-			pausePlayer(message.substring(1));
+			pausePlayer(command.substring(1));
 			break;
 		case 'Q': // Resume do jogador com o id <playerId> (Q pois R já estava usado...)
-			resumePlayer(message.substring(1));
+			resumePlayer(command.substring(1));
 			break;
 		case 'U': // Resume do jogador com o id <playerId> (Q pois R já estava usado...)
-			quitPlayer(message.substring(1));
+			quitPlayer(command.substring(1));
 			break;
 		case 'Y': // Y <clock> remaining in secs
-			String[] messageSplitted = message.split("#");
+			String[] messageSplitted = command.split("#");
 			int clock = Integer.parseInt(messageSplitted[1]);
 			String scoreBrd = messageSplitted[2];
 			String currentMatrix = messageSplitted[3];

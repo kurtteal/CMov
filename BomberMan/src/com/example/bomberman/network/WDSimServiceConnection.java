@@ -36,7 +36,7 @@ public class WDSimServiceConnection implements ServiceConnection {
 		mManager = new SimWifiP2pManager(mService);
 		mChannel = mManager.initialize(activity.getApplication(), activity.getMainLooper(), null);
 		if(activity instanceof MultiplayerMenuActivity)
-			((MultiplayerMenuActivity) activity).requestGroupInfo();
+			//((MultiplayerMenuActivity) activity).requestGroupInfo();
 		if(activity instanceof GameActivity)
 			((GameActivity) activity).requestGroupInfo();
 	}

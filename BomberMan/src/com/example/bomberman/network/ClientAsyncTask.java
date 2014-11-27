@@ -98,7 +98,7 @@ public class ClientAsyncTask extends AsyncTask<String, Void, PrintWriter> {
 						closeSocket();
 						break;
 					}
-					service.processMessage(message);
+					//service.processMessage(message);
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				} catch (IOException e) {

@@ -44,9 +44,9 @@ public class Robot extends Bomberman{
 		this.bitmapRight = BitmapFactory.decodeResource(resources, R.drawable.robot_right);
 
 		//this.speed.goUp(); //initial behaviour for robots
-		if(singleplayer){
-			startMoving();
-		}
+//		if(singleplayer){
+//			startMoving();
+//		}
 	}
 	
 	public int getRobotId(){
@@ -177,42 +177,33 @@ public class Robot extends Bomberman{
 
 				switch(possiblePaths[selected]){
 				case 'U':
-					if(singleplayer)
-						oneSquareUp(null, null);
-					else{
+					oneSquareUp(null, null);
+					if(!singleplayer && playerId == '1')
 						service.robotUp(robotId, i, j);
-					}
 					break;
 				case 'D':
-					if(singleplayer)
-						oneSquareDown(null, null);
-					else{
+					oneSquareDown(null, null);
+					if(!singleplayer && playerId == '1')
 						service.robotDown(robotId, i, j);
-					}
 					break;
 				case 'L':
-					if(singleplayer)
-						oneSquareLeft(null, null);
-					else{
+					oneSquareLeft(null, null);
+					if(!singleplayer && playerId == '1')
 						service.robotLeft(robotId, i, j);
-					}
 					break;
 				case 'R':
-					if(singleplayer)
-						oneSquareRight(null, null);
-					else{
+					oneSquareRight(null, null);
+					if(!singleplayer && playerId == '1')
 						service.robotRight(robotId, i, j);
-					}
 					break;
 				default:
 					break;
 				}
 			} else {
-				if(singleplayer)
-					oneSquareUp(null, null);
-				else{
-					service.robotUp(robotId, i, j);
-				}
+				oneSquareUp(null, null);
+//				else{
+//					service.robotUp(robotId, i, j);
+//				}
 			}
 		}
 	}
@@ -245,7 +236,7 @@ public class Robot extends Bomberman{
 			if(speed.getVelocity() >= 1){
 				x += (speed.getVelocity() * speed.getxDirection()); 
 				y += (speed.getVelocity() * speed.getyDirection());
-				Log.d("ROBOT SPEED", "NO IF, ROBOT"+ robotId + " | X="+x +" | Y="+y);
+				//Log.d("ROBOT SPEED", "NO IF, ROBOT"+ robotId + " | X="+x +" | Y="+y);
 			} else{
 				xAcum += (speed.getVelocity() * speed.getxDirection());
 				yAcum += (speed.getVelocity() * speed.getyDirection());

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.bomberman.util.MyAdapter;
 import com.example.bomberman.util.ScoreBoard;
@@ -92,6 +93,7 @@ public class ScoresActivity extends Activity {
 		super.onRestart();
 	}
 
+	//Used by the button
 	public void leave(View v) {
 		Intent intent = new Intent(ScoresActivity.this, MenuActivity.class);
 		Log.d("ENDGAME USER", "Username is: " + activePlayer);

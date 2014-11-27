@@ -38,7 +38,7 @@ public class SettingsActivity extends Activity {
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				String selectedUser = ((TextView) view.findViewById(R.id.texto))
+				String selectedUser = ((TextView) view.findViewById(R.id.text))
 						.getText().toString();
 				Intent intent = new Intent(SettingsActivity.this,
 						MenuActivity.class);

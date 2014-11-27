@@ -32,7 +32,7 @@ public class MyAdapter extends ArrayAdapter<String> {
 		View rowView = inflater.inflate(R.layout.row, parent, false);
 
 		// 3. Get the two text view from the rowView
-		TextView labelView = (TextView) rowView.findViewById(R.id.texto);
+		TextView labelView = (TextView) rowView.findViewById(R.id.text);
 
 		// 4. Set the text for textView
 		labelView.setText(itemsArrayList.get(position));

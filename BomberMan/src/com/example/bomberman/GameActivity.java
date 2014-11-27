@@ -19,6 +19,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -63,14 +65,17 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 	public boolean singleplayer = true; //visivel para os robots
 	private boolean gameMasterIsReady = false;
 	private boolean gameOngoing = false;
-	private boolean inGroup = false;
 	private boolean unpausing = false;
+	
+	private boolean inGroup = false;
 	private boolean connected = true;
 	private boolean isGroupOwner = false;
 	private String serverAddress = null;
 	private WDSimServiceConnection servConn = null;
 	private WDSimBroadcastReceiver receiver;
-
+	
+	private Bomberman localPlayer;
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -119,23 +124,24 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		
 		service = new NetworkService();
 		service.setGameActivity(this);
+		
 
-		// register broadcast receiver
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
-		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
-		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
-		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
-		receiver = new WDSimBroadcastReceiver(this);
-		registerReceiver(receiver, filter);
-
-		servConn = new WDSimServiceConnection(this);
-		if(servConn.getManager() == null) {
-			Log.d("SERVCON", "ESTOU NO IF3 == NULL");
-			Intent intent = new Intent(this, SimWifiP2pService.class);
-			bindService(intent, (ServiceConnection) servConn,
-					Context.BIND_AUTO_CREATE);
-		}
+//		// register broadcast receiver
+//		IntentFilter filter = new IntentFilter();
+//		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
+//		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
+//		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
+//		filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
+//		receiver = new WDSimBroadcastReceiver(this);
+//		registerReceiver(receiver, filter);
+//
+//		servConn = new WDSimServiceConnection(this);
+//		if(servConn.getManager() == null) {
+//			Log.d("SERVCON", "ESTOU NO IF3 == NULL");
+//			Intent intent = new Intent(this, SimWifiP2pService.class);
+//			bindService(intent, (ServiceConnection) servConn,
+//					Context.BIND_AUTO_CREATE);
+//		}
 
 
 	}
@@ -203,89 +209,90 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 
 	//The arena will call this on its first update
 	//This method starts the timer and enables the control buttons, effectively starting the game!
+	//TODO falta alterar o networkService para agora os comandos dos jogadores e dos robots serem
+	//enviados por bluetooth em vez de serem "enviados" para um servidor wifi direct
 	public void startGame(){
+		Log.d("GameActivity", "Player id: "+playerId);
+		localPlayer = gamePanel.getArena().getPlayer(playerId);
 		if(singleplayer){
 			startTimer();
+			gamePanel.getArena().startRobots();
 		}else{
+			startTimer();
+			service.setPlayerId(playerId);
+			if(playerId == '1')
+				gamePanel.getArena().startRobots();
 			//in multiplayer buttons become disabled until timer starts
-			if(gameOngoing){
-				service.midJoin();
-				//o timer so vai comecar quando o game master enviar o clock actual do jogo
-			}else{
-				if(numPlayers == 1){//nao tenho que esperar pela resposta de ninguem
-					gameMasterIsReady = true;
-					startTimer();
-					gamePanel.getArena().startRobots();
-					return;
-				}
-				runOnUiThread(new Runnable() {
-					public void run() {
-						disableControlButtons();
-						toggleStateButton.setEnabled(false);
-					}
-				});
-
-				//each participant will send "im set" to the party leader every 2 secs, until lider starts
-				if(playerId != '1'){
-					sendImSetTimer = new Timer();
-					sendImSetTimer.schedule(new TimerTask() {   
-						@Override
-						public void run() {
-							service.imSet();
-						}
-					}, 2000, 2000);
-				}
-				//The game master is now ready to accept 'im set' messages
-				//From this point onwards, when player 1 receives the 'im set' messages from all participants
-				//he will start the game, as everyone is ready by then. (This is done on the service!)
-				else
-					gameMasterIsReady = true;
-			}
+//			if(gameOngoing){
+//				service.midJoin();
+//				//o timer so vai comecar quando o game master enviar o clock actual do jogo
+//			}else{
+//				if(numPlayers == 1){//nao tenho que esperar pela resposta de ninguem
+//					gameMasterIsReady = true;
+//					startTimer();
+//					gamePanel.getArena().startRobots();
+//					return;
+//				}
+//				runOnUiThread(new Runnable() {
+//					public void run() {
+//						disableControlButtons();
+//						toggleStateButton.setEnabled(false);
+//					}
+//				});
+//
+//				//each participant will send "im set" to the party leader every 2 secs, until lider starts
+//				if(playerId != '1'){
+//					sendImSetTimer = new Timer();
+//					sendImSetTimer.schedule(new TimerTask() {   
+//						@Override
+//						public void run() {
+//							service.imSet();
+//						}
+//					}, 2000, 2000);
+//				}
+//				//The game master is now ready to accept 'im set' messages
+//				//From this point onwards, when player 1 receives the 'im set' messages from all participants
+//				//he will start the game, as everyone is ready by then. (This is done on the service!)
+//				else
+//					gameMasterIsReady = true;
+//			}
 		}
 	}
 
+	
+	//BUTTON methods
 	public void movePlayerUp(View v){
-		if(singleplayer){
-			this.goUpOrder('1', null, null);
-		}else{
-			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
-			service.goUp(bomber.i, bomber.j);
+		this.goUpOrder(playerId, null, null);
+		if(!singleplayer){
+			service.goUp(localPlayer.i, localPlayer.j);
 		}
 	}
 
 	public void movePlayerDown(View v){
-		if(singleplayer){
-			this.goDownOrder('1', null, null);
-		} else{
-			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
-			service.goDown(bomber.i, bomber.j);
+		this.goDownOrder(playerId, null, null);
+		if(!singleplayer){
+			service.goDown(localPlayer.i, localPlayer.j);
 		}
 	}
 
 	public void movePlayerLeft(View v){
-		if(singleplayer){
-			this.goLeftOrder('1', null, null);
-		} else{
-			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
-			service.goLeft(bomber.i, bomber.j);
+		this.goLeftOrder(playerId, null, null);
+		if(!singleplayer){
+			service.goLeft(localPlayer.i, localPlayer.j);
 		}
 	}
 
 	public void movePlayerRight(View v){
-		if(singleplayer){
-			this.goRightOrder('1', null, null);
-		} else{
-			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
-			service.goRight(bomber.i, bomber.j);
+		this.goRightOrder(playerId, null, null);
+		if(!singleplayer){
+			service.goRight(localPlayer.i, localPlayer.j);
 		}
 	}
 
 	public void dropBomb(View v){
-		if(singleplayer){
-			this.plantBombOrder('1', null, null);
-		} else{
-			Bomberman bomber = gamePanel.getArena().getPlayer(playerId);
-			service.plantBomb(bomber.i, bomber.j);
+		this.plantBombOrder(playerId, null, null);
+		if(!singleplayer){
+			service.plantBomb(localPlayer.i, localPlayer.j);
 		}
 	}
 
@@ -373,7 +380,8 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		gamePanel.thread.setRunning(false);
 		Intent intent = new Intent(GameActivity.this, MenuActivity.class);
 		intent.putExtra("activePlayer", playerName);
-		unregisterReceiver(receiver);
+		//unregisterReceiver(receiver);
+		service.stopBluetoothConnection();
 		startActivity(intent);
 	}
 
@@ -387,7 +395,8 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 		timerThread.interrupt();
 		if(service.isServer())
 			service.resetServer();
-		unregisterReceiver(receiver);
+		//unregisterReceiver(receiver);
+		service.stopBluetoothConnection();
 		startActivity(intent);
 	}
 
@@ -458,6 +467,7 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			robot.oneSquareRight(i, j);
 	}
 
+	//DEPRECATED
 	public void startGameOrder(){
 		if(playerId != '1'){
 			sendImSetTimer.cancel(); //stop spamming 'im set' msgs
@@ -573,7 +583,6 @@ public class GameActivity extends Activity implements PeerListListener, GroupInf
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			if(suspended) {

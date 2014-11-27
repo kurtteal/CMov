@@ -26,7 +26,7 @@ public class Arena {
 
 	protected GameConfigs gc; // matrix com chars, para verificacao de colisoes
 	public GamePanel panel;
-	public ScoreBoard scores = new ScoreBoard();
+	public ScoreBoard scores;
 
 	//Cada bomberman so pode por uma bomba de cada vez (enunciado)
 	public List<String> bombs; //contem os 'ids' dos players que puseram bombas
@@ -56,6 +56,7 @@ public class Arena {
 		this.panel = panel;
 		this.resources = resources;
 		bombs = new ArrayList<String>();
+		scores = new ScoreBoard();
 	}
 
 	//Used in multiplayer: the game master starts the robot behaviour locally that will start their movement in other
